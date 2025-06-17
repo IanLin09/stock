@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import AnalysisChartGroup from '@/components/analysis/chart';
 import AnalysisList from '@/components/analysis/list';
+export const dynamic = 'force-dynamic';
 
 const AnalysisChart = () => {
   return (

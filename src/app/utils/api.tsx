@@ -1,4 +1,4 @@
-import { StockChartDTO, StockAnalysisDTO, AnalysisListDTO } from '../utils/dto';
+import { StockChartDTO, StockAnalysisDTO, AnalysisListDTO, NewsDTO } from '../utils/dto';
 
 export const getRangeList = async (
   symbol: string,
@@ -79,6 +79,18 @@ export const getSymbolDetail = async (
       },
     }
   );
+
+  return await res.json();
+};
+
+export const getNews = async (): Promise<NewsDTO[]> => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/news/getNews`, {
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
+    },
+  });
 
   return await res.json();
 };

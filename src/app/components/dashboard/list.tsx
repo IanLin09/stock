@@ -19,7 +19,7 @@ const getList = async () => {
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
     },
   });
-  let data: StockChartDTO[] = await res.json();
+  const data: StockChartDTO[] = await res.json();
   return data;
 };
 
@@ -50,7 +50,7 @@ const DashboardList = ({ setSymbol }: params) => {
     <>
       <div className="px-3 flex flex-col h-full">
         {data &&
-          data.map((stock, idx) => (
+          data.map((stock) => (
             <div
               key={stock._id}
               onClick={() => setSymbol(stock._id)}

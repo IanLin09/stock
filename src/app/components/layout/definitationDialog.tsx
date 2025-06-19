@@ -10,7 +10,7 @@ import { useDialogStore } from '@/utils/zustand';
 import { useTranslation } from 'react-i18next';
 
 export const DefinitionsDialog = () => {
-  const { isOpen, closeDialog, dialogData } = useDialogStore();
+  const { isOpen, closeDialog } = useDialogStore();
   const { t } = useTranslation();
 
   return (

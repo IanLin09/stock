@@ -1,6 +1,6 @@
-import './globals.css';
+import '../style/globals.css';
 import { SideBarMenu } from '@/components/layout/sideBar';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import Navbar from './components/layout/navBar';
 import QueryProvider from './components/layout/queryClient';
 import { DefinitionsDialog } from './components/layout/definitationDialog';

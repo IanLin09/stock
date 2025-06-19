@@ -1,8 +1,7 @@
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
-import { StockAnalysisDTO, StockDTO, MaData } from '@/utils/dto';
-import { useMemo } from 'react';
+import { StockAnalysisDTO } from '@/utils/dto';
 
 type params = {
   data: StockAnalysisDTO[];
@@ -14,9 +13,9 @@ type chartData = {
 };
 
 const MACDChart = ({ data }: params) => {
-  let dif: chartData[] = [];
-  let dea: chartData[] = [];
-  let histogram: chartData[] = [];
+  const dif: chartData[] = [];
+  const dea: chartData[] = [];
+  const histogram: chartData[] = [];
 
   data.map((d) => {
     dif.push({ x: d.datetime, y: d.macd.dif });

@@ -1,7 +1,6 @@
 'use client';
 import { PreviousPriceDTO, StockChartDTO, StockDTO } from '@/utils/dto';
 import React, { useState } from 'react';
-import { DateTime } from 'luxon';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,7 +16,6 @@ type chartParams = {
   prices: StockDTO[];
   previousPrice: number;
   closePrice: number;
-  type: string;
 };
 
 type params = {
@@ -25,37 +23,10 @@ type params = {
   closePrice: number;
 };
 
-type ChartQueryKey = readonly [
-  'chartData',
-  { symbol: string },
-  { range: string },
-];
-
-let monthLabel: number[] = [];
-
-const getMonthLabel = () => {
-  if (monthLabel.length > 0) return monthLabel;
-
-  const today = DateTime.local(); // or DateTime.fromISO('2025-05-05')
-  const start = today.minus({ days: 30 });
-
-  let current = start.startOf('day');
-
-  while (current <= today.endOf('day')) {
-    if (current.weekday === 1) {
-      // 1 = Monday
-      monthLabel.push(current.day); // or format as needed
-    }
-    current = current.plus({ days: 1 });
-  }
-  return monthLabel;
-};
-
 const ComprehensiveChartGenerator = ({
   closePrice,
   prices,
   previousPrice,
-  type,
 }: chartParams) => {
   const { upColor, downColor } = useStockPriceStyle();
   const color = closePrice - previousPrice > 0 ? upColor : downColor;
@@ -82,43 +53,7 @@ const ComprehensiveChartGenerator = ({
       ],
     },
     xaxis: {
-      type: 'category' as 'category',
       labels: { show: false },
-      // labels: {
-      //   formatter: (dateStr: string) => {
-      //     if (!dateStr) return '';
-      //     let formatt = 'yyyy-MM-dd HH:mm:ss';
-      //     if (type == '1M' || type == '3M') {
-      //       formatt = 'yyyy-MM-dd';
-      //     }
-      //     const dt = DateTime.fromFormat(
-      //       dateStr,
-      //       formatt,
-      //       { zone: 'America/New_York' } // Automatically handles UTC-4
-      //     );
-      //     switch (type) {
-      //       case '1D':
-      //         return dt.minute == 0 ? `${dt.hour}` : '';
-      //       case '1W':
-      //         return dt.hour == 10 && dt.minute == 0 ? `${dt.day}` : '';
-      //       case '1M':
-      //         const moLabels = getMonthLabel();
-      //         return moLabels.includes(dt.day) ? `${dt.day}` : '';
-      //       case '3M':
-      //         return dt.day == 1 ? `${dt.toFormat('LLLL')}` : '';
-      //       default:
-      //         return '';
-      //     }
-      //   },
-      //   rotate: 0,
-      //   style: {
-      //     colors: '#FFFFFF',
-      //     fontSize: '12px',
-      //     fontFamily: 'Helvetica, Arial, sans-serif',
-      //     fontWeight: 400,
-      //     cssClass: 'apexcharts-xaxis-label',
-      //   },
-      // },
     },
     yaxis: {
       labels: { show: true },
@@ -142,22 +77,6 @@ const ComprehensiveChartGenerator = ({
       enabled: false,
     },
     tooltip: {
-      // x: {
-      //   formatter: (value: any) => {
-      //
-
-      //     const dateStr = String(value);
-      //     let formatt = 'yyyy-MM-dd HH:mm:ss';
-      //     if (type == '1M' || type == '3M') {
-      //       formatt = 'yyyy-MM-dd';
-      //     }
-      //     const dt = DateTime.fromFormat(dateStr, formatt, {
-      //       zone: 'America/New_York',
-      //     });
-
-      //     return dt.isValid ? dt.toFormat(formatt) : '';
-      //   },
-      // }
       style: {
         fontSize: '14px',
         fontFamily: undefined,
@@ -197,7 +116,7 @@ const getPreviousPrice = async (symbol: string, range: string) => {
     }
   );
 
-  let data: PreviousPriceDTO = await res.json();
+  const data: PreviousPriceDTO = await res.json();
   return data;
 };
 
@@ -254,7 +173,6 @@ const ComprehensiveChart = ({ symbol, closePrice }: params) => {
                 previousPrice={
                   previousPrice.data?.close ? previousPrice.data?.close : 0
                 }
-                type={range}
               />
             )}
           </div>

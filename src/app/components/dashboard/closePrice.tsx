@@ -9,7 +9,7 @@ const getClosePrice = async (): Promise<StockClosePriceList> => {
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
     },
   });
-  let stocks: StockDTO[] = await res.json();
+  const stocks: StockDTO[] = await res.json();
   const stocksBySymbol: StockClosePriceList = stocks.reduce<
     Record<string, StockDTO>
   >((acc, stock) => {

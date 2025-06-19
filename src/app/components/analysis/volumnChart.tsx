@@ -1,8 +1,7 @@
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
-import { StockChartDTO, StockDTO, MaData } from '@/utils/dto';
-import { useMemo } from 'react';
+import { StockDTO } from '@/utils/dto';
 
 type params = {
   data: StockDTO[];

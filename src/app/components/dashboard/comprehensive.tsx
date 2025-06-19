@@ -1,7 +1,4 @@
 'use client';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import ComprehensiveChart from './comprehensiveChart';
 import { ClosePrices } from './closePrice';
 import { useTranslation } from 'react-i18next';
@@ -13,8 +10,6 @@ type params = {
 };
 
 const ComprehensiveArea = ({ symbol }: params) => {
-  const [range, setRange] = useState<string>('1D');
-
   const { data, isLoading, error } = ClosePrices();
   const { t } = useTranslation();
 

@@ -17,14 +17,12 @@ const CountdownTimer = ({
   targetSecond = 0,
 }: Props) => {
   const [timeLeft, setTimeLeft] = useState('');
-  const { t, ready } = useTranslation();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const updateCountdown = () => {
-      const now = new Date();
-
       // Get current time in UTC
       const nowNY = DateTime.now().setZone('America/New_York');
 
@@ -41,7 +39,7 @@ const CountdownTimer = ({
 
       let diff = openTime.diff(nowNY, ['hours', 'minutes', 'seconds']);
       if (nowNY.weekday > 5) {
-        let hourPlus = 8 - nowNY.weekday;
+        const hourPlus = 8 - nowNY.weekday;
         diff = diff.plus({ hour: hourPlus * 24 });
       }
 

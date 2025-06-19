@@ -27,7 +27,7 @@ const ColorThemeToggle = () => {
   if (resolvedTheme === 'light') {
     return (
       <SidebarMenuButton onClick={() => setTheme('dark')}>
-        <FiSun />
+        <FiMoon />
         <span>Dark Mode </span>
       </SidebarMenuButton>
     );

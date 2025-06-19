@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
-import { StockAnalysisDTO, StockDTO, MaData } from '@/utils/dto';
+import { StockAnalysisDTO, StockDTO } from '@/utils/dto';
 import { useTranslation } from 'react-i18next';
 import { useStockPriceStyle } from '@/utils/zustand';
 

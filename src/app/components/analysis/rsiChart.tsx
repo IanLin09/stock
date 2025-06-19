@@ -1,20 +1,13 @@
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
-import { StockAnalysisDTO, StockDTO, MaData } from '@/utils/dto';
-import { useMemo } from 'react';
+import { StockAnalysisDTO } from '@/utils/dto';
 
 type params = {
-  data: StockDTO[];
   extra: StockAnalysisDTO[];
 };
 
-type rsiData = {
-  x: Date;
-  y: number;
-};
-
-const RSIChart = ({ data, extra }: params) => {
+const RSIChart = ({ extra }: params) => {
   const series = [
     {
       name: 'RSI',

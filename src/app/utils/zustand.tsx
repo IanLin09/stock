@@ -32,14 +32,6 @@ export const useDialogStore = create<DialogState>((set) => ({
   toggleDialog: () => set((state) => ({ isOpen: !state.isOpen })),
 }));
 
-export const useSettingDialog = create<DialogState>((set) => ({
-  isOpen: false,
-
-  openDialog: (type: string) => set({ isOpen: true }),
-
-  closeDialog: () => set({ isOpen: false, dialogType: null, dialogData: null }),
-}));
-
 export const useStockPriceStyle = create<StockPriceColorStyle>((set) => ({
   isOpen: false,
   type: 'US',

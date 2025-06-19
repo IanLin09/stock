@@ -1,4 +1,9 @@
-import { StockChartDTO, StockAnalysisDTO, AnalysisListDTO, NewsDTO } from '../utils/dto';
+import {
+  StockChartDTO,
+  StockAnalysisDTO,
+  AnalysisListDTO,
+  NewsDTO,
+} from '../utils/dto';
 
 export const getRangeList = async (
   symbol: string,

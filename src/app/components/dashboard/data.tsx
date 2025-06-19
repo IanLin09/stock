@@ -6,7 +6,6 @@ import DashboardList from '@/components/dashboard/list';
 import { useState } from 'react';
 import ComprehensiveArea from '@/components/dashboard/comprehensive';
 
-
 const DashboardPage = () => {
   const [symbol, setSymbol] = useState<string>('');
   return (
@@ -22,7 +21,6 @@ const DashboardPage = () => {
       </div>
     </>
   );
-}
+};
 
-export default DashboardPage
-
+export default DashboardPage;

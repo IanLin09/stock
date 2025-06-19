@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  queryByAttribute,
-  fireEvent,
-} from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ColorToggle from '@/components/layout/colorToggle';
 import '@testing-library/jest-dom';
 

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
+    "clean_start": "next start",
     "start": "next build && next start",
     "lint": "next lint",
     "test": "jest",

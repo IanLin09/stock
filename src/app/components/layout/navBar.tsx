@@ -1,8 +1,7 @@
 // components/Navbar.tsx
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { LanguageSwitcher } from './languageSwitcher';
 
@@ -17,12 +16,12 @@ const Navbar = () => {
             <div className="flex-shrink-0 flex items-center">
               <SidebarTrigger data-testid="hamburger-menu" />
             </div>
-            <Link
+            <a
               href="/"
               className="text-xl font-bold text-gray-900 dark:text-white"
             >
               LazyP
-            </Link>
+            </a>
           </div>
           <div className="flex items-right space-x-4">
             {/* Theme toggle - always visible */}

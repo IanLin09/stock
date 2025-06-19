@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
 import { getNews } from '@/utils/api';
 
-
 const NewsData = () => {
   const [limit, setLimit] = useState(9);
   const {
@@ -23,9 +22,7 @@ const NewsData = () => {
   });
 
   useEffect(() => {
-    if (error) {
-      handleError(error, { context: 'Data Fetch' });
-    }
+    if (error) handleError(error, { context: 'Data Fetch' });
   }, [error]);
   if (isLoading) return <p>Loading...</p>;
 
@@ -61,4 +58,3 @@ const NewsData = () => {
 };
 
 export default NewsData;
-

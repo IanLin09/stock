@@ -17,7 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import Link from 'next/link';
+
 import ColorThemeToggle from '@/components/layout/colorToggle';
 import { useTranslation } from 'react-i18next';
 import { useDialogStore, useStockPriceStyle } from '@/utils/zustand';
@@ -67,10 +67,10 @@ export const SideBarMenu = () => {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
+                    <a href={item.url}>
                       <item.icon />
                       <span>{t(item.title)}</span>
-                    </Link>
+                    </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

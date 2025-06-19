@@ -1,6 +1,6 @@
 'use client';
 import { getRangeList, getAnalysisList } from '@/utils/api';
-import { StockChartDTO, StockDTO, StockAnalysisDTO } from '@/utils/dto';
+import { StockChartDTO, StockAnalysisDTO } from '@/utils/dto';
 import { useQuery } from '@tanstack/react-query';
 import CandleStickChart from './candlestckChart';
 import VolumeChart from './volumnChart';
@@ -49,7 +49,7 @@ const AnalysisChartGroup = () => {
               <TabsTrigger value="MACD">MACD</TabsTrigger>
             </TabsList>
             <TabsContent value="RSI">
-              <RSIChart data={prices.data} extra={analysis} />
+              <RSIChart extra={analysis} />
             </TabsContent>
             <TabsContent value="MACD">
               <MACDChart data={analysis}></MACDChart>.

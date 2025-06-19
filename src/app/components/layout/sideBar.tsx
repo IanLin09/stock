@@ -22,6 +22,8 @@ import ColorThemeToggle from '@/components/layout/colorToggle';
 import { useTranslation } from 'react-i18next';
 import { useDialogStore, useStockPriceStyle } from '@/utils/zustand';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import type { Route } from 'next';
 
 export const SideBarMenu = () => {
   // Menu items.
@@ -32,17 +34,17 @@ export const SideBarMenu = () => {
   const items = [
     {
       title: 'dashboard',
-      url: '/',
+      url: '/' as Route,
       icon: LayoutDashboardIcon,
     },
     {
       title: 'analysis',
-      url: '/analysis',
+      url: '/analysis' as Route,
       icon: LineChart,
     },
     {
       title: 'news',
-      url: '/news',
+      url: '/news' as Route,
       icon: Newspaper,
     },
   ];
@@ -67,10 +69,10 @@ export const SideBarMenu = () => {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{t(item.title)}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

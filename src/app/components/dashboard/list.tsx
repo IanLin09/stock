@@ -6,8 +6,10 @@ import { ClosePrices } from './closePrice';
 import { useStockPriceStyle } from '@/utils/zustand';
 import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
+import { useIsMobile } from '@/hooks/use-responsive';
+import { getResponsiveSpacing } from '@/utils/responsive';
 
-type params = {
+type DashboardListProps = {
   setSymbol: React.Dispatch<React.SetStateAction<string>>;
 };
 
@@ -23,13 +25,16 @@ const getList = async () => {
   return data;
 };
 
-const DashboardList = ({ setSymbol }: params) => {
+const DashboardList = ({ setSymbol }: DashboardListProps) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['intra_day_list'],
     queryFn: getList,
   });
   const { upColor, downColor } = useStockPriceStyle();
   const latestClosePriceQuery = ClosePrices();
+
+  // Responsive hooks
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (error) {
@@ -42,19 +47,30 @@ const DashboardList = ({ setSymbol }: params) => {
   }, [error, latestClosePriceQuery.error]);
 
   if (latestClosePriceQuery.isLoading) {
-    return <div>Loading...</div>;
+    return <div className={getResponsiveSpacing('sm')}>Loading...</div>;
   }
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return <p className={getResponsiveSpacing('sm')}>Loading...</p>;
 
   return (
     <>
-      <div className="px-3 flex flex-col h-full">
+      <div
+        className={`${getResponsiveSpacing('sm')} flex flex-col h-full space-y-1 sm:space-y-2`}
+      >
         {data &&
           data.map((stock) => (
             <div
               key={stock._id}
               onClick={() => setSymbol(stock._id)}
-              className={`cursor-default flex flex-row items-center flex-1 py-2`}
+              className={`
+                cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg
+                transition-colors duration-200
+                ${
+                  isMobile
+                    ? 'flex flex-col space-y-2 p-3 border border-gray-200 dark:border-gray-700'
+                    : 'flex flex-row items-center py-2 px-2'
+                }
+              `}
               style={{
                 color:
                   (latestClosePriceQuery.data?.[stock._id]?.close ?? 0) -
@@ -64,15 +80,46 @@ const DashboardList = ({ setSymbol }: params) => {
                     : downColor,
               }}
             >
-              <div className="w-1/3 text-left">{stock._id}</div>
-              <div className="w-1/3 text-right">
+              {/* Stock Symbol */}
+              <div
+                className={`
+                ${
+                  isMobile
+                    ? 'text-center text-lg font-bold mb-2'
+                    : 'w-20 sm:w-24 md:w-32 text-left text-sm sm:text-base font-medium'
+                }
+              `}
+              >
+                {stock._id}
+              </div>
+
+              {/* Chart Section */}
+              <div
+                className={`
+                ${
+                  isMobile
+                    ? 'flex justify-center items-center h-16 mb-2'
+                    : 'flex-1 max-w-[120px] sm:max-w-[140px] md:max-w-[160px] text-right'
+                }
+              `}
+              >
                 <StockChart
                   close={latestClosePriceQuery.data?.[stock._id]?.close ?? 0}
                   prices={stock.data}
                   previousPrice={stock.previous ? stock.previous : 0}
                 />
               </div>
-              <div className="w-1/3 text-center">
+
+              {/* Price Section */}
+              <div
+                className={`
+                ${
+                  isMobile
+                    ? 'text-center text-xl font-bold'
+                    : 'w-16 sm:w-20 md:w-24 text-right text-sm sm:text-base font-medium'
+                }
+              `}
+              >
                 {latestClosePriceQuery.data &&
                   latestClosePriceQuery.data[stock._id].close}
               </div>

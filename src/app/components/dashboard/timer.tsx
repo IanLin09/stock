@@ -31,8 +31,10 @@ const CountdownTimer = ({
 
       if (nowNY > openTime && nowNY < closeTime) {
         return (
-          <div className="flex flex-col text-center  justify-center h-full text-lg font-mono">
-            <p>Opening Now</p>
+          <div className="flex flex-col text-center justify-center h-full text-sm sm:text-base md:text-lg font-mono">
+            <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+              Opening Now
+            </p>
           </div>
         );
       }
@@ -53,9 +55,14 @@ const CountdownTimer = ({
   }, [targetHour, targetMinute, targetSecond]);
   if (mounted) {
     return (
-      <div className="flex flex-col text-center  justify-center h-full text-lg font-mono">
+      <div
+        data-testid="countdown-timer"
+        className="flex flex-col text-center justify-center h-full text-sm sm:text-base md:text-lg font-mono"
+      >
         <p>{t('until_open')}:</p>
-        <p className="text-3xl font-bold">{timeLeft}</p>
+        <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+          {timeLeft}
+        </p>
       </div>
     );
   }

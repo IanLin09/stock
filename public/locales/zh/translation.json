@@ -32,5 +32,14 @@
   "histogram": "柱狀圖",
   "histogram_definition": "顯示 DIF 與 DEA 的差距，反映趨勢動能",
   "stock_price_color": "股市顏色",
-  "setting": "設定"
+  "setting": "設定",
+  "news_image_loading": "圖片載入中",
+  "news_image_loading_detail": "圖片載入中，請稍候",
+  "news_image_error": "圖片無法載入",
+  "news_image_error_detail": "新聞圖片無法載入，但您仍可以閱讀標題內容",
+  "news_read_article": "閱讀新聞",
+  "news_list_aria_label": "新聞列表，共 {{count}} 則新聞",
+  "load_more": "載入更多",
+  "load_more_detail": "載入更多新聞，目前顯示 {{current}} 則，共 {{total}} 則",
+  "load_more_remaining": "載入更多 ({{remaining}} 則剩餘)"
 }

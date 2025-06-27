@@ -1,6 +1,6 @@
 'use client';
 import { PreviousPriceDTO, StockChartDTO, StockDTO } from '@/utils/dto';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,16 +9,18 @@ import { useTranslation } from 'react-i18next';
 import { useStockPriceStyle } from '@/utils/zustand';
 import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
+import { useChartResponsive } from '@/hooks/use-chart-responsive';
+import { useScreenSize, useWindowSize } from '@/hooks/use-responsive';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-type chartParams = {
+type ChartParams = {
   prices: StockDTO[];
   previousPrice: number;
   closePrice: number;
 };
 
-type params = {
+type ComprehensiveChartProps = {
   symbol: string;
   closePrice: number;
 };
@@ -27,14 +29,44 @@ const ComprehensiveChartGenerator = ({
   closePrice,
   prices,
   previousPrice,
-}: chartParams) => {
+}: ChartParams) => {
   const { upColor, downColor } = useStockPriceStyle();
+  const { getChartOptions, getChartContainerClasses } = useChartResponsive();
+  const screenSize = useScreenSize();
+  const windowSize = useWindowSize();
   const color = closePrice - previousPrice > 0 ? upColor : downColor;
 
-  const options = {
+  // Container-based sizing with dynamic height adjustment
+  const containerHeight = useMemo(() => {
+    switch (screenSize) {
+      case 'xs':
+        return 180;
+      case 'sm':
+        return 200;
+      case 'md':
+        return 220;
+      case 'lg':
+        return 240;
+      case 'xl':
+        return 260;
+      case '2xl':
+        return 280;
+      default:
+        return 220;
+    }
+  }, [screenSize]);
+
+  const containerWidth = useMemo(() => {
+    if (windowSize.width === 0) return '100%';
+    return '100%';
+  }, [windowSize.width]);
+
+  // Base chart options
+  const baseOptions = {
     chart: {
       id: 'comprehensive-bar',
-      toolbar: { show: false },
+      toolbar: { show: screenSize !== 'xs' && screenSize !== 'sm' },
+      height: containerHeight,
     },
     annotations: {
       yaxis: [
@@ -53,15 +85,27 @@ const ComprehensiveChartGenerator = ({
       ],
     },
     xaxis: {
-      labels: { show: false },
+      labels: {
+        show: false,
+      },
     },
     yaxis: {
-      labels: { show: true },
+      labels: {
+        show: true,
+        style: {
+          fontSize:
+            screenSize === 'xs'
+              ? '10px'
+              : screenSize === 'sm'
+                ? '11px'
+                : '12px',
+        },
+      },
       axisTicks: { show: false },
       axisBorder: { show: true },
     },
     stroke: {
-      width: 1.5,
+      width: screenSize === 'xs' ? 1 : screenSize === 'sm' ? 1.25 : 1.5,
     },
     fill: {
       type: 'gradient',
@@ -78,14 +122,86 @@ const ComprehensiveChartGenerator = ({
     },
     tooltip: {
       style: {
-        fontSize: '14px',
+        fontSize: screenSize === 'xs' ? '12px' : '14px',
         fontFamily: undefined,
-        color: '#FFFFFF', // text color
+        color: '#FFFFFF',
       },
       theme: 'false',
     },
     fontColor: '#00FF00',
+    // Responsive configuration for ApexChart
+    responsive: [
+      {
+        breakpoint: 1024,
+        options: {
+          chart: {
+            height: containerHeight * 0.9,
+            toolbar: { show: true },
+          },
+          stroke: {
+            width: 1.5,
+          },
+          tooltip: {
+            enabled: true,
+          },
+        },
+      },
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: containerHeight * 0.8,
+            toolbar: { show: false },
+          },
+          stroke: {
+            width: 1.25,
+          },
+          xaxis: {
+            labels: {
+              show: true,
+              style: {
+                fontSize: '10px',
+              },
+            },
+          },
+          yaxis: {
+            labels: {
+              show: true,
+              style: {
+                fontSize: '10px',
+              },
+            },
+          },
+        },
+      },
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            height: containerHeight * 0.7,
+            toolbar: { show: false },
+          },
+          stroke: {
+            width: 1,
+          },
+          xaxis: {
+            labels: {
+              show: false,
+            },
+          },
+          tooltip: {
+            enabled: false,
+          },
+          annotations: {
+            yaxis: [],
+          },
+        },
+      },
+    ],
   };
+
+  // Generate responsive chart options
+  const options = getChartOptions(baseOptions);
 
   const series = [
     {
@@ -98,8 +214,20 @@ const ComprehensiveChartGenerator = ({
   ];
 
   return (
-    <div className="w-full h-full item-center max-w-3xl mx-auto">
-      <Chart options={options} series={series} type="area" height="300" />
+    <div
+      className={`w-full mx-auto overflow-hidden ${getChartContainerClasses()}`}
+      style={{
+        height: `${containerHeight}px`,
+        maxWidth: '100%',
+      }}
+    >
+      <Chart
+        options={options}
+        series={series}
+        type="area"
+        height={containerHeight}
+        width={containerWidth}
+      />
     </div>
   );
 };
@@ -120,7 +248,7 @@ const getPreviousPrice = async (symbol: string, range: string) => {
   return data;
 };
 
-const ComprehensiveChart = ({ symbol, closePrice }: params) => {
+const ComprehensiveChart = ({ symbol, closePrice }: ComprehensiveChartProps) => {
   const [range, setRange] = useState<string>('1D');
   const { t } = useTranslation();
 

@@ -4,14 +4,20 @@ export const dynamic = 'force-dynamic';
 import { Button } from '@/components/ui/button';
 import { NewsDTO } from '@/utils/dto';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { handleError } from '@/utils/error';
 import { getNews } from '@/utils/api';
+import { useNewsLayout } from '@/hooks/useNewsLayout';
+import { useTranslation } from 'react-i18next';
+import NewsGrid from './NewsGrid';
+import NewsCardSkeleton from './NewsCardSkeleton';
 
 const NewsData = () => {
-  const [limit, setLimit] = useState(9);
+  const { t } = useTranslation();
+  const { loadMoreIncrement, getContainerClasses, fixedCardHeight } =
+    useNewsLayout();
+  const [limit, setLimit] = useState(loadMoreIncrement);
+
   const {
     data: allNews,
     isLoading,
@@ -24,32 +30,35 @@ const NewsData = () => {
   useEffect(() => {
     if (error) handleError(error, { context: 'Data Fetch' });
   }, [error]);
-  if (isLoading) return <p>Loading...</p>;
+
+  // 骨架屏載入狀態
+  if (isLoading) {
+    return (
+      <div className={getContainerClasses()}>
+        {Array.from({ length: loadMoreIncrement }).map((_, index) => (
+          <NewsCardSkeleton key={index} minHeight={fixedCardHeight} />
+        ))}
+      </div>
+    );
+  }
 
   const visibleNews = allNews?.slice(0, limit);
   return (
     <>
-      <div className="p-4 grid grid-cols-3 gap-4">
-        {visibleNews &&
-          visibleNews.map((news) => (
-            <div key={news.id} className="">
-              <a href={news.url} target="_blank">
-                <Card className="h-90 rounded-xl shadow-md p-6 transition-transform transform hover:-translate-y-2 hover:shadow-xl">
-                  <CardHeader>
-                    <img src={news.image}></img>
-                  </CardHeader>
-                  <CardContent>
-                    <p>{news.headline}</p>
-                  </CardContent>
-                </Card>
-              </a>
-            </div>
-          ))}
-      </div>
+      {visibleNews && <NewsGrid news={visibleNews} />}
+
       {allNews && limit < allNews?.length && (
-        <div className="flex justify-center mt-6">
-          <Button onClick={() => setLimit((prev) => prev + 9)}>
-            Load More
+        <div className="flex justify-center mt-4 sm:mt-6 md:mt-8">
+          <Button
+            size="sm"
+            className="px-4 sm:px-6 md:px-8 py-2 sm:py-3 text-sm sm:text-base min-h-[44px] touch-manipulation active:scale-95 transition-transform duration-150"
+            onClick={() => setLimit((prev) => prev + loadMoreIncrement)}
+            aria-label={t('load_more_detail', {
+              current: limit,
+              total: allNews.length,
+            })}
+          >
+            {t('load_more_remaining', { remaining: allNews.length - limit })}
           </Button>
         </div>
       )}

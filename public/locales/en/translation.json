@@ -32,5 +32,14 @@
   "histogram": "Histogram",
   "histogram_definition": "Represents the difference between DIF and DEA, showing momentum strength.",
   "stock_price_color": "Stock Price color",
-  "setting": "Setting"
+  "setting": "Setting",
+  "news_image_loading": "Image loading",
+  "news_image_loading_detail": "Image is loading, please wait",
+  "news_image_error": "Image not available",
+  "news_image_error_detail": "News image failed to load, but you can still read the headline",
+  "news_read_article": "Read news",
+  "news_list_aria_label": "News list, {{count}} articles total",
+  "load_more": "Load More",
+  "load_more_detail": "Load more news, currently showing {{current}} of {{total}} articles",
+  "load_more_remaining": "Load More ({{remaining}} remaining)"
 }

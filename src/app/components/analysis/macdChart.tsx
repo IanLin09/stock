@@ -31,7 +31,7 @@ const MACDChart = ({ data }: MACDChartProps) => {
     dea.push({ x: d.datetime, y: d.macd.dea });
     histogram.push({ x: d.datetime, y: d.macd.histogram });
   });
-  
+
   const series = [
     {
       name: 'dif',
@@ -80,14 +80,17 @@ const MACDChart = ({ data }: MACDChartProps) => {
       },
     },
     colors: ['#3B82F6', '#F59E0B', '#8B5CF6'], // 色盲友善的顏色組合：藍、橙、紫
-    title: currentScreenSize === 'xs' ? undefined : {
-      text: 'MACD',
-      align: 'left',
-      style: {
-        color: '#FFFFFF',
-        fontSize: currentScreenSize === 'sm' ? '16px' : '18px',
-      },
-    },
+    title:
+      currentScreenSize === 'xs'
+        ? undefined
+        : {
+            text: 'MACD',
+            align: 'left',
+            style: {
+              color: '#FFFFFF',
+              fontSize: currentScreenSize === 'sm' ? '16px' : '18px',
+            },
+          },
   };
 
   return (

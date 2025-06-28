@@ -42,16 +42,20 @@ const CountdownTimer = ({
       // If after market close (after 4 PM), calculate time until next day's market open
       let nextOpenTime = openTime;
       if (nowNY >= closeTime) {
-        nextOpenTime = nowNY.plus({ days: 1 }).set({ hour: 9, minute: 30, second: 0 });
+        nextOpenTime = nowNY
+          .plus({ days: 1 })
+          .set({ hour: 9, minute: 30, second: 0 });
       }
 
       // Handle weekends: if it's Saturday (6) or Sunday (7), calculate until Monday
       if (nowNY.weekday > 5) {
-        const daysUntilMonday = nowNY.weekday === 6 ? 2 : 1; // Saturday = 2 days, Sunday = 1 day
-        nextOpenTime = nowNY.startOf('week').plus({ weeks: 1 }).set({ hour: 9, minute: 30, second: 0 });
+        nextOpenTime = nowNY
+          .startOf('week')
+          .plus({ weeks: 1 })
+          .set({ hour: 9, minute: 30, second: 0 });
       }
 
-      let diff = nextOpenTime.diff(nowNY, ['hours', 'minutes', 'seconds']);
+      const diff = nextOpenTime.diff(nowNY, ['hours', 'minutes', 'seconds']);
 
       setTimeLeft(`${diff.toFormat('hh:mm:ss')}`);
     };

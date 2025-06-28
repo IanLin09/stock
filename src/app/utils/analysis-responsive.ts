@@ -267,7 +267,12 @@ export const getAnalysisChartOptions = (
       labels: {
         show: screenSize !== 'xs',
         style: {
-          fontSize: screenSize === 'xs' ? '10px' : screenSize === 'sm' ? '11px' : '12px',
+          fontSize:
+            screenSize === 'xs'
+              ? '10px'
+              : screenSize === 'sm'
+                ? '11px'
+                : '12px',
         },
       },
     },
@@ -275,7 +280,12 @@ export const getAnalysisChartOptions = (
       labels: {
         show: true,
         style: {
-          fontSize: screenSize === 'xs' ? '10px' : screenSize === 'sm' ? '11px' : '12px',
+          fontSize:
+            screenSize === 'xs'
+              ? '10px'
+              : screenSize === 'sm'
+                ? '11px'
+                : '12px',
         },
       },
     },
@@ -287,7 +297,8 @@ export const getAnalysisChartOptions = (
     },
     title: {
       style: {
-        fontSize: screenSize === 'xs' ? '14px' : screenSize === 'sm' ? '16px' : '18px',
+        fontSize:
+          screenSize === 'xs' ? '14px' : screenSize === 'sm' ? '16px' : '18px',
       },
     },
     stroke: {
@@ -328,7 +339,12 @@ export const getAnalysisChartOptions = (
           id: 'candles',
         },
         stroke: {
-          width: screenSize === 'xs' ? [1, 1, 1] : screenSize === 'sm' ? [1, 1.5, 1.5] : [1, 2, 2],
+          width:
+            screenSize === 'xs'
+              ? [1, 1, 1]
+              : screenSize === 'sm'
+                ? [1, 1.5, 1.5]
+                : [1, 2, 2],
           curve: 'smooth',
         },
         xaxis: {
@@ -351,9 +367,10 @@ export const getAnalysisChartOptions = (
           theme: 'dark',
           shared: true,
           custom: ({ seriesIndex, dataPointIndex, w }: any) => {
-            const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+            const data =
+              w.globals.initialSeries[seriesIndex].data[dataPointIndex];
             const date = new Date(data.x).toLocaleDateString();
-            
+
             if (Array.isArray(data.y)) {
               const open = data.y[0].toFixed(2);
               const high = data.y[1].toFixed(2);

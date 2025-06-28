@@ -68,10 +68,18 @@ import { useScreenSize, useWindowSize } from '../../../hooks/use-responsive';
 import { useChartResponsive } from '../../../hooks/use-chart-responsive';
 import { getRangeList } from '../../../utils/api';
 
-const mockUseScreenSize = useScreenSize as jest.MockedFunction<typeof useScreenSize>;
-const mockUseWindowSize = useWindowSize as jest.MockedFunction<typeof useWindowSize>;
-const mockUseChartResponsive = useChartResponsive as jest.MockedFunction<typeof useChartResponsive>;
-const mockGetRangeList = getRangeList as jest.MockedFunction<typeof getRangeList>;
+const mockUseScreenSize = useScreenSize as jest.MockedFunction<
+  typeof useScreenSize
+>;
+const mockUseWindowSize = useWindowSize as jest.MockedFunction<
+  typeof useWindowSize
+>;
+const mockUseChartResponsive = useChartResponsive as jest.MockedFunction<
+  typeof useChartResponsive
+>;
+const mockGetRangeList = getRangeList as jest.MockedFunction<
+  typeof getRangeList
+>;
 
 // Mock fetch for previous price API call
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
@@ -88,7 +96,7 @@ describe('ComprehensiveChart', () => {
       },
     });
     jest.clearAllMocks();
-    
+
     // Set default mock return values
     mockUseScreenSize.mockReturnValue('md');
     mockUseWindowSize.mockReturnValue({ width: 1024, height: 768 });
@@ -116,15 +124,15 @@ describe('ComprehensiveChart', () => {
           datetime: '2024-01-15T09:30:00.000Z',
           close: 350.25,
           high: 355.75,
-          low: 348.50,
-          open: 352.00,
+          low: 348.5,
+          open: 352.0,
           volume: 25000000,
         },
         {
           symbol: 'QQQ',
           datetime: '2024-01-16T09:30:00.000Z',
-          close: 351.50,
-          high: 356.00,
+          close: 351.5,
+          high: 356.0,
           low: 349.75,
           open: 350.25,
           volume: 28000000,
@@ -134,7 +142,7 @@ describe('ComprehensiveChart', () => {
 
     // Mock fetch for previous price
     (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
-      json: jest.fn().mockResolvedValue({ close: 349.00 }),
+      json: jest.fn().mockResolvedValue({ close: 349.0 }),
     } as any);
   });
 
@@ -148,7 +156,9 @@ describe('ComprehensiveChart', () => {
 
   describe('Basic Rendering', () => {
     it('should render chart with default 1D timeframe', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByTestId('apex-chart')).toBeInTheDocument();
@@ -157,7 +167,9 @@ describe('ComprehensiveChart', () => {
     });
 
     it('should render time range selector tabs', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByText('1d')).toBeInTheDocument();
@@ -170,7 +182,9 @@ describe('ComprehensiveChart', () => {
 
   describe('Time Range Selection', () => {
     it('should handle 1D tab selection', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByText('1d')).toBeInTheDocument();
@@ -185,7 +199,9 @@ describe('ComprehensiveChart', () => {
     });
 
     it('should handle 1W tab selection', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByText('1w')).toBeInTheDocument();
@@ -200,7 +216,9 @@ describe('ComprehensiveChart', () => {
     });
 
     it('should handle 1M tab selection', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByText('1m')).toBeInTheDocument();
@@ -215,7 +233,9 @@ describe('ComprehensiveChart', () => {
     });
 
     it('should handle 3M tab selection', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByText('3m')).toBeInTheDocument();
@@ -232,7 +252,9 @@ describe('ComprehensiveChart', () => {
 
   describe('Data Integration', () => {
     it('should fetch chart data on component mount', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1D');
@@ -240,7 +262,9 @@ describe('ComprehensiveChart', () => {
     });
 
     it('should display chart with fetched data', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         const seriesData = screen.getByTestId('chart-series');
@@ -269,7 +293,9 @@ describe('ComprehensiveChart', () => {
         })),
       });
 
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByTestId('apex-chart')).toBeInTheDocument();
@@ -294,7 +320,9 @@ describe('ComprehensiveChart', () => {
         })),
       });
 
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByTestId('apex-chart')).toBeInTheDocument();
@@ -307,7 +335,9 @@ describe('ComprehensiveChart', () => {
       // Mock a pending promise to simulate loading
       mockGetRangeList.mockImplementation(() => new Promise(() => {}));
 
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
@@ -318,7 +348,9 @@ describe('ComprehensiveChart', () => {
       const mockError = new Error('API Error');
       mockGetRangeList.mockRejectedValue(mockError);
 
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       // Component should still render tabs even with API error
       await waitFor(() => {
@@ -329,7 +361,9 @@ describe('ComprehensiveChart', () => {
 
   describe('Chart Configuration', () => {
     it('should configure chart with area type', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByTestId('chart-type')).toHaveTextContent('area');
@@ -337,7 +371,9 @@ describe('ComprehensiveChart', () => {
     });
 
     it('should use responsive chart options', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(mockUseChartResponsive).toHaveBeenCalled();
@@ -349,7 +385,9 @@ describe('ComprehensiveChart', () => {
 
   describe('Symbol Handling', () => {
     it('should handle different symbols correctly', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="TQQQ" closePrice={150.50} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="TQQQ" closePrice={150.5} />
+      );
 
       await waitFor(() => {
         expect(mockGetRangeList).toHaveBeenCalledWith('TQQQ', '1D');
@@ -359,7 +397,9 @@ describe('ComprehensiveChart', () => {
 
   describe('Tab State Management', () => {
     it('should maintain active tab state', async () => {
-      renderWithProviders(<ComprehensiveChart symbol="QQQ" closePrice={350.25} />);
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
 
       await waitFor(() => {
         expect(screen.getByText('1w')).toBeInTheDocument();

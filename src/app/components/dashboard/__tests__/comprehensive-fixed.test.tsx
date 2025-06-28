@@ -28,8 +28,18 @@ jest.mock('../closePrice', () => ({
 
 // Mock the ComprehensiveChart component
 jest.mock('../comprehensiveChart', () => {
-  return function MockComprehensiveChart({ symbol, closePrice }: { symbol: string; closePrice: number }) {
-    return <div data-testid="comprehensive-chart">Chart for {symbol} - {closePrice}</div>;
+  return function MockComprehensiveChart({
+    symbol,
+    closePrice,
+  }: {
+    symbol: string;
+    closePrice: number;
+  }) {
+    return (
+      <div data-testid="comprehensive-chart">
+        Chart for {symbol} - {closePrice}
+      </div>
+    );
   };
 });
 
@@ -80,8 +90,8 @@ describe('ComprehensiveArea', () => {
     symbol: 'QQQ',
     close: 350.25,
     high: 355.75,
-    low: 348.50,
-    open: 352.00,
+    low: 348.5,
+    open: 352.0,
     volume: 25000000,
     datetime: '2024-01-15',
   };

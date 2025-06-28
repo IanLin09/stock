@@ -72,7 +72,7 @@ describe('Comprehensive Components Edge Cases', () => {
       },
     });
     jest.clearAllMocks();
-    
+
     // Set default mock values
     mockUseIsMobile.mockReturnValue(false);
     mockUseIsTablet.mockReturnValue(false);
@@ -91,8 +91,8 @@ describe('Comprehensive Components Edge Cases', () => {
       symbol: 'QQQ',
       close: 350.25,
       high: 355.75,
-      low: 348.50,
-      open: 352.00,
+      low: 348.5,
+      open: 352.0,
       volume: 25000000,
     },
   };
@@ -168,7 +168,9 @@ describe('Comprehensive Components Edge Cases', () => {
         isError: false,
       } as any);
 
-      const { rerender } = renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+      const { rerender } = renderWithProviders(
+        <ComprehensiveArea symbol="QQQ" />
+      );
 
       // Verify loading state
       expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -287,8 +289,8 @@ describe('Comprehensive Components Edge Cases', () => {
           symbol: 'AAPL',
           close: 150.25,
           high: 155.75,
-          low: 148.50,
-          open: 152.00,
+          low: 148.5,
+          open: 152.0,
           volume: 15000000,
         },
       };
@@ -378,8 +380,8 @@ describe('Comprehensive Components Edge Cases', () => {
           symbol: 'BRK.B',
           close: 350.25,
           high: 355.75,
-          low: 348.50,
-          open: 352.00,
+          low: 348.5,
+          open: 352.0,
           volume: 25000000,
         },
       };
@@ -406,8 +408,8 @@ describe('Comprehensive Components Edge Cases', () => {
           symbol: longSymbol,
           close: 350.25,
           high: 355.75,
-          low: 348.50,
-          open: 352.00,
+          low: 348.5,
+          open: 352.0,
           volume: 25000000,
         },
       };
@@ -438,7 +440,9 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol="" />);
 
       // Should return empty component for empty symbol
-      expect(screen.queryByTestId('comprehensive-chart')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('comprehensive-chart')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -455,7 +459,9 @@ describe('Comprehensive Components Edge Cases', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('chart-symbol')).toHaveTextContent('QQQ');
-        expect(screen.getByTestId('chart-close-price')).toHaveTextContent('350.25');
+        expect(screen.getByTestId('chart-close-price')).toHaveTextContent(
+          '350.25'
+        );
       });
     });
 
@@ -485,7 +491,9 @@ describe('Comprehensive Components Edge Cases', () => {
         isError: false,
       } as any);
 
-      const { unmount } = renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+      const { unmount } = renderWithProviders(
+        <ComprehensiveArea symbol="QQQ" />
+      );
 
       // Immediately unmount
       act(() => {

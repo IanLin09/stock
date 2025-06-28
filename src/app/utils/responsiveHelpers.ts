@@ -76,7 +76,6 @@ export function getOptimalColumnCount(
  * @returns Tailwind class string
  */
 export function getResponsiveVisibility(showOnSizes: ScreenSize[]): string {
-  const allSizes: ScreenSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
   const classes: string[] = [];
 
   // Start with hidden
@@ -198,7 +197,7 @@ export function meetsMinBreakpoint(
  * @param screenSize - current screen size
  * @returns sizes attribute string for Next.js Image
  */
-export function getImageSizes(screenSize: ScreenSize): string {
+export function getImageSizes(): string {
   const sizeMap: Record<ScreenSize, string> = {
     xs: '100vw',
     sm: '100vw',

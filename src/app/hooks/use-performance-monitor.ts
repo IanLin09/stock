@@ -22,8 +22,8 @@ export const usePerformanceMonitor = ({
   enableLogging = process.env.NODE_ENV === 'development',
   threshold = 100
 }: UsePerformanceMonitorOptions) => {
-  const startTimeRef = useRef<number>();
-  const renderStartRef = useRef<number>();
+  const startTimeRef = useRef<number | undefined>(undefined);
+  const renderStartRef = useRef<number | undefined>(undefined);
   const metricsRef = useRef<PerformanceMetrics>({
     componentName,
     dataSize
@@ -107,8 +107,8 @@ export const usePerformanceMonitor = ({
 
 // Hook for tracking intersection observer performance
 export const useIntersectionPerformance = (componentName: string) => {
-  const observerRef = useRef<IntersectionObserver>();
-  const visibilityStartRef = useRef<number>();
+  const observerRef = useRef<IntersectionObserver | undefined>(undefined);
+  const visibilityStartRef = useRef<number | undefined>(undefined);
 
   const createObserver = useCallback((
     callback: (isVisible: boolean) => void,

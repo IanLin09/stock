@@ -32,7 +32,12 @@ const RSIChart = ({ extra }: RSIChartProps) => {
       labels: {
         formatter: (val: number) => val.toFixed(0),
         style: {
-          fontSize: currentScreenSize === 'xs' ? '10px' : currentScreenSize === 'sm' ? '11px' : '12px',
+          fontSize:
+            currentScreenSize === 'xs'
+              ? '10px'
+              : currentScreenSize === 'sm'
+                ? '11px'
+                : '12px',
         },
       },
     },
@@ -66,14 +71,17 @@ const RSIChart = ({ extra }: RSIChartProps) => {
         },
       ],
     },
-    title: currentScreenSize === 'xs' ? undefined : {
-      text: 'RSI',
-      align: 'left',
-      style: {
-        color: '#FFFFFF',
-        fontSize: currentScreenSize === 'sm' ? '16px' : '18px',
-      },
-    },
+    title:
+      currentScreenSize === 'xs'
+        ? undefined
+        : {
+            text: 'RSI',
+            align: 'left',
+            style: {
+              color: '#FFFFFF',
+              fontSize: currentScreenSize === 'sm' ? '16px' : '18px',
+            },
+          },
   };
 
   const series = [

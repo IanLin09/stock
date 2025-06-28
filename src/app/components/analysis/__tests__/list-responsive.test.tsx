@@ -1,8 +1,12 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import AnalysisList from '../list';
+import {
+  useAnalysisBreakpoints,
+  useAnalysisLayout,
+} from '../../../hooks/use-analysis-responsive';
 
 // Mock the responsive hooks
 jest.mock('../../../hooks/use-analysis-responsive', () => ({
@@ -17,10 +21,14 @@ jest.mock('../../../utils/api', () => ({
 
 // Mock the analysis responsive utility functions
 jest.mock('../../../utils/analysis-responsive', () => ({
-  getAnalysisTextSize: jest.fn((size, screenSize) => `text-${size}`),
-  getAnalysisSpacing: jest.fn((size, screenSize, type) => `${type || 'p'}-${size}`),
-  getAnalysisGridClasses: jest.fn((screenSize, columns) => `grid grid-cols-${columns} gap-4`),
-  getLayoutTransitionClasses: jest.fn(() => 'transition-all duration-300 ease-in-out'),
+  getAnalysisTextSize: jest.fn((size) => `text-${size}`),
+  getAnalysisSpacing: jest.fn((size, type) => `${type || 'p'}-${size}`),
+  getAnalysisGridClasses: jest.fn(
+    (columns) => `grid grid-cols-${columns} gap-4`
+  ),
+  getLayoutTransitionClasses: jest.fn(
+    () => 'transition-all duration-300 ease-in-out'
+  ),
 }));
 
 jest.mock('react-i18next', () => ({
@@ -43,7 +51,7 @@ const mockData = {
   indicators: {
     close: 123.45,
     rsi: { 14: 65.32 },
-    ma: { 20: 120.50 },
+    ma: { 20: 120.5 },
   },
   report: [
     { symbol: 'QQQ', reportDate: '2024-01-15' },
@@ -79,14 +87,13 @@ describe('AnalysisList Responsive Behavior', () => {
 
   describe('Mobile Layout (Accordion)', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
-      useAnalysisBreakpoints.mockReturnValue({
+      (useAnalysisBreakpoints as jest.Mock).mockReturnValue({
         shouldUseTabLayout: true,
         shouldUseVerticalLayout: false,
         shouldUseHorizontalLayout: false,
         currentScreenSize: 'xs',
       });
-      useAnalysisLayout.mockReturnValue('mobile');
+      (useAnalysisLayout as jest.Mock).mockReturnValue('mobile');
     });
 
     it('should render accordion cards for mobile', async () => {
@@ -109,7 +116,9 @@ describe('AnalysisList Responsive Behavior', () => {
       renderWithProvider(<AnalysisList />);
 
       // Check mobile specific styling is applied
-      const container = screen.getByRole('heading', { name: 'QQQ' }).closest('div[class*="h-full"]');
+      const container = screen
+        .getByRole('heading', { name: 'QQQ' })
+        .closest('div[class*="h-full"]');
       expect(container).toHaveClass('h-full', 'flex', 'flex-col');
 
       // Verify content is displayed
@@ -120,14 +129,13 @@ describe('AnalysisList Responsive Behavior', () => {
 
   describe('Tablet Layout (Horizontal Scroll)', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
-      useAnalysisBreakpoints.mockReturnValue({
+      (useAnalysisBreakpoints as jest.Mock).mockReturnValue({
         shouldUseTabLayout: false,
         shouldUseVerticalLayout: true,
         shouldUseHorizontalLayout: false,
         currentScreenSize: 'md',
       });
-      useAnalysisLayout.mockReturnValue('tablet');
+      (useAnalysisLayout as jest.Mock).mockReturnValue('tablet');
     });
 
     it('should render horizontal scrolling cards for tablet', async () => {
@@ -159,8 +167,8 @@ describe('AnalysisList Responsive Behavior', () => {
       renderWithProvider(<AnalysisList />);
 
       // Should show all report items in tablet layout
-      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();  
-      expect(screen.getByText('AAPL')).toBeInTheDocument();  
+      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();
+      expect(screen.getByText('AAPL')).toBeInTheDocument();
       expect(screen.getByText('MSFT')).toBeInTheDocument();
       expect(screen.getByText('GOOGL')).toBeInTheDocument();
       expect(screen.getByText('AMZN')).toBeInTheDocument();
@@ -169,14 +177,13 @@ describe('AnalysisList Responsive Behavior', () => {
 
   describe('Desktop Layout (Vertical)', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
-      useAnalysisBreakpoints.mockReturnValue({
+      (useAnalysisBreakpoints as jest.Mock).mockReturnValue({
         shouldUseTabLayout: false,
         shouldUseVerticalLayout: false,
         shouldUseHorizontalLayout: true,
         currentScreenSize: 'lg',
       });
-      useAnalysisLayout.mockReturnValue('desktop');
+      (useAnalysisLayout as jest.Mock).mockReturnValue('desktop');
     });
 
     it('should render vertical layout for desktop', async () => {
@@ -209,14 +216,13 @@ describe('AnalysisList Responsive Behavior', () => {
 
   describe('Loading and Error States', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
-      useAnalysisBreakpoints.mockReturnValue({
+      (useAnalysisBreakpoints as jest.Mock).mockReturnValue({
         shouldUseTabLayout: false,
         shouldUseVerticalLayout: false,
         shouldUseHorizontalLayout: true,
         currentScreenSize: 'lg',
       });
-      useAnalysisLayout.mockReturnValue('desktop');
+      (useAnalysisLayout as jest.Mock).mockReturnValue('desktop');
     });
 
     it('should show loading state', () => {
@@ -240,7 +246,7 @@ describe('AnalysisList Responsive Behavior', () => {
       queryClient.setQueryData(['analysisList', 'QQQ'], dataWithoutReports);
 
       renderWithProvider(<AnalysisList />);
-      
+
       // Component should still render other sections
       expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();
       expect(screen.getByText('Close Price: 123.45')).toBeInTheDocument();

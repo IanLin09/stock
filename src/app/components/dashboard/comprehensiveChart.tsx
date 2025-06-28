@@ -248,7 +248,10 @@ const getPreviousPrice = async (symbol: string, range: string) => {
   return data;
 };
 
-const ComprehensiveChart = ({ symbol, closePrice }: ComprehensiveChartProps) => {
+const ComprehensiveChart = ({
+  symbol,
+  closePrice,
+}: ComprehensiveChartProps) => {
   const [range, setRange] = useState<string>('1D');
   const { t } = useTranslation();
 

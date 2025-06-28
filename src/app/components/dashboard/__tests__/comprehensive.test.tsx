@@ -86,8 +86,8 @@ describe('ComprehensiveArea', () => {
     symbol: 'QQQ',
     close: 350.25,
     high: 355.75,
-    low: 348.50,
-    open: 352.00,
+    low: 348.5,
+    open: 352.0,
     volume: 25000000,
     datetime: '2024-01-15',
   };
@@ -145,7 +145,9 @@ describe('ComprehensiveArea', () => {
       // Component shows loading state when data is loading
       expect(screen.getByText('Loading...')).toBeInTheDocument();
       expect(screen.queryByText('QQQ')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('comprehensive-chart')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('comprehensive-chart')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -221,11 +223,15 @@ describe('ComprehensiveArea', () => {
         isError: false,
       } as any);
 
-      const { container } = renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+      const { container } = renderWithProviders(
+        <ComprehensiveArea symbol="QQQ" />
+      );
 
       await waitFor(() => {
         // Component should have responsive classes
-        const elements = container.querySelectorAll('[class*="sm:"], [class*="md:"], [class*="lg:"]');
+        const elements = container.querySelectorAll(
+          '[class*="sm:"], [class*="md:"], [class*="lg:"]'
+        );
         expect(elements.length).toBeGreaterThan(0);
       });
     });
@@ -258,13 +264,15 @@ describe('ComprehensiveArea', () => {
         isError: false,
       } as any);
 
-      const { container } = renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+      const { container } = renderWithProviders(
+        <ComprehensiveArea symbol="QQQ" />
+      );
 
       await waitFor(() => {
         // Check that the component has the expected structure
         const symbolElement = screen.getByText('QQQ');
         expect(symbolElement).toBeInTheDocument();
-        
+
         // Check that responsive grid classes are present
         const gridElements = container.querySelectorAll('[class*="grid"]');
         expect(gridElements.length).toBeGreaterThan(0);
@@ -295,7 +303,9 @@ describe('ComprehensiveArea', () => {
         isError: false,
       } as any);
 
-      const { rerender } = renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+      const { rerender } = renderWithProviders(
+        <ComprehensiveArea symbol="QQQ" />
+      );
 
       // Update to loaded state
       mockClosePrices.mockReturnValue({

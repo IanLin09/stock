@@ -2,64 +2,97 @@ import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import { StockAnalysisDTO } from '@/utils/dto';
+import {
+  useAnalysisBreakpoints,
+  useChartDimensions,
+} from '@/hooks/use-analysis-responsive';
+import { getAnalysisChartOptions } from '@/utils/analysis-responsive';
 
-type params = {
+type RSIChartProps = {
   extra: StockAnalysisDTO[];
 };
 
-const RSIChart = ({ extra }: params) => {
+const RSIChart = ({ extra }: RSIChartProps) => {
+  // 響應式 hooks
+  const { currentScreenSize } = useAnalysisBreakpoints();
+  const { indicatorHeight } = useChartDimensions();
+
+  // 獲取完整的響應式圖表配置
+  const rsiOptions: ApexOptions = {
+    ...getAnalysisChartOptions(currentScreenSize, 'line'),
+    chart: {
+      ...getAnalysisChartOptions(currentScreenSize, 'line').chart,
+      id: 'RSI_chart',
+    },
+    yaxis: {
+      ...getAnalysisChartOptions(currentScreenSize, 'line').yaxis,
+      min: 0,
+      max: 100,
+      tickAmount: 4,
+      labels: {
+        formatter: (val: number) => val.toFixed(0),
+        style: {
+          fontSize: currentScreenSize === 'xs' ? '10px' : currentScreenSize === 'sm' ? '11px' : '12px',
+        },
+      },
+    },
+    annotations: {
+      yaxis: [
+        {
+          y: 70,
+          borderColor: '#ef4444',
+          label: {
+            text: 'Overbought (70)',
+            style: {
+              color: '#ef4444',
+              background: 'transparent',
+              fontSize: currentScreenSize === 'xs' ? '10px' : '11px',
+            },
+            position: 'right',
+          },
+        },
+        {
+          y: 30,
+          borderColor: '#22c55e',
+          label: {
+            text: 'Oversold (30)',
+            style: {
+              color: '#22c55e',
+              background: 'transparent',
+              fontSize: currentScreenSize === 'xs' ? '10px' : '11px',
+            },
+            position: 'right',
+          },
+        },
+      ],
+    },
+    title: currentScreenSize === 'xs' ? undefined : {
+      text: 'RSI',
+      align: 'left',
+      style: {
+        color: '#FFFFFF',
+        fontSize: currentScreenSize === 'sm' ? '16px' : '18px',
+      },
+    },
+  };
+
   const series = [
     {
       name: 'RSI',
       data: extra.map((price) => ({
-        x: new Date(price.datetime), // or use dayjs/format if needed
-        y: Number(price.rsi[14].toFixed(2)), // or any other value like price.high
+        x: new Date(price.datetime),
+        y: Number(price.rsi[14].toFixed(2)),
       })),
     },
   ];
 
-  const option: ApexOptions = {
-    chart: {
-      type: 'line',
-      id: 'RSI_chart',
-      toolbar: {
-        autoSelected: 'pan',
-        show: true,
-      },
-      zoom: {
-        enabled: true,
-      },
-    },
-    title: {
-      text: `RSI`,
-      align: 'left',
-      style: {
-        color: '#FFFFFF',
-      },
-    },
-    xaxis: {
-      type: 'datetime',
-      labels: {
-        datetimeUTC: true,
-        format: 'dd MMM',
-      },
-    },
-    yaxis: {
-      tooltip: {
-        enabled: true,
-      },
-    },
-    tooltip: {
-      enabled: true,
-      theme: 'dark',
-      shared: true,
-    },
-  };
-
   return (
-    <div className="h-[200px] w-full">
-      <Chart options={option} series={series} type="line" height="100%"></Chart>
-    </div>
+    <Chart
+      options={rsiOptions}
+      series={series}
+      type="line"
+      height={indicatorHeight}
+    />
   );
 };
 

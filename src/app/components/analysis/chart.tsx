@@ -9,8 +9,20 @@ import RSIChart from './rsiChart';
 import MACDChart from './macdChart';
 import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
+import {
+  useAnalysisBreakpoints,
+  useAnalysisLayout,
+} from '@/hooks/use-analysis-responsive';
+import {
+  getAnalysisLayoutClasses,
+  getChartContainerClasses,
+  getLayoutTransitionClasses,
+} from '@/utils/analysis-responsive';
 
 const AnalysisChartGroup = () => {
+  // 響應式 hooks
+  const { currentScreenSize } = useAnalysisBreakpoints();
+  const currentLayout = useAnalysisLayout();
   const {
     data: prices,
     isLoading,
@@ -36,23 +48,44 @@ const AnalysisChartGroup = () => {
   if (isLoading || analysisLoading) return <p>Loading...</p>;
 
   if (prices && analysis) {
+    // 生成響應式類別
+    const layoutClasses = getAnalysisLayoutClasses(currentLayout);
+    const mainChartClasses = getChartContainerClasses(currentScreenSize, 'main');
+    const indicatorChartClasses = getChartContainerClasses(currentScreenSize, 'indicator');
+    const transitionClasses = getLayoutTransitionClasses();
+
     return (
-      <div className="flex flex-col h-full w-full">
-        <div className="basis-2/3">
+      <div className="h-full flex flex-col space-y-2 text-black dark:text-white p-2">
+        {/* 主圖表區域 */}
+        <div className="flex-[2] border border-black dark:border-white rounded-lg">
           <CandleStickChart data={prices.data} extra={analysis} />
           <VolumeChart data={prices.data} />
         </div>
-        <div className="basis-1/3 pt-4 pl-4 ">
-          <Tabs defaultValue="RSI" className="">
-            <TabsList>
-              <TabsTrigger value="RSI">RSI</TabsTrigger>
-              <TabsTrigger value="MACD">MACD</TabsTrigger>
+        
+        {/* 技術指標區域 */}
+        <div className="flex-1 border border-black dark:border-white rounded-lg">
+          <Tabs defaultValue="RSI" className="h-full">
+            <TabsList className={`grid w-full grid-cols-2 ${
+              currentScreenSize === 'xs' ? 'h-8 text-xs' : 'h-10'
+            }`}>
+              <TabsTrigger 
+                value="RSI" 
+                className={currentScreenSize === 'xs' ? 'text-xs py-1' : ''}
+              >
+                RSI
+              </TabsTrigger>
+              <TabsTrigger 
+                value="MACD" 
+                className={currentScreenSize === 'xs' ? 'text-xs py-1' : ''}
+              >
+                MACD
+              </TabsTrigger>
             </TabsList>
-            <TabsContent value="RSI">
+            <TabsContent value="RSI" className="h-full mt-1">
               <RSIChart extra={analysis} />
             </TabsContent>
-            <TabsContent value="MACD">
-              <MACDChart data={analysis}></MACDChart>.
+            <TabsContent value="MACD" className="h-full mt-1">
+              <MACDChart data={analysis} />
             </TabsContent>
           </Tabs>
         </div>

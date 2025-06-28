@@ -4,11 +4,11 @@ export const dynamic = 'force-dynamic';
 
 const AnalysisChart = () => {
   return (
-    <div className="h-full flex flex-rows  text-black dark:text-white p-4">
-      <div className="basis-4/5 border border-black dark:border-white">
+    <div className="h-full flex flex-row text-black dark:text-white p-2">
+      <div className="basis-3/4 border border-black dark:border-white">
         <AnalysisChartGroup />
       </div>
-      <div className="basis-1/5 col-span-2 border border-black dark:border-white">
+      <div className="basis-1/4 border border-black dark:border-white">
         <AnalysisList />
       </div>
     </div>

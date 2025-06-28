@@ -226,80 +226,73 @@ export const calculateChartHeight = (
     : baseHeight;
 };
 
-// ApexCharts 響應式配置生成器
+// ApexCharts 響應式配置生成器 - 包含完整的圖表特定配置
 export const getAnalysisChartOptions = (
   screenSize: ChartSizeType,
-  chartType: 'candlestick' | 'volume' | 'indicator' | 'line'
+  chartType: 'candlestick' | 'volume' | 'indicator' | 'line' | 'mixed',
+  customOptions?: {
+    upColor?: string;
+    downColor?: string;
+    translation?: {
+      open: string;
+      high: string;
+      low: string;
+      close_price: string;
+      price: string;
+    };
+  }
 ) => {
   const height = calculateChartHeight(
-    chartType === 'line' ? 'indicator' : chartType,
+    chartType === 'line' || chartType === 'mixed' ? 'indicator' : chartType,
     screenSize
   );
 
+  const shouldShowToolbar = screenSize !== 'xs' && screenSize !== 'sm';
+  const shouldShowTooltip = screenSize !== 'xs';
+  const isMobile = screenSize === 'xs' || screenSize === 'sm';
+
   // 基礎響應式配置
-  const baseConfig = {
+  const baseConfig: any = {
     chart: {
       height,
       toolbar: {
-        show: screenSize !== 'xs' && screenSize !== 'sm',
+        show: shouldShowToolbar,
         autoSelected: 'pan' as const,
       },
       zoom: {
         enabled: screenSize !== 'xs',
       },
     },
-
-    // 座標軸配置
     xaxis: {
       labels: {
         show: screenSize !== 'xs',
         style: {
-          fontSize:
-            screenSize === 'xs'
-              ? '10px'
-              : screenSize === 'sm'
-                ? '11px'
-                : '12px',
+          fontSize: screenSize === 'xs' ? '10px' : screenSize === 'sm' ? '11px' : '12px',
         },
       },
     },
-
     yaxis: {
       labels: {
         show: true,
         style: {
-          fontSize:
-            screenSize === 'xs'
-              ? '10px'
-              : screenSize === 'sm'
-                ? '11px'
-                : '12px',
+          fontSize: screenSize === 'xs' ? '10px' : screenSize === 'sm' ? '11px' : '12px',
         },
       },
     },
-
-    // Tooltip 配置
     tooltip: {
-      enabled: screenSize !== 'xs',
+      enabled: shouldShowTooltip,
       style: {
         fontSize: screenSize === 'xs' ? '12px' : '14px',
       },
     },
-
-    // 標題配置
     title: {
       style: {
-        fontSize:
-          screenSize === 'xs' ? '14px' : screenSize === 'sm' ? '16px' : '18px',
+        fontSize: screenSize === 'xs' ? '14px' : screenSize === 'sm' ? '16px' : '18px',
       },
     },
-
-    // 線條寬度
     stroke: {
       width: screenSize === 'xs' ? 1 : screenSize === 'sm' ? 1.25 : 1.5,
     },
-
-    // 響應式斷點配置
     responsive: [
       {
         breakpoint: 480,
@@ -308,9 +301,7 @@ export const getAnalysisChartOptions = (
             height: height * 0.8,
             toolbar: { show: false },
           },
-          xaxis: {
-            labels: { show: false },
-          },
+          xaxis: { labels: { show: false } },
           tooltip: { enabled: false },
         },
       },
@@ -326,7 +317,205 @@ export const getAnalysisChartOptions = (
     ],
   };
 
-  return baseConfig;
+  // 根據圖表類型添加特定配置
+  switch (chartType) {
+    case 'candlestick':
+      return {
+        ...baseConfig,
+        chart: {
+          ...baseConfig.chart,
+          type: 'line',
+          id: 'candles',
+        },
+        stroke: {
+          width: screenSize === 'xs' ? [1, 1, 1] : screenSize === 'sm' ? [1, 1.5, 1.5] : [1, 2, 2],
+          curve: 'smooth',
+        },
+        xaxis: {
+          ...baseConfig.xaxis,
+          type: 'datetime',
+          labels: {
+            ...baseConfig.xaxis.labels,
+            datetimeUTC: true,
+            format: screenSize === 'xs' ? 'dd' : 'dd MMM',
+          },
+        },
+        yaxis: {
+          ...baseConfig.yaxis,
+          tooltip: {
+            enabled: shouldShowTooltip,
+          },
+        },
+        tooltip: {
+          ...baseConfig.tooltip,
+          theme: 'dark',
+          shared: true,
+          custom: ({ seriesIndex, dataPointIndex, w }: any) => {
+            const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+            const date = new Date(data.x).toLocaleDateString();
+            
+            if (Array.isArray(data.y)) {
+              const open = data.y[0].toFixed(2);
+              const high = data.y[1].toFixed(2);
+              const low = data.y[2].toFixed(2);
+              const close = data.y[3].toFixed(2);
+
+              if (isMobile) {
+                return `
+                <div class="apexcharts-tooltip-candlestick">
+                  <div class="p-1 text-xs">
+                    <div class="font-semibold">${date}</div>
+                    <div>${customOptions?.translation?.close_price || 'Close'}: $${close}</div>
+                  </div>
+                </div>`;
+              } else {
+                return `
+                <div class="apexcharts-tooltip-candlestick">
+                  <div class="p-2">
+                    <div class="font-semibold">${date}</div>
+                    <div>${customOptions?.translation?.open || 'Open'}: $${open}</div>
+                    <div>${customOptions?.translation?.high || 'High'}: $${high}</div>
+                    <div>${customOptions?.translation?.low || 'Low'}: $${low}</div>
+                    <div>${customOptions?.translation?.close_price || 'Close'}: $${close}</div>
+                  </div>
+                </div>`;
+              }
+            } else {
+              return `
+              <div class="apexcharts-tooltip-candlestick">
+                <div class="p-2">
+                  <div class="font-semibold">${date}</div>
+                  <div>${customOptions?.translation?.price || 'Price'}: $${data.y}</div>
+                </div>
+              </div>`;
+            }
+          },
+        },
+        plotOptions: {
+          candlestick: {
+            colors: {
+              upward: customOptions?.upColor || '#00FF00',
+              downward: customOptions?.downColor || '#FF0000',
+            },
+            wick: {
+              useFillColor: true,
+            },
+          },
+        },
+      };
+
+    case 'volume':
+      return {
+        ...baseConfig,
+        chart: {
+          ...baseConfig.chart,
+          type: 'bar',
+          toolbar: { show: false }, // Volume charts always hide toolbar
+          zoom: { enabled: false }, // Volume charts always disable zoom
+          sparkline: { enabled: true },
+        },
+        plotOptions: {
+          bar: {
+            columnWidth: screenSize === 'xs' ? '80%' : '50%',
+            distributed: true,
+          },
+        },
+        colors: ['#737a75'],
+        xaxis: {
+          ...baseConfig.xaxis,
+          type: 'datetime',
+          labels: { show: false },
+        },
+        tooltip: {
+          ...baseConfig.tooltip,
+          enabled: false,
+        },
+      };
+
+    case 'line':
+      return {
+        ...baseConfig,
+        chart: {
+          ...baseConfig.chart,
+          type: 'line',
+          id: 'line_chart',
+        },
+        xaxis: {
+          ...baseConfig.xaxis,
+          type: 'datetime',
+          labels: {
+            ...baseConfig.xaxis.labels,
+            datetimeUTC: true,
+            format: screenSize === 'xs' ? 'dd' : 'dd MMM',
+          },
+        },
+        yaxis: {
+          ...baseConfig.yaxis,
+          tooltip: {
+            enabled: shouldShowTooltip,
+          },
+        },
+        tooltip: {
+          ...baseConfig.tooltip,
+          theme: 'dark',
+          shared: true,
+        },
+        colors: ['#FF6B6B'],
+      };
+
+    case 'mixed':
+      return {
+        ...baseConfig,
+        chart: {
+          ...baseConfig.chart,
+          type: 'line',
+          id: 'mixed_chart',
+        },
+        xaxis: {
+          ...baseConfig.xaxis,
+          type: 'datetime',
+          labels: {
+            ...baseConfig.xaxis.labels,
+            datetimeUTC: true,
+            format: screenSize === 'xs' ? 'dd' : 'dd MMM',
+          },
+        },
+        yaxis: {
+          ...baseConfig.yaxis,
+          tooltip: {
+            enabled: shouldShowTooltip,
+          },
+        },
+        tooltip: {
+          ...baseConfig.tooltip,
+          theme: 'dark',
+          shared: true,
+        },
+        colors: ['#FF6B6B', '#4ECDC4', '#FFFFFF'],
+        plotOptions: {
+          bar: {
+            colors: {
+              ranges: [
+                {
+                  from: -100,
+                  to: 0,
+                  color: '#FF0000',
+                },
+                {
+                  from: 0,
+                  to: 100,
+                  color: '#00FF00',
+                },
+              ],
+            },
+            columnWidth: screenSize === 'xs' ? '90%' : '80%',
+          },
+        },
+      };
+
+    default:
+      return baseConfig;
+  }
 };
 
 // 布局切換動畫類別

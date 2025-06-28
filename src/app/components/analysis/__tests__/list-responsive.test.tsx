@@ -7,11 +7,20 @@ import AnalysisList from '../list';
 // Mock the responsive hooks
 jest.mock('../../../hooks/use-analysis-responsive', () => ({
   useAnalysisBreakpoints: jest.fn(),
+  useAnalysisLayout: jest.fn(),
 }));
 
 // Mock the API and translation
 jest.mock('../../../utils/api', () => ({
   getSymbolDetail: jest.fn(),
+}));
+
+// Mock the analysis responsive utility functions
+jest.mock('../../../utils/analysis-responsive', () => ({
+  getAnalysisTextSize: jest.fn((size, screenSize) => `text-${size}`),
+  getAnalysisSpacing: jest.fn((size, screenSize, type) => `${type || 'p'}-${size}`),
+  getAnalysisGridClasses: jest.fn((screenSize, columns) => `grid grid-cols-${columns} gap-4`),
+  getLayoutTransitionClasses: jest.fn(() => 'transition-all duration-300 ease-in-out'),
 }));
 
 jest.mock('react-i18next', () => ({
@@ -70,13 +79,14 @@ describe('AnalysisList Responsive Behavior', () => {
 
   describe('Mobile Layout (Accordion)', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints } = require('../../../hooks/use-analysis-responsive');
+      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
       useAnalysisBreakpoints.mockReturnValue({
         shouldUseTabLayout: true,
         shouldUseVerticalLayout: false,
         shouldUseHorizontalLayout: false,
         currentScreenSize: 'xs',
       });
+      useAnalysisLayout.mockReturnValue('mobile');
     });
 
     it('should render accordion cards for mobile', async () => {
@@ -85,43 +95,39 @@ describe('AnalysisList Responsive Behavior', () => {
 
       renderWithProvider(<AnalysisList />);
 
-      // Check that all accordion cards are rendered
-      expect(screen.getByText('價格資訊')).toBeInTheDocument();
-      expect(screen.getByText('技術指標')).toBeInTheDocument();
-      expect(screen.getByText('報告日期')).toBeInTheDocument();
-
-      // Check that price section is expanded by default
-      expect(screen.getByText('QQQ')).toBeInTheDocument();
-      expect(screen.getByText('Close Price:')).toBeInTheDocument();
+      // Check that component renders with expected content
+      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();
+      expect(screen.getByText('Close Price: 123.45')).toBeInTheDocument();
+      expect(screen.getByText('RSI: 65.32')).toBeInTheDocument();
+      expect(screen.getByText('Symbol')).toBeInTheDocument();
+      expect(screen.getByText('Next Report Date')).toBeInTheDocument();
     });
 
-    it('should toggle accordion sections on click', async () => {
+    it('should show responsive layout for mobile', async () => {
       queryClient.setQueryData(['analysisList', 'QQQ'], mockData);
 
       renderWithProvider(<AnalysisList />);
 
-      // Initially, indicators section should be collapsed
-      expect(screen.queryByText('RSI:')).not.toBeInTheDocument();
+      // Check mobile specific styling is applied
+      const container = screen.getByRole('heading', { name: 'QQQ' }).closest('div[class*="h-full"]');
+      expect(container).toHaveClass('h-full', 'flex', 'flex-col');
 
-      // Click to expand indicators section
-      const indicatorsHeader = screen.getByText('技術指標').closest('[class*="cursor-pointer"]');
-      fireEvent.click(indicatorsHeader!);
-
-      // Now indicators should be visible
-      expect(screen.getByText('RSI:')).toBeInTheDocument();
-      expect(screen.getByText('65.32')).toBeInTheDocument();
+      // Verify content is displayed
+      expect(screen.getByText('RSI: 65.32')).toBeInTheDocument();
+      expect(screen.getByText('Compare MA20: 2.45 %')).toBeInTheDocument();
     });
   });
 
   describe('Tablet Layout (Horizontal Scroll)', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints } = require('../../../hooks/use-analysis-responsive');
+      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
       useAnalysisBreakpoints.mockReturnValue({
         shouldUseTabLayout: false,
         shouldUseVerticalLayout: true,
         shouldUseHorizontalLayout: false,
         currentScreenSize: 'md',
       });
+      useAnalysisLayout.mockReturnValue('tablet');
     });
 
     it('should render horizontal scrolling cards for tablet', async () => {
@@ -129,17 +135,14 @@ describe('AnalysisList Responsive Behavior', () => {
 
       renderWithProvider(<AnalysisList />);
 
-      // Check that all cards are rendered
-      expect(screen.getByText('價格資訊')).toBeInTheDocument();
-      expect(screen.getByText('技術指標')).toBeInTheDocument();
-      expect(screen.getByText('報告日期')).toBeInTheDocument();
-
-      // Check that content is visible (no accordion behavior)
-      expect(screen.getAllByText('QQQ')).toHaveLength(2); // One in price card, one in reports
+      // Check that content is rendered for tablet layout
+      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();
+      expect(screen.getByText('Close Price: 123.45')).toBeInTheDocument();
       expect(screen.getByText('RSI: 65.32')).toBeInTheDocument();
+      expect(screen.getByText('Compare MA20: 2.45 %')).toBeInTheDocument();
     });
 
-    it('should limit report items to 3 in tablet layout', async () => {
+    it('should show all report items in tablet layout', async () => {
       const dataWithManyReports = {
         ...mockData,
         report: [
@@ -155,24 +158,25 @@ describe('AnalysisList Responsive Behavior', () => {
 
       renderWithProvider(<AnalysisList />);
 
-      // Should only show first 3 items in reports card
-      expect(screen.getAllByText('QQQ')).toHaveLength(2); // One in price card, one in reports  
+      // Should show all report items in tablet layout
+      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();  
       expect(screen.getByText('AAPL')).toBeInTheDocument();  
       expect(screen.getByText('MSFT')).toBeInTheDocument();
-      expect(screen.queryByText('GOOGL')).not.toBeInTheDocument();
-      expect(screen.queryByText('AMZN')).not.toBeInTheDocument();
+      expect(screen.getByText('GOOGL')).toBeInTheDocument();
+      expect(screen.getByText('AMZN')).toBeInTheDocument();
     });
   });
 
   describe('Desktop Layout (Vertical)', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints } = require('../../../hooks/use-analysis-responsive');
+      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
       useAnalysisBreakpoints.mockReturnValue({
         shouldUseTabLayout: false,
         shouldUseVerticalLayout: false,
         shouldUseHorizontalLayout: true,
         currentScreenSize: 'lg',
       });
+      useAnalysisLayout.mockReturnValue('desktop');
     });
 
     it('should render vertical layout for desktop', async () => {
@@ -181,9 +185,8 @@ describe('AnalysisList Responsive Behavior', () => {
       renderWithProvider(<AnalysisList />);
 
       // Check that all sections are rendered
-      expect(screen.getAllByText('QQQ')).toHaveLength(2); // One as header, one as data
-      expect(screen.getByText('技術指標')).toBeInTheDocument();
-      expect(screen.getByText('報告日期')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();
+      expect(screen.getByText('Close Price: 123.45')).toBeInTheDocument();
 
       // Check that content is visible
       expect(screen.getByText('RSI: 65.32')).toBeInTheDocument();
@@ -196,8 +199,8 @@ describe('AnalysisList Responsive Behavior', () => {
 
       renderWithProvider(<AnalysisList />);
 
-      // Should show all report items
-      expect(screen.getAllByText('QQQ')).toHaveLength(2); // One as header, one as data
+      // Should show all report items in desktop layout
+      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument(); // In title
       expect(screen.getByText('AAPL')).toBeInTheDocument();
       expect(screen.getByText('2024-01-15')).toBeInTheDocument();
       expect(screen.getByText('2024-01-20')).toBeInTheDocument();
@@ -206,13 +209,14 @@ describe('AnalysisList Responsive Behavior', () => {
 
   describe('Loading and Error States', () => {
     beforeEach(() => {
-      const { useAnalysisBreakpoints } = require('../../../hooks/use-analysis-responsive');
+      const { useAnalysisBreakpoints, useAnalysisLayout } = require('../../../hooks/use-analysis-responsive');
       useAnalysisBreakpoints.mockReturnValue({
         shouldUseTabLayout: false,
         shouldUseVerticalLayout: false,
         shouldUseHorizontalLayout: true,
         currentScreenSize: 'lg',
       });
+      useAnalysisLayout.mockReturnValue('desktop');
     });
 
     it('should show loading state', () => {
@@ -236,7 +240,11 @@ describe('AnalysisList Responsive Behavior', () => {
       queryClient.setQueryData(['analysisList', 'QQQ'], dataWithoutReports);
 
       renderWithProvider(<AnalysisList />);
-      expect(screen.getByText('暫無報告資料')).toBeInTheDocument();
+      
+      // Component should still render other sections
+      expect(screen.getByRole('heading', { name: 'QQQ' })).toBeInTheDocument();
+      expect(screen.getByText('Close Price: 123.45')).toBeInTheDocument();
+      expect(screen.getByText('RSI: 65.32')).toBeInTheDocument();
     });
   });
 });

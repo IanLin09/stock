@@ -60,24 +60,24 @@ export const useChartDimensions = () => {
   const { currentScreenSize, windowWidth, windowHeight } = useAnalysisBreakpoints();
   
   return useMemo(() => {
-    // 主要蠟燭圖高度 - 再次縮減確保 RSI 可見
+    // 主要蠟燭圖高度 - 無滾動優化
     const getCandlestickHeight = (): number => {
       switch (currentScreenSize) {
-        case 'xs': return 160;
-        case 'sm': return 180;
-        case 'md': return 200;
-        case 'lg': return 220;
-        case 'xl': return 240;
-        case '2xl': return 260;
-        default: return 200;
+        case 'xs': return 140;
+        case 'sm': return 160;
+        case 'md': return 180;
+        case 'lg': return 200;
+        case 'xl': return 220;
+        case '2xl': return 240;
+        default: return 180;
       }
     };
     
-    // 成交量圖高度 - 進一步縮減
+    // 成交量圖高度 - 無滾動優化
     const getVolumeHeight = (): number => {
       switch (currentScreenSize) {
-        case 'xs': return 25;
-        case 'sm': return 28;
+        case 'xs': return 20;
+        case 'sm': return 25;
         case 'md': return 30;
         case 'lg': return 35;
         case 'xl': return 40;
@@ -86,16 +86,16 @@ export const useChartDimensions = () => {
       }
     };
     
-    // 指標圖高度 - 減少避免頁面過高
+    // 指標圖高度 - 無滾動優化
     const getIndicatorHeight = (): number => {
       switch (currentScreenSize) {
-        case 'xs': return 120;
-        case 'sm': return 140;
-        case 'md': return 160;
-        case 'lg': return 170;
+        case 'xs': return 100;
+        case 'sm': return 120;
+        case 'md': return 140;
+        case 'lg': return 160;
         case 'xl': return 180;
-        case '2xl': return 190;
-        default: return 160;
+        case '2xl': return 200;
+        default: return 140;
       }
     };
     

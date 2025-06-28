@@ -1,51 +1,47 @@
+'use client';
 import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import { StockDTO } from '@/utils/dto';
+import {
+  useAnalysisBreakpoints,
+  useChartDimensions,
+} from '@/hooks/use-analysis-responsive';
+import { getAnalysisChartOptions } from '@/utils/analysis-responsive';
 
-type params = {
+type VolumeChartProps = {
   data: StockDTO[];
 };
 
-const VolumeChart = ({ data }: params) => {
+const VolumeChart = ({ data }: VolumeChartProps) => {
+  // 響應式 hooks
+  const { currentScreenSize } = useAnalysisBreakpoints();
+  const { volumeHeight } = useChartDimensions();
+
+  // 獲取完整的響應式圖表配置
+  const barOption: ApexOptions = getAnalysisChartOptions(
+    currentScreenSize,
+    'volume'
+  );
   const VolumeSeries = [
     {
       name: 'volume',
       data: data.map((price) => ({
-        x: price.datetime, // or use dayjs/format if needed
-        y: price.volume, // or any other value like price.high
+        x: price.datetime,
+        y: price.volume,
       })),
     },
   ];
 
-  const barOption: ApexOptions = {
-    chart: {
-      type: 'bar',
-      toolbar: { show: false },
-      zoom: { enabled: false },
-      sparkline: { enabled: true },
-    },
-    plotOptions: {
-      bar: {
-        columnWidth: '50%',
-        distributed: true, // needed to allow individual bar colors
-      },
-    },
-    colors: ['#737a75'],
-    xaxis: {
-      type: 'datetime',
-      labels: { show: false },
-    },
-    tooltip: { enabled: false },
-  };
-
   return (
-    <Chart
-      options={barOption}
-      series={VolumeSeries}
-      type="bar"
-      height="5%"
-    ></Chart>
+    <>
+      <Chart
+        options={barOption}
+        series={VolumeSeries}
+        type="bar"
+        height={volumeHeight}
+      />
+    </>
   );
 };
 

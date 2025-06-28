@@ -2,8 +2,13 @@ import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import { StockAnalysisDTO } from '@/utils/dto';
+import {
+  useAnalysisBreakpoints,
+  useChartDimensions,
+} from '@/hooks/use-analysis-responsive';
+import { getAnalysisChartOptions } from '@/utils/analysis-responsive';
 
-type params = {
+type MACDChartProps = {
   data: StockAnalysisDTO[];
 };
 
@@ -12,7 +17,11 @@ type chartData = {
   y: number;
 };
 
-const MACDChart = ({ data }: params) => {
+const MACDChart = ({ data }: MACDChartProps) => {
+  // 響應式 hooks
+  const { currentScreenSize } = useAnalysisBreakpoints();
+  const { indicatorHeight } = useChartDimensions();
+
   const dif: chartData[] = [];
   const dea: chartData[] = [];
   const histogram: chartData[] = [];
@@ -22,6 +31,7 @@ const MACDChart = ({ data }: params) => {
     dea.push({ x: d.datetime, y: d.macd.dea });
     histogram.push({ x: d.datetime, y: d.macd.histogram });
   });
+  
   const series = [
     {
       name: 'dif',
@@ -40,68 +50,53 @@ const MACDChart = ({ data }: params) => {
     },
   ];
 
-  const option: ApexOptions = {
+  // 獲取完整的響應式圖表配置
+  const macdOptions: ApexOptions = {
+    ...getAnalysisChartOptions(currentScreenSize, 'mixed'),
     chart: {
-      type: 'bar',
+      ...getAnalysisChartOptions(currentScreenSize, 'mixed').chart,
       id: 'MACD_chart',
-      toolbar: {
-        autoSelected: 'pan',
-        show: true,
-      },
-      zoom: {
-        enabled: true,
-      },
-    },
-    colors: ['#FF6B6B', '#4ECDC4', '#FFFFFF'],
-    title: {
-      text: `MACD`,
-      align: 'left',
-      style: {
-        color: '#FFFFFF',
-      },
-    },
-    xaxis: {
-      type: 'datetime',
-      labels: {
-        datetimeUTC: true,
-        format: 'dd MMM',
-      },
-    },
-    yaxis: {
-      tooltip: {
-        enabled: true,
-      },
-    },
-    tooltip: {
-      enabled: true,
-      theme: 'dark',
-      shared: true,
+      type: 'line',
     },
     plotOptions: {
+      ...getAnalysisChartOptions(currentScreenSize, 'mixed').plotOptions,
       bar: {
+        ...getAnalysisChartOptions(currentScreenSize, 'mixed').plotOptions?.bar,
+        columnWidth: currentScreenSize === 'xs' ? '90%' : '80%',
         colors: {
           ranges: [
             {
               from: -100,
               to: 0,
-              color: '#FF0000',
+              color: '#EF4444', // 色盲友善的紅色
             },
             {
               from: 0,
               to: 100,
-              color: '#00FF00',
+              color: '#10B981', // 色盲友善的綠色
             },
           ],
         },
-        columnWidth: '80%',
+      },
+    },
+    colors: ['#3B82F6', '#F59E0B', '#8B5CF6'], // 色盲友善的顏色組合：藍、橙、紫
+    title: currentScreenSize === 'xs' ? undefined : {
+      text: 'MACD',
+      align: 'left',
+      style: {
+        color: '#FFFFFF',
+        fontSize: currentScreenSize === 'sm' ? '16px' : '18px',
       },
     },
   };
 
   return (
-    <div className="h-[200px] w-full">
-      <Chart options={option} series={series} type="line" height="100%"></Chart>
-    </div>
+    <Chart
+      options={macdOptions}
+      series={series}
+      type="line"
+      height={indicatorHeight}
+    />
   );
 };
 

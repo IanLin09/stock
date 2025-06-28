@@ -69,6 +69,14 @@ describe('CountdownTimer', () => {
         .mockReturnValue(mockOpenTimeObj), // 為後續調用提供默認返回值
       weekday,
       valueOf: jest.fn().mockReturnValue(currentTime),
+      startOf: jest.fn().mockReturnValue({
+        plus: jest.fn().mockReturnValue({
+          set: jest.fn().mockReturnValue(mockOpenTimeObj),
+        }),
+      }),
+      plus: jest.fn().mockReturnValue({
+        set: jest.fn().mockReturnValue(mockOpenTimeObj),
+      }),
     };
 
     mockDateTime.now.mockReturnValue({
@@ -135,20 +143,21 @@ describe('CountdownTimer', () => {
   });
 
   describe('Weekend Handling', () => {
-    it('should add extra hours for Saturday', async () => {
-      const { mockDiff } = createMockDateTime(1000, 1500, 2000, 6);
+    it('should handle Saturday weekends correctly', async () => {
+      const { mockNowNY } = createMockDateTime(1000, 1500, 2000, 6);
 
       render(<CountdownTimer />);
 
       await waitFor(() => {
         const display = screen.getByTestId('countdown-timer');
         expect(display).toHaveTextContent('48:30:00');
-        expect(mockDiff().plus).toHaveBeenCalledWith({ hour: 48 });
+        // Should call startOf for weekend calculation
+        expect(mockNowNY.startOf).toHaveBeenCalledWith('week');
       });
     });
 
-    it('should add extra hours for Sunday', async () => {
-      const { mockDiff } = createMockDateTime(1000, 1500, 2000, 7);
+    it('should handle Sunday weekends correctly', async () => {
+      const { mockNowNY } = createMockDateTime(1000, 1500, 2000, 7);
 
       render(<CountdownTimer />);
 
@@ -157,7 +166,8 @@ describe('CountdownTimer', () => {
         expect(display).toHaveTextContent('48:30:00');
         expect(screen.getByText('Until Market Opens:')).toBeInTheDocument();
         expect(screen.getByText('48:30:00')).toBeInTheDocument();
-        expect(mockDiff().plus).toHaveBeenCalledWith({ hour: 24 });
+        // Should call startOf for weekend calculation
+        expect(mockNowNY.startOf).toHaveBeenCalledWith('week');
       });
     });
   });

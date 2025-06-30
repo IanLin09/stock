@@ -1,0 +1,47 @@
+# .github/workflows/api-cron.yml
+name: API Cron Job
+
+on:
+  # Run every hour at minute 0
+  schedule:
+    - cron: '0 7 * * 1-5'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+  
+  # Trigger after successful deployment (optional)
+  workflow_run:
+    workflows: ["Deploy Frontend"]
+    types:
+      - completed
+
+jobs:
+  call-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Call Backend API
+      run: |
+        response=$(curl -s -w "%{http_code}" -o response.json \
+          -X POST \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+          -d '{"symbol": "NVDL"}' \
+          "${{ secrets.API_ENDPOINT/daily/create }}")
+        
+        echo "HTTP Status: $response"
+        
+        if [ "$response" -eq 200 ]; then
+          echo "✅ API call successful"
+          cat response.json
+        else
+          echo "❌ API call failed with status $response"
+          cat response.json
+          exit 1
+        fi
+
+    - name: Handle API Response
+      if: success()
+      run: |
+        echo "Processing API response..."
+        # Add any additional processing here

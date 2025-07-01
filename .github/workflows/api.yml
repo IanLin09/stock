@@ -27,7 +27,7 @@ jobs:
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
           -d '{"symbol": "NVDL"}' \
-          "${{ secrets.API_ENDPOINT/daily/create }}")
+          "${{ secrets.API_ENDPOINT }}/daily/create")
         
         echo "HTTP Status: $response"
         

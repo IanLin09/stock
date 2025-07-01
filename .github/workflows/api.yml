@@ -4,7 +4,7 @@ name: API Cron Job
 on:
   # Run every hour at minute 0
   schedule:
-    - cron: '0 7 * * 1-5'
+    - cron: '0 14 * * 1-5'
   
   # Allow manual triggering
   workflow_dispatch:
@@ -20,13 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Call Backend API
+    - name: Call Daily Price
       run: |
         response=$(curl -s -w "%{http_code}" -o response.json \
           -X POST \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
-          -d '{"symbol": "NVDL"}' \
+          -d '{"symbol": "QQQ"}' \
           "${{ secrets.API_ENDPOINT }}/daily/create")
         
         echo "HTTP Status: $response"
@@ -39,6 +39,47 @@ jobs:
           cat response.json
           exit 1
         fi
+    - name: Call indicator
+      run: |
+        response=$(curl -s -w "%{http_code}" -o response.json \
+          -X POST \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+          -d '{"symbol": "QQQ"}' \
+          "${{ secrets.API_ENDPOINT }}/indicators/latest")
+        
+        echo "HTTP Status: $response"
+        
+        if [ "$response" -eq 200 ]; then
+          echo "✅ API call successful"
+          cat response.json
+        else
+          echo "❌ API call failed with status $response"
+          cat response.json
+          exit 1
+        fi
+      
+    - name: Call intraday with Multiple Symbols
+      run: |
+        # Array of symbols
+        symbols=("NVDL" "QQQ" "TQQQ")
+        
+        for symbol in "${symbols[@]}"; do
+          echo "Processing symbol: $symbol"
+          
+          response=$(curl -s -w "%{http_code}" -o response_$symbol.json \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            -d "{\"symbol\": \"$symbol\"}" \
+            "${{ vars.API_ENDPOINT }}/intraday/create")
+          
+          if [ "$response" -eq 200 ]; then
+            echo "✅ $symbol processed successfully"
+          else
+            echo "❌ $symbol failed with status $response"
+          fi
+        done
 
     - name: Handle API Response
       if: success()

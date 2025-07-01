@@ -63,6 +63,7 @@ jobs:
       run: |
         # Array of symbols
         symbols=("NVDL" "QQQ" "TQQQ")
+        failed_symbols=()
         
         for symbol in "${symbols[@]}"; do
           echo "Processing symbol: $symbol"
@@ -72,14 +73,21 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
             -d "{\"symbol\": \"$symbol\"}" \
-            "${{ vars.API_ENDPOINT }}/intraday/create")
+            "${{ secrets.API_ENDPOINT }}/intraday/create")
           
           if [ "$response" -eq 200 ]; then
             echo "✅ $symbol processed successfully"
           else
             echo "❌ $symbol failed with status $response"
+            cat response_$symbol.json
+            failed_symbols+=("$symbol")
           fi
         done
+        
+        if [ ${#failed_symbols[@]} -gt 0 ]; then
+          echo "Failed symbols: ${failed_symbols[*]}"
+          exit 1
+        fi
 
     - name: Handle API Response
       if: success()

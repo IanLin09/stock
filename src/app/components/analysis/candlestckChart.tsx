@@ -50,20 +50,34 @@ const CandleStickChart = ({ data, extra }: CandlestickChartProps) => {
       })),
     },
     {
+      name: 'Bollinger',
+      type: 'rangeArea',
+      data: extra
+        .filter((item) => item.bollinger)
+        .map((item) => ({
+          x: new Date(item.datetime), // or use dayjs/format if needed
+          y: [item.bollinger['lower'], item.bollinger['upper']], // or any other value like price.high
+        })),
+    },
+    {
       name: 'EMA5',
       type: 'line',
-      data: extra.map((price) => ({
-        x: new Date(price.datetime), // or use dayjs/format if needed
-        y: Number(price.ema[5].toFixed(2)), // or any other value like price.high
-      })),
+      data: extra
+        .filter((item) => item.bollinger)
+        .map((price) => ({
+          x: new Date(price.datetime), // or use dayjs/format if needed
+          y: Number(price.ema[5].toFixed(2)), // or any other value like price.high
+        })),
     },
     {
       name: 'MA20',
       type: 'line',
-      data: extra.map((price) => ({
-        x: new Date(price.datetime), // or use dayjs/format if needed
-        y: Number(price.ma[20].toFixed(2)), // or any other value like price.high
-      })),
+      data: extra
+        .filter((item) => item.bollinger)
+        .map((price) => ({
+          x: new Date(price.datetime), // or use dayjs/format if needed
+          y: Number(price.ma[20].toFixed(2)), // or any other value like price.high
+        })),
     },
   ];
 

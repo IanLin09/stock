@@ -7,6 +7,7 @@ import VolumeChart from './volumnChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RSIChart from './rsiChart';
 import MACDChart from './macdChart';
+import KDJChart from './kdjChart';
 import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
 import { useAnalysisBreakpoints } from '@/hooks/use-analysis-responsive';
@@ -53,7 +54,7 @@ const AnalysisChartGroup = () => {
         <div className="flex-1 border border-black dark:border-white rounded-lg">
           <Tabs defaultValue="RSI" className="h-full">
             <TabsList
-              className={`grid w-full grid-cols-2 ${
+              className={`grid w-full grid-cols-3 ${
                 currentScreenSize === 'xs' ? 'h-8 text-xs' : 'h-10'
               }`}
             >
@@ -69,12 +70,21 @@ const AnalysisChartGroup = () => {
               >
                 MACD
               </TabsTrigger>
+              <TabsTrigger
+                value="KDJ"
+                className={currentScreenSize === 'xs' ? 'text-xs py-1' : ''}
+              >
+                KDJ
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="RSI" className="h-full mt-1">
               <RSIChart extra={analysis} />
             </TabsContent>
             <TabsContent value="MACD" className="h-full mt-1">
               <MACDChart data={analysis} />
+            </TabsContent>
+            <TabsContent value="KDJ" className="h-full mt-1">
+              <KDJChart data={analysis} />
             </TabsContent>
           </Tabs>
         </div>

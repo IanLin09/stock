@@ -35,6 +35,21 @@ type rsi = {
   loss: number;
 };
 
+type bollinger = {
+  datetime: Date;
+  middle: number;
+  upper: number;
+  lower: number;
+};
+
+type kdj = {
+  datetime: Date;
+  k: number;
+  d: number;
+  j: number;
+  rsv: number;
+};
+
 export type StockAnalysisDTO = {
   _id: string;
   symbol: string;
@@ -45,6 +60,8 @@ export type StockAnalysisDTO = {
   ma: ma;
   ema: ema;
   rsi: rsi;
+  bollinger: bollinger;
+  kdj: kdj;
 };
 
 export type StockChartDTO = {

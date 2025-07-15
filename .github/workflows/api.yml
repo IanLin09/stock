@@ -62,7 +62,7 @@ jobs:
     - name: Call intraday with Multiple Symbols
       run: |
         # Array of symbols
-        symbols=("NVDL" "QQQ" "TQQQ")
+        symbols=("NVDL" "QQQ" "TQQQ" "TSLA" "IBIT")
         failed_symbols=()
         
         for symbol in "${symbols[@]}"; do

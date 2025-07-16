@@ -60,9 +60,10 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
         }`}
         style={{
           height: 'auto',
-          maxHeight: data && data.length > 4 ? (isMobile ? '60vh' : '55vh') : 'auto',
+          maxHeight:
+            data && data.length > 4 ? (isMobile ? '60vh' : '55vh') : 'auto',
           scrollbarWidth: 'thin',
-          scrollbarColor: 'rgb(156 163 175) transparent'
+          scrollbarColor: 'rgb(156 163 175) transparent',
         }}
       >
         {data &&

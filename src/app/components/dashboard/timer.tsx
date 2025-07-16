@@ -30,13 +30,8 @@ const CountdownTimer = ({
       const closeTime = nowNY.set({ hour: 16, minute: 0, second: 0 });
 
       if (nowNY > openTime && nowNY < closeTime) {
-        return (
-          <div className="flex flex-col text-center justify-center h-full text-sm sm:text-base md:text-lg font-mono">
-            <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-              Opening Now
-            </p>
-          </div>
-        );
+        setTimeLeft('Opening Now');
+        return;
       }
 
       // If after market close (after 4 PM), calculate time until next day's market open
@@ -69,12 +64,20 @@ const CountdownTimer = ({
     return (
       <div
         data-testid="countdown-timer"
-        className="flex flex-col text-center justify-center h-full text-sm sm:text-base md:text-lg font-mono"
+        className="flex flex-col text-center justify-center w-full text-sm sm:text-base md:text-lg font-mono"
       >
-        <p>{t('until_open')}:</p>
-        <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-          {timeLeft}
-        </p>
+        {timeLeft === 'Opening Now' ? (
+          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+            Opening Now
+          </p>
+        ) : (
+          <>
+            <p>{t('until_open')}:</p>
+            <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+              {timeLeft}
+            </p>
+          </>
+        )}
       </div>
     );
   }

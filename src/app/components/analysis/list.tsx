@@ -62,7 +62,7 @@ const AnalysisList = () => {
 
     return (
       <div
-        className={`h-full flex flex-col text-black dark:text-white ${containerPadding} ${transitionClasses}`}
+        className={`h-full flex flex-col text-black dark:text-white ${containerPadding} ${transitionClasses} overflow-y-auto`}
       >
         {/* 標題和價格區域 */}
         <div

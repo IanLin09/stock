@@ -43,7 +43,7 @@ const AnalysisChartGroup = () => {
     // 生成響應式類別
 
     return (
-      <div className="h-full flex flex-col space-y-2 text-black dark:text-white p-2">
+      <div className="h-full flex flex-col space-y-2 text-black dark:text-white p-2 overflow-y-auto">
         {/* 主圖表區域 */}
         <div className="flex-[2] border border-black dark:border-white rounded-lg">
           <CandleStickChart data={prices.data} extra={analysis} />

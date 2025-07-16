@@ -10,13 +10,13 @@ const DashboardPage = () => {
   const [symbol, setSymbol] = useState<string>('');
   return (
     <>
-      <div className="row-span-2 border border-black dark:border-white">
+      <div className="border border-black dark:border-white">
         <DashboardList setSymbol={setSymbol} />
       </div>
-      <div className="row-span-3 col-span-2 border border-black dark:border-white">
+      <div className="row-span-2 col-span-2 border border-black dark:border-white">
         <ComprehensiveArea symbol={symbol} />
       </div>
-      <div className="border border-black dark:border-white">
+      <div className="row-start-2 border border-black dark:border-white flex items-center justify-center p-4">
         <CountdownTimer />
       </div>
     </>

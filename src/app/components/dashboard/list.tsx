@@ -55,7 +55,15 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
   return (
     <>
       <div
-        className={`${getResponsiveSpacing('sm')} flex flex-col h-full space-y-1 sm:space-y-2`}
+        className={`${getResponsiveSpacing('sm')} flex flex-col space-y-1 sm:space-y-2 ${
+          data && data.length > 4 ? 'overflow-y-auto' : 'overflow-y-hidden'
+        }`}
+        style={{
+          height: 'auto',
+          maxHeight: data && data.length > 4 ? (isMobile ? '60vh' : '55vh') : 'auto',
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgb(156 163 175) transparent'
+        }}
       >
         {data &&
           data.map((stock) => (
@@ -68,7 +76,7 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
                 ${
                   isMobile
                     ? 'flex flex-col space-y-2 p-3 border border-gray-200 dark:border-gray-700'
-                    : 'flex flex-row items-center py-2 px-2'
+                    : 'flex flex-row items-center py-1 px-2'
                 }
               `}
               style={{

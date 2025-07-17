@@ -15,9 +15,14 @@ import {
   getAnalysisGridClasses,
   getLayoutTransitionClasses,
 } from '@/utils/analysis-responsive';
+import { useAnalysisStore } from '@/utils/zustand';
+import SymbolSwitcher from './SymbolSwitcher';
 
 const AnalysisList = () => {
   const { t } = useTranslation();
+
+  // 狀態管理
+  const { currentSymbol } = useAnalysisStore();
 
   // 響應式 hooks
   const { currentScreenSize } = useAnalysisBreakpoints();
@@ -28,8 +33,8 @@ const AnalysisList = () => {
     isLoading,
     error,
   } = useQuery<AnalysisListDTO, Error>({
-    queryKey: ['analysisList', 'QQQ'],
-    queryFn: () => getSymbolDetail('QQQ'),
+    queryKey: ['analysisList', currentSymbol],
+    queryFn: () => getSymbolDetail(currentSymbol),
   });
 
   useEffect(() => {
@@ -46,7 +51,6 @@ const AnalysisList = () => {
       currentScreenSize,
       'padding'
     );
-    const titleTextSize = getAnalysisTextSize('2xl', currentScreenSize);
     const bodyTextSize = getAnalysisTextSize('base', currentScreenSize);
     const smallTextSize = getAnalysisTextSize('sm', currentScreenSize);
     const gridClasses = getAnalysisGridClasses(currentScreenSize, 2);
@@ -64,14 +68,11 @@ const AnalysisList = () => {
       <div
         className={`h-full flex flex-col text-black dark:text-white ${containerPadding} ${transitionClasses} overflow-y-auto`}
       >
-        {/* 標題和價格區域 */}
+        {/* Symbol 切換和價格區域 */}
         <div
           className={`basis-1/5 ${verticalSpacing.replace('space-y', 'space-y-2')}`}
         >
-          <h1 className={`font-bold ${titleTextSize}`}>QQQ</h1>
-          <p className={bodyTextSize}>
-            {t('close_price')}: {info?.indicators.close}
-          </p>
+          <SymbolSwitcher />
         </div>
 
         {/* 技術指標區域 */}

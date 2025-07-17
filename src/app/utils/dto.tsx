@@ -106,4 +106,43 @@ export type AnalysisListDTO = {
   report: NextReportDay[];
 };
 
+// 增強的分析 DTO - 為 Phase 2 和 Phase 3 準備
+export type EnhancedAnalysisDTO = {
+  indicators: StockAnalysisDTO;
+  report: NextReportDay[];
+  strategies: TradingStrategy[];
+  supportedSymbols: string[];
+  indicatorStatus: IndicatorStatusMap;
+};
+
+// 指標狀態類型
+export type IndicatorStatus = 'bullish' | 'bearish' | 'neutral' | 'extreme';
+
+// 指標狀態映射
+export type IndicatorStatusMap = {
+  rsi: IndicatorStatus;
+  macd: IndicatorStatus;
+  ma: IndicatorStatus;
+  kdj: IndicatorStatus;
+  bollinger: IndicatorStatus;
+};
+
+// 策略規則類型
+export type StrategyRule = {
+  condition: string;
+  action: string;
+  risk: 'low' | 'medium' | 'high';
+};
+
+// 交易策略類型
+export type TradingStrategy = {
+  id: string;
+  name: string;
+  description: string;
+  rules: StrategyRule[];
+  riskLevel: 'low' | 'medium' | 'high';
+  success_rate?: number;
+  max_drawdown?: number;
+};
+
 export type StockClosePriceList = Record<string, StockDTO>;

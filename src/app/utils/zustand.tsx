@@ -19,6 +19,17 @@ interface StockPriceColorStyle {
   changeType: (style: string) => void;
 }
 
+interface AnalysisState {
+  currentSymbol: string;
+  setCurrentSymbol: (symbol: string) => void;
+  modalOpen: boolean;
+  setModalOpen: (open: boolean) => void;
+  activeTab: 'indicators' | 'reports' | 'strategies';
+  setActiveTab: (tab: 'indicators' | 'reports' | 'strategies') => void;
+  timeRange: '1D' | '1W' | '1M' | '3M' | '1Y';
+  setTimeRange: (range: '1D' | '1W' | '1M' | '3M' | '1Y') => void;
+}
+
 export const useDialogStore = create<DialogState>((set) => ({
   isOpen: false,
   dialogType: null,
@@ -55,4 +66,17 @@ export const useStockPriceStyle = create<StockPriceColorStyle>((set) => ({
       });
     }
   },
+}));
+
+export const useAnalysisStore = create<AnalysisState>((set) => ({
+  currentSymbol: 'QQQ',
+  setCurrentSymbol: (symbol: string) => set({ currentSymbol: symbol }),
+  modalOpen: false,
+  setModalOpen: (open: boolean) => set({ modalOpen: open }),
+  activeTab: 'indicators',
+  setActiveTab: (tab: 'indicators' | 'reports' | 'strategies') =>
+    set({ activeTab: tab }),
+  timeRange: '3M',
+  setTimeRange: (range: '1D' | '1W' | '1M' | '3M' | '1Y') =>
+    set({ timeRange: range }),
 }));

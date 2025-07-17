@@ -11,8 +11,12 @@ import KDJChart from './kdjChart';
 import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
 import { useAnalysisBreakpoints } from '@/hooks/use-analysis-responsive';
+import { useAnalysisStore } from '@/utils/zustand';
 
 const AnalysisChartGroup = () => {
+  // 狀態管理
+  const { currentSymbol, timeRange } = useAnalysisStore();
+
   // 響應式 hooks
   const { currentScreenSize } = useAnalysisBreakpoints();
   const {
@@ -20,15 +24,15 @@ const AnalysisChartGroup = () => {
     isLoading,
     error,
   } = useQuery<StockChartDTO, Error>({
-    queryKey: ['chartData', 'QQQ', '3M'],
-    queryFn: () => getRangeList('QQQ', '3M'),
+    queryKey: ['chartData', currentSymbol, timeRange],
+    queryFn: () => getRangeList(currentSymbol, timeRange),
   });
   const { data: analysis, isLoading: analysisLoading } = useQuery<
     StockAnalysisDTO[],
     Error
   >({
-    queryKey: ['analysisData', 'QQQ', '3M'],
-    queryFn: () => getAnalysisList('QQQ', '3M'),
+    queryKey: ['analysisData', currentSymbol, timeRange],
+    queryFn: () => getAnalysisList(currentSymbol, timeRange),
   });
 
   useEffect(() => {

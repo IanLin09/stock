@@ -1,9 +1,9 @@
 'use client';
+import React, { useEffect } from 'react';
 import { getSymbolDetail } from '@/utils/api';
 import { AnalysisListDTO } from '@/utils/dto';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
 import {
   useAnalysisBreakpoints,
@@ -17,12 +17,76 @@ import {
 } from '@/utils/analysis-responsive';
 import { useAnalysisStore } from '@/utils/zustand';
 import SymbolSwitcher from './SymbolSwitcher';
+import TechnicalIndicators from './TechnicalIndicators';
 
 const AnalysisList = () => {
+  // 添加自定義滾動條樣式
+  const injectScrollbarStyles = () => {
+    if (typeof document !== 'undefined') {
+      const style = document.createElement('style');
+      style.textContent = `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.5);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.7);
+        }
+        .custom-scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar-thin::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.3);
+          border-radius: 3px;
+        }
+        .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.5);
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.6);
+        }
+        .dark .custom-scrollbar-thin::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.4);
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  };
+
+  // 注入樣式
+  useEffect(() => {
+    injectScrollbarStyles();
+  }, []);
   const { t } = useTranslation();
 
   // 狀態管理
   const { currentSymbol } = useAnalysisStore();
+
+  // 自定義滾動條樣式
+  const customScrollStyle = {
+    scrollbarWidth: 'thin' as const,
+    scrollbarColor: 'rgba(156, 163, 175, 0.5) transparent',
+    scrollBehavior: 'smooth' as const,
+  };
+
+  const indicatorScrollStyle = {
+    scrollbarWidth: 'thin' as const,
+    scrollbarColor: 'rgba(156, 163, 175, 0.3) transparent',
+    scrollBehavior: 'smooth' as const,
+  };
 
   // 響應式 hooks
   const { currentScreenSize } = useAnalysisBreakpoints();
@@ -51,7 +115,6 @@ const AnalysisList = () => {
       currentScreenSize,
       'padding'
     );
-    const bodyTextSize = getAnalysisTextSize('base', currentScreenSize);
     const smallTextSize = getAnalysisTextSize('sm', currentScreenSize);
     const gridClasses = getAnalysisGridClasses(currentScreenSize, 2);
     const transitionClasses = getLayoutTransitionClasses();
@@ -66,7 +129,8 @@ const AnalysisList = () => {
 
     return (
       <div
-        className={`h-full flex flex-col text-black dark:text-white ${containerPadding} ${transitionClasses} overflow-y-auto`}
+        className={`h-full flex flex-col text-black dark:text-white ${containerPadding} ${transitionClasses} overflow-y-auto custom-scrollbar`}
+        style={customScrollStyle}
       >
         {/* Symbol 切換和價格區域 */}
         <div
@@ -77,23 +141,15 @@ const AnalysisList = () => {
 
         {/* 技術指標區域 */}
         <div
-          className={`basis-1/5 ${verticalSpacing.replace('space-y', 'space-y-2')}`}
+          className={`basis-3/5 ${currentLayout === 'mobile' ? 'pt-2' : 'pt-4'} overflow-y-auto custom-scrollbar-thin`}
+          style={indicatorScrollStyle}
         >
-          <p className={bodyTextSize}>RSI: {info?.indicators.rsi[14]}</p>
-          <p className={bodyTextSize}>
-            {t('compare_MA20')}:{' '}
-            {(
-              ((info?.indicators.close - info.indicators.ma[20]) /
-                info.indicators.ma[20]) *
-              100
-            ).toFixed(2)}{' '}
-            %
-          </p>
+          <TechnicalIndicators />
         </div>
 
         {/* 報告日期網格區域 */}
         <div
-          className={`basis-2/5 ${currentLayout === 'mobile' ? 'pt-4' : 'pt-6'}`}
+          className={`basis-1/5 ${currentLayout === 'mobile' ? 'pt-4' : 'pt-6'}`}
         >
           <div
             className={`${gridClasses} ${currentScreenSize === 'xs' ? 'gap-2' : 'gap-3'}`}

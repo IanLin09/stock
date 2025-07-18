@@ -22,7 +22,6 @@ const CandleStickChart = ({ data, extra }: CandlestickChartProps) => {
   // 響應式 hooks
   const { currentScreenSize } = useAnalysisBreakpoints();
   const { candlestickHeight } = useChartDimensions();
-
   // 獲取完整的響應式圖表配置
   const candlestickOptions: ApexOptions = getAnalysisChartOptions(
     currentScreenSize,
@@ -85,7 +84,7 @@ const CandleStickChart = ({ data, extra }: CandlestickChartProps) => {
     <Chart
       options={candlestickOptions}
       series={candlestickSeries}
-      height={candlestickHeight}
+      height="100%"
     />
   );
 };

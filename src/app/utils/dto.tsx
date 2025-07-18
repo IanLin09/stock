@@ -106,6 +106,14 @@ export type AnalysisListDTO = {
   report: NextReportDay[];
 };
 
+// 增強的分析 DTO，包含狀況判斷
+export type AnalysisListWithStatusDTO = {
+  indicators: StockAnalysisDTO;
+  report: NextReportDay[];
+  indicatorStatus: IndicatorStatusMap;
+  tradingSignals: string[];
+};
+
 // 增強的分析 DTO - 為 Phase 2 和 Phase 3 準備
 export type EnhancedAnalysisDTO = {
   indicators: StockAnalysisDTO;

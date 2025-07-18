@@ -30,7 +30,7 @@ export default function RootLayout({
                       <div className="grow-0">
                         <Navbar></Navbar>
                       </div>
-                      <div className="flex-auto">
+                      <div className="flex-auto min-h-0 pb-2">
                         <QueryProvider>{children}</QueryProvider>
                       </div>
                     </div>

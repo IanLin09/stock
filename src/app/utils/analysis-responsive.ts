@@ -372,10 +372,10 @@ export const getAnalysisChartOptions = (
             const date = new Date(data.x).toLocaleDateString();
 
             if (Array.isArray(data.y)) {
-              const open = data.y[0].toFixed(2);
-              const high = data.y[1].toFixed(2);
-              const low = data.y[2].toFixed(2);
-              const close = data.y[3].toFixed(2);
+              const open = data.y[0] != null ? data.y[0].toFixed(2) : '--';
+              const high = data.y[1] != null ? data.y[1].toFixed(2) : '--';
+              const low = data.y[2] != null ? data.y[2].toFixed(2) : '--';
+              const close = data.y[3] != null ? data.y[3].toFixed(2) : '--';
 
               if (isMobile) {
                 return `
@@ -402,7 +402,7 @@ export const getAnalysisChartOptions = (
               <div class="apexcharts-tooltip-candlestick">
                 <div class="p-2">
                   <div class="font-semibold">${date}</div>
-                  <div>${customOptions?.translation?.price || 'Price'}: $${data.y}</div>
+                  <div>${customOptions?.translation?.price || 'Price'}: $${data.y != null ? data.y.toFixed(2) : '--'}</div>
                 </div>
               </div>`;
             }

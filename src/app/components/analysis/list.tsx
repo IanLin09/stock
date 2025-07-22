@@ -3,21 +3,19 @@ import React, { useEffect } from 'react';
 import { getSymbolDetail } from '@/utils/api';
 import { AnalysisListDTO } from '@/utils/dto';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 import { handleError } from '@/utils/error';
 import {
   useAnalysisBreakpoints,
   useAnalysisLayout,
 } from '@/hooks/use-analysis-responsive';
 import {
-  getAnalysisTextSize,
   getAnalysisSpacing,
-  getAnalysisGridClasses,
   getLayoutTransitionClasses,
 } from '@/utils/analysis-responsive';
 import { useAnalysisStore } from '@/utils/zustand';
 import SymbolSwitcher from './SymbolSwitcher';
 import TechnicalIndicators from './TechnicalIndicators';
+import TradingStrategies from './TradingStrategies';
 
 const AnalysisList = () => {
   // 添加自定義滾動條樣式
@@ -70,7 +68,6 @@ const AnalysisList = () => {
   useEffect(() => {
     injectScrollbarStyles();
   }, []);
-  const { t } = useTranslation();
 
   // 狀態管理
   const { currentSymbol } = useAnalysisStore();
@@ -115,8 +112,6 @@ const AnalysisList = () => {
       currentScreenSize,
       'padding'
     );
-    const smallTextSize = getAnalysisTextSize('sm', currentScreenSize);
-    const gridClasses = getAnalysisGridClasses(currentScreenSize, 2);
     const transitionClasses = getLayoutTransitionClasses();
 
     // 響應式間距
@@ -141,43 +136,22 @@ const AnalysisList = () => {
 
         {/* 技術指標區域 */}
         <div
-          className={`basis-3/5 ${currentLayout === 'mobile' ? 'pt-2' : 'pt-4'} overflow-y-auto custom-scrollbar-thin`}
+          className={`basis-2/5 ${currentLayout === 'mobile' ? 'pt-2' : 'pt-4'} overflow-y-auto custom-scrollbar-thin`}
           style={indicatorScrollStyle}
         >
           <TechnicalIndicators />
         </div>
 
-        {/* 報告日期網格區域 */}
+        {/* 策略分析區域 */}
         <div
-          className={`basis-1/5 ${currentLayout === 'mobile' ? 'pt-4' : 'pt-6'}`}
+          className={`basis-2/5 ${currentLayout === 'mobile' ? 'pt-2' : 'pt-4'} overflow-y-auto custom-scrollbar-thin`}
+          style={indicatorScrollStyle}
         >
-          <div
-            className={`${gridClasses} ${currentScreenSize === 'xs' ? 'gap-2' : 'gap-3'}`}
-          >
-            <div className={`font-semibold ${smallTextSize}`}>
-              {t('symbol')}
-            </div>
-            <div className={`font-semibold ${smallTextSize}`}>
-              {t('next_rd')}
-            </div>
-            {info.report &&
-              info.report.map((item) => (
-                <>
-                  <div
-                    key={`${item.symbol}-symbol`}
-                    className={`${smallTextSize} py-1`}
-                  >
-                    {item.symbol}
-                  </div>
-                  <div
-                    key={`${item.symbol}-date`}
-                    className={`${smallTextSize} py-1`}
-                  >
-                    {item.reportDate}
-                  </div>
-                </>
-              ))}
-          </div>
+          <TradingStrategies 
+            symbol={currentSymbol} 
+            timeRange="1M"
+            className="h-full"
+          />
         </div>
       </div>
     );

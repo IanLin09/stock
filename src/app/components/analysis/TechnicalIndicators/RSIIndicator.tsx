@@ -1,5 +1,6 @@
 'use client';
 import { StockAnalysisDTO, IndicatorStatus } from '@/utils/dto';
+import { useTranslation } from 'react-i18next';
 import { useAnalysisBreakpoints } from '@/hooks/use-analysis-responsive';
 import { getAnalysisTextSize } from '@/utils/analysis-responsive';
 import {
@@ -14,6 +15,7 @@ interface RSIIndicatorProps {
 
 const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
   const { currentScreenSize } = useAnalysisBreakpoints();
+  const { t } = useTranslation();
 
   const textSize = getAnalysisTextSize('base', currentScreenSize);
   const smallTextSize = getAnalysisTextSize('sm', currentScreenSize);
@@ -38,9 +40,9 @@ const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
   };
 
   const tradingSignals = [
-    'RSI < 30: 考慮買入機會',
-    'RSI > 70: 考慮減倉',
-    'RSI背離: 注意趨勢反轉',
+    t('rsi_signal_buy'),
+    t('rsi_signal_sell'),
+    t('rsi_signal_divergence'),
   ];
 
   return (
@@ -49,10 +51,10 @@ const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className={`font-semibold ${titleSize}`}>
-            RSI (14) - Relative Strength Index
+            {t('rsi_full_name')}
           </h3>
           <p className={`text-gray-600 dark:text-gray-400 ${smallTextSize}`}>
-            相對強弱指數，衡量價格動能強弱
+            {t('rsi_description')}
           </p>
         </div>
         <div className="text-right">
@@ -85,30 +87,30 @@ const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
           ></div>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-green-500">超賣</span>
-          <span className="text-gray-500">中性</span>
-          <span className="text-red-500">超買</span>
+          <span className="text-green-500">{t('oversold')}</span>
+          <span className="text-gray-500">{t('neutral')}</span>
+          <span className="text-red-500">{t('overbought')}</span>
         </div>
       </div>
 
       {/* 詳細資訊 */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <h4 className={`font-medium ${textSize}`}>技術數據</h4>
+          <h4 className={`font-medium ${textSize}`}>{t('technical_data')}</h4>
           <div className={`space-y-1 ${smallTextSize}`}>
             <div className="flex justify-between">
-              <span>平均漲幅:</span>
+              <span>{t('average_gain')}:</span>
               <span>{formatIndicatorValue(data.rsi?.gain, 4)}</span>
             </div>
             <div className="flex justify-between">
-              <span>平均跌幅:</span>
+              <span>{t('average_loss')}:</span>
               <span>{formatIndicatorValue(data.rsi?.loss, 4)}</span>
             </div>
           </div>
         </div>
 
         <div className="space-y-2">
-          <h4 className={`font-medium ${textSize}`}>交易信號</h4>
+          <h4 className={`font-medium ${textSize}`}>{t('trading_signals')}</h4>
           <div className={`space-y-1 ${smallTextSize}`}>
             {tradingSignals.map((signal, index) => (
               <div key={index} className="text-gray-600 dark:text-gray-400">
@@ -121,26 +123,26 @@ const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
 
       {/* 狀態說明 */}
       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div className={`font-medium ${textSize} mb-2`}>當前狀況</div>
+        <div className={`font-medium ${textSize} mb-2`}>{t('current_status')}</div>
         <div className={`${smallTextSize} text-gray-600 dark:text-gray-400`}>
           {status === 'bullish' && (
             <div className="text-green-600">
-              RSI 處於超賣區間（&lt;30），股價可能出現反彈，建議關注買入機會。
+              {t('rsi_status_bullish')}
             </div>
           )}
           {status === 'bearish' && (
             <div className="text-red-600">
-              RSI 處於超買區間（&gt;70），股價可能出現回調，建議考慮減倉。
+              {t('rsi_status_bearish')}
             </div>
           )}
           {status === 'neutral' && (
             <div className="text-gray-600">
-              RSI 處於中性區間（30-70），股價走勢相對穩定，可觀望。
+              {t('rsi_status_neutral')}
             </div>
           )}
           {status === 'extreme' && (
             <div className="text-orange-600">
-              RSI 處於極端區間，可能出現趨勢反轉，需要特別注意。
+              {t('rsi_status_extreme')}
             </div>
           )}
         </div>

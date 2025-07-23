@@ -1,6 +1,7 @@
 'use client';
 import { useAnalysisStore } from '@/utils/zustand';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { getSymbolDetail } from '@/utils/api';
 import { AnalysisListDTO } from '@/utils/dto';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +17,7 @@ import { calculateIndicatorStatuses } from '@/utils/indicatorCalculations';
 const IndicatorTabs = () => {
   const { currentSymbol } = useAnalysisStore();
   const { currentScreenSize } = useAnalysisBreakpoints();
+  const { t } = useTranslation();
 
   const textSize = getAnalysisTextSize('sm', currentScreenSize);
 
@@ -28,7 +30,7 @@ const IndicatorTabs = () => {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-gray-500 dark:text-gray-400">
-          Loading indicators...
+          {t('loading_indicators')}
         </div>
       </div>
     );

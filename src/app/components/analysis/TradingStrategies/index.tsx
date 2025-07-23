@@ -102,11 +102,11 @@ const calculateBreakoutScore = (indicators: any): number => {
 };
 
 const determineMarketCondition = (rsi: number, macdDif: number, macdDea: number): string => {
-  if (rsi > 70 && macdDif > macdDea) return '強勢上漲';
-  if (rsi < 30 && macdDif < macdDea) return '強勢下跌';
-  if (rsi > 50 && macdDif > macdDea) return '溫和上漲';
-  if (rsi < 50 && macdDif < macdDea) return '溫和下跌';
-  return '震盪整理';
+  if (rsi > 70 && macdDif > macdDea) return 'market_strong_uptrend';
+  if (rsi < 30 && macdDif < macdDea) return 'market_strong_downtrend';
+  if (rsi > 50 && macdDif > macdDea) return 'market_moderate_uptrend';
+  if (rsi < 50 && macdDif < macdDea) return 'market_moderate_downtrend';
+  return 'market_sideways';
 };
 
 const assessRiskLevel = (score: number, rsi: number): 'low' | 'medium' | 'high' => {
@@ -117,23 +117,23 @@ const assessRiskLevel = (score: number, rsi: number): 'low' | 'medium' | 'high' 
 
 const generateActionAdvice = (score: number, condition: string, risk: string) => {
   const advice = {
-    primary: '建議觀望',
+    primary: 'primary_advice_hold',
     secondary: [] as string[],
     warnings: [] as string[],
-    timeframe: '短期'
+    timeframe: 'short_term'
   };
   
   if (score > 70) {
-    advice.primary = '建議買入';
-    advice.secondary = ['分批建倉', '設置止損'];
-    advice.warnings = ['注意風險控制'];
+    advice.primary = 'primary_advice_buy';
+    advice.secondary = ['secondary_advice_batch_build', 'secondary_advice_stop_loss'];
+    advice.warnings = ['warning_risk_control'];
   } else if (score < 30) {
-    advice.primary = '建議賣出';
-    advice.secondary = ['分批減倉', '觀察支撐位'];
-    advice.warnings = ['避免恐慌拋售'];
+    advice.primary = 'primary_advice_sell';
+    advice.secondary = ['secondary_advice_batch_reduce', 'secondary_advice_watch_support'];
+    advice.warnings = ['warning_no_panic'];
   } else {
-    advice.secondary = ['等待明確信號', '關注技術面變化'];
-    advice.warnings = ['避免頻繁交易'];
+    advice.secondary = ['secondary_advice_wait_signal', 'secondary_advice_watch_technical'];
+    advice.warnings = ['warning_no_frequent'];
   }
   
   return advice;
@@ -178,8 +178,8 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({
     return (
       <div className={`p-4 ${className}`}>
         <div className="text-red-500 dark:text-red-400 text-center">
-          <p className="text-sm font-medium">策略分析失敗</p>
-          <p className="text-xs mt-1">請檢查網路連線</p>
+          <p className="text-sm font-medium">{t('strategy_analysis_failed')}</p>
+          <p className="text-xs mt-1">{t('check_network')}</p>
         </div>
       </div>
     );
@@ -193,16 +193,16 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({
       <div className="p-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-            策略分析
+            {t('strategy_analysis')}
           </h3>
           <div className="flex items-center space-x-2">
             {/* 市場狀況 */}
             <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-              marketCondition.includes('上漲') ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-              marketCondition.includes('下跌') ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+              marketCondition.includes('uptrend') ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+              marketCondition.includes('downtrend') ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
               'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
             }`}>
-              {marketCondition}
+              {t(marketCondition)}
             </span>
             
             {/* 評分 */}
@@ -226,16 +226,16 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({
               <div key={strategy.type} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {strategy.type === 'momentum' ? '動量策略' :
-                     strategy.type === 'mean_reversion' ? '均值回歸' :
-                     '突破策略'}
+                    {t(strategy.type === 'momentum' ? 'momentum_strategy' :
+                       strategy.type === 'mean_reversion' ? 'mean_reversion_strategy' :
+                       'breakout_strategy')}
                   </span>
                   <span className={`text-xs px-1 py-0.5 rounded ${
                     strategy.signal === 'buy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                     strategy.signal === 'sell' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
                     'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
                   }`}>
-                    {strategy.signal === 'buy' ? '買入' : strategy.signal === 'sell' ? '賣出' : '觀望'}
+                    {t(strategy.signal === 'buy' ? 'buy_signal' : strategy.signal === 'sell' ? 'sell_signal' : 'hold_signal')}
                   </span>
                 </div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -247,20 +247,20 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({
 
           {/* 風險評估 */}
           <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-            <span className="text-sm font-medium text-gray-900 dark:text-white">風險水平</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-white">{t('risk_level')}</span>
             <span className={`text-xs font-medium px-2 py-1 rounded ${
               riskLevel === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
               riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
               'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             }`}>
-              {riskLevel === 'high' ? '高風險' : riskLevel === 'medium' ? '中風險' : '低風險'}
+              {t(riskLevel === 'high' ? 'high_risk' : riskLevel === 'medium' ? 'medium_risk' : 'low_risk')}
             </span>
           </div>
 
           {/* 操作建議 */}
           <div className="border-t border-gray-200 dark:border-gray-600 pt-3">
             <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-              操作建議: {actionAdvice.primary}
+              {t('trading_advice')}: {t(actionAdvice.primary)}
             </div>
             
             {actionAdvice.secondary.length > 0 && (
@@ -268,7 +268,7 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({
                 {actionAdvice.secondary.map((advice, index) => (
                   <div key={index} className="text-xs text-gray-600 dark:text-gray-300 flex items-center">
                     <span className="w-1 h-1 bg-gray-400 rounded-full mr-2"></span>
-                    {advice}
+                    {t(advice)}
                   </div>
                 ))}
               </div>
@@ -279,7 +279,7 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({
                 {actionAdvice.warnings.map((warning, index) => (
                   <div key={index} className="text-xs text-amber-600 dark:text-amber-400 flex items-center">
                     <span className="w-1 h-1 bg-amber-500 rounded-full mr-2"></span>
-                    {warning}
+                    {t(warning)}
                   </div>
                 ))}
               </div>

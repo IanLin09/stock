@@ -41,24 +41,40 @@ jobs:
         fi
     - name: Call indicator
       run: |
-        response=$(curl -s -w "%{http_code}" -o response.json \
-          -X POST \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
-          -d '{"symbol": "QQQ"}' \
-          "${{ secrets.API_ENDPOINT }}/indicators/latest")
+        symbols=("QQQ" "TSLA" "IBIT")
+        failed_symbols=()
+        all_success=true
+
+        for symbol in "${symbols[@]}"; do
+          echo "Processing symbol: $symbol"
+          
+          response=$(curl -s -w "%{http_code}" -o "response_${symbol}.json" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            -d "{\"symbol\": \"$symbol\"}" \
+            "${{ secrets.API_ENDPOINT }}/indicators/latest")
+          
+          echo "HTTP Status for $symbol: $response"
+          
+          if [ "$response" -eq 200 ]; then
+            echo "✅ $symbol processed successfully"
+            cat "response_${symbol}.json"
+          else
+            echo "❌ $symbol failed with status $response"
+            cat "response_${symbol}.json"
+            failed_symbols+=("$symbol")
+            all_success=false
+          fi
+        done
         
-        echo "HTTP Status: $response"
-        
-        if [ "$response" -eq 200 ]; then
-          echo "✅ API call successful"
-          cat response.json
-        else
-          echo "❌ API call failed with status $response"
-          cat response.json
+        # 檢查是否有失敗的 symbols
+        if [ "$all_success" = false ]; then
+          echo "❌ Failed symbols: ${failed_symbols[*]}"
           exit 1
+        else
+          echo "✅ All symbols processed successfully"
         fi
-      
     - name: Call intraday with Multiple Symbols
       run: |
         # Array of symbols

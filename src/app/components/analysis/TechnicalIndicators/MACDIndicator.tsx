@@ -1,5 +1,6 @@
 'use client';
 import { StockAnalysisDTO, IndicatorStatus } from '@/utils/dto';
+import { useTranslation } from 'react-i18next';
 import { useAnalysisBreakpoints } from '@/hooks/use-analysis-responsive';
 import { getAnalysisTextSize } from '@/utils/analysis-responsive';
 import {
@@ -14,6 +15,7 @@ interface MACDIndicatorProps {
 
 const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
   const { currentScreenSize } = useAnalysisBreakpoints();
+  const { t } = useTranslation();
 
   const textSize = getAnalysisTextSize('base', currentScreenSize);
   const smallTextSize = getAnalysisTextSize('sm', currentScreenSize);
@@ -36,9 +38,9 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
   };
 
   const tradingSignals = [
-    '金叉(DIF上穿DEA): 買入信號',
-    '死叉(DIF下穿DEA): 賣出信號',
-    'MACD背離: 趨勢可能反轉',
+    t('macd_signal_golden'),
+    t('macd_signal_death'),
+    t('macd_signal_divergence'),
   ];
 
   // 判斷金叉死叉
@@ -61,18 +63,22 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className={`font-semibold ${titleSize}`}>
-            MACD - Moving Average Convergence Divergence
+            {t('macd_full_name')}
           </h3>
           <p className={`text-gray-600 dark:text-gray-400 ${smallTextSize}`}>
-            趨勢跟踪指標，識別動量變化
+            {t('macd_description')}
           </p>
         </div>
         <div className="text-right">
           <div className={`font-bold ${textSize} ${statusColors[status]}`}>
-            {isGoldenCross ? '金叉' : isDeathCross ? '死叉' : '中性'}
+            {isGoldenCross
+              ? t('golden_cross')
+              : isDeathCross
+                ? t('death_cross')
+                : t('neutral')}
           </div>
           <div className={`${smallTextSize} text-gray-500`}>
-            {getIndicatorStatusDescription('macd', status)}
+            {t(getIndicatorStatusDescription('macd', status))}
           </div>
         </div>
       </div>
@@ -83,7 +89,7 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
           <div
             className={`font-medium ${smallTextSize} text-gray-600 dark:text-gray-400`}
           >
-            DIF
+            {t('macd_dif')}
           </div>
           <div
             className={`font-bold ${textSize} ${dif !== null && dif > 0 ? 'text-green-500' : 'text-red-500'}`}
@@ -95,7 +101,7 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
           <div
             className={`font-medium ${smallTextSize} text-gray-600 dark:text-gray-400`}
           >
-            DEA
+            {t('macd_dea')}
           </div>
           <div
             className={`font-bold ${textSize} ${dea !== null && dea > 0 ? 'text-green-500' : 'text-red-500'}`}
@@ -107,7 +113,7 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
           <div
             className={`font-medium ${smallTextSize} text-gray-600 dark:text-gray-400`}
           >
-            Histogram
+            {t('macd_histogram')}
           </div>
           <div
             className={`font-bold ${textSize} ${histogram !== null && histogram > 0 ? 'text-green-500' : 'text-red-500'}`}
@@ -119,7 +125,7 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
 
       {/* 直方圖視覺化 */}
       <div className="space-y-2">
-        <h4 className={`font-medium ${textSize}`}>直方圖趨勢</h4>
+        <h4 className={`font-medium ${textSize}`}>{t('histogram_trend')}</h4>
         <div className="relative h-8 bg-gray-200 dark:bg-gray-700 rounded">
           <div className="absolute top-1/2 left-1/2 w-px h-full bg-gray-400 transform -translate-x-1/2 -translate-y-1/2"></div>
           <div
@@ -138,16 +144,16 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
           ></div>
         </div>
         <div className="flex justify-between text-xs text-gray-500">
-          <span>負向</span>
+          <span>{t('negative')}</span>
           <span>0</span>
-          <span>正向</span>
+          <span>{t('positive')}</span>
         </div>
       </div>
 
       {/* 詳細資訊 */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <h4 className={`font-medium ${textSize}`}>EMA 數據</h4>
+          <h4 className={`font-medium ${textSize}`}>{t('ema_data')}</h4>
           <div className={`space-y-1 ${smallTextSize}`}>
             <div className="flex justify-between">
               <span>EMA12:</span>
@@ -161,7 +167,7 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
         </div>
 
         <div className="space-y-2">
-          <h4 className={`font-medium ${textSize}`}>交易信號</h4>
+          <h4 className={`font-medium ${textSize}`}>{t('trading_signals')}</h4>
           <div className={`space-y-1 ${smallTextSize}`}>
             {tradingSignals.map((signal, index) => (
               <div key={index} className="text-gray-600 dark:text-gray-400">
@@ -174,27 +180,21 @@ const MACDIndicator = ({ data, status }: MACDIndicatorProps) => {
 
       {/* 狀態說明 */}
       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div className={`font-medium ${textSize} mb-2`}>當前狀況</div>
+        <div className={`font-medium ${textSize} mb-2`}>
+          {t('current_status')}
+        </div>
         <div className={`${smallTextSize} text-gray-600 dark:text-gray-400`}>
           {status === 'bullish' && (
-            <div className="text-green-600">
-              MACD 呈現金叉信號，DIF 上穿 DEA，且直方圖為正，顯示買入機會。
-            </div>
+            <div className="text-green-600">{t('macd_status_bullish')}</div>
           )}
           {status === 'bearish' && (
-            <div className="text-red-600">
-              MACD 呈現死叉信號，DIF 下穿 DEA，且直方圖為負，顯示賣出訊號。
-            </div>
+            <div className="text-red-600">{t('macd_status_bearish')}</div>
           )}
           {status === 'neutral' && (
-            <div className="text-gray-600">
-              MACD 處於中性狀態，DIF 和 DEA 接近，趨勢不明確，建議觀望。
-            </div>
+            <div className="text-gray-600">{t('macd_status_neutral')}</div>
           )}
           {status === 'extreme' && (
-            <div className="text-orange-600">
-              MACD 顯示強勢信號，直方圖絕對值較大，趨勢可能持續。
-            </div>
+            <div className="text-orange-600">{t('macd_status_extreme')}</div>
           )}
         </div>
       </div>

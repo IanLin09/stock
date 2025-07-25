@@ -4,7 +4,7 @@
  */
 
 import type { StockAnalysisDTO } from './dto';
-import type { IndicatorSignal, StrategySignal, ConfidenceLevel, RiskLevel } from './strategyEngine';
+import type { ConfidenceLevel, RiskLevel } from './strategyEngine';
 
 // ==================== 規則條件類型 ====================
 
@@ -22,7 +22,16 @@ export interface StrategyRule {
 
 export interface RuleCondition {
   indicator: 'RSI' | 'MACD' | 'MA' | 'KDJ' | 'price' | 'volume';
-  operator: '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'cross_above' | 'cross_below';
+  operator:
+    | '>'
+    | '<'
+    | '>='
+    | '<='
+    | '=='
+    | '!='
+    | 'between'
+    | 'cross_above'
+    | 'cross_below';
   value: number | number[] | string;
   period?: number; // 週期參數
   weight: number; // 條件權重
@@ -48,30 +57,67 @@ export const STRATEGY_RULES: StrategyRule[] = [
     name: '強勢動量買入',
     description: 'RSI適中+MACD金叉+價格突破',
     conditions: [
-      { indicator: 'RSI', operator: 'between', value: [40, 70], weight: 0.25, required: true },
-      { indicator: 'MACD', operator: '>', value: 0, weight: 0.35, required: true }, // DIF > DEA
-      { indicator: 'MA', operator: 'cross_above', value: 20, weight: 0.4, required: true }
+      {
+        indicator: 'RSI',
+        operator: 'between',
+        value: [40, 70],
+        weight: 0.25,
+        required: true,
+      },
+      {
+        indicator: 'MACD',
+        operator: '>',
+        value: 0,
+        weight: 0.35,
+        required: true,
+      }, // DIF > DEA
+      {
+        indicator: 'MA',
+        operator: 'cross_above',
+        value: 20,
+        weight: 0.4,
+        required: true,
+      },
     ],
     action: 'buy',
     weight: 0.8,
     riskLevel: 'medium',
     expectedReturn: 0.15,
-    maxDrawdown: 0.08
+    maxDrawdown: 0.08,
   },
   {
     id: 'momentum_trend_follow',
     name: '趨勢跟踪',
     description: 'MACD持續看漲+價格在均線上方',
     conditions: [
-      { indicator: 'MACD', operator: '>', value: 0, weight: 0.4, required: true },
-      { indicator: 'MA', operator: '>', value: 0.02, period: 20, weight: 0.3, required: true }, // 價格高於MA20 2%
-      { indicator: 'RSI', operator: '<', value: 75, weight: 0.3, required: false }
+      {
+        indicator: 'MACD',
+        operator: '>',
+        value: 0,
+        weight: 0.4,
+        required: true,
+      },
+      {
+        indicator: 'MA',
+        operator: '>',
+        value: 0.02,
+        period: 20,
+        weight: 0.3,
+        required: true,
+      }, // 價格高於MA20 2%
+      {
+        indicator: 'RSI',
+        operator: '<',
+        value: 75,
+        weight: 0.3,
+        required: false,
+      },
     ],
     action: 'buy',
     weight: 0.6,
     riskLevel: 'medium',
     expectedReturn: 0.12,
-    maxDrawdown: 0.1
+    maxDrawdown: 0.1,
   },
 
   // 均值回歸策略規則
@@ -80,30 +126,67 @@ export const STRATEGY_RULES: StrategyRule[] = [
     name: '超賣反彈',
     description: 'RSI極度超賣+KDJ底部金叉',
     conditions: [
-      { indicator: 'RSI', operator: '<=', value: 25, weight: 0.5, required: true },
-      { indicator: 'KDJ', operator: '<=', value: 20, weight: 0.3, required: true },
-      { indicator: 'MACD', operator: '>', value: -0.5, weight: 0.2, required: false } // 避免強勢下跌
+      {
+        indicator: 'RSI',
+        operator: '<=',
+        value: 25,
+        weight: 0.5,
+        required: true,
+      },
+      {
+        indicator: 'KDJ',
+        operator: '<=',
+        value: 20,
+        weight: 0.3,
+        required: true,
+      },
+      {
+        indicator: 'MACD',
+        operator: '>',
+        value: -0.5,
+        weight: 0.2,
+        required: false,
+      }, // 避免強勢下跌
     ],
     action: 'buy',
     weight: 0.9,
     riskLevel: 'low',
     expectedReturn: 0.08,
-    maxDrawdown: 0.05
+    maxDrawdown: 0.05,
   },
   {
     id: 'mean_reversion_overbought',
     name: '超買回調',
     description: 'RSI極度超買+價格偏離均線過大',
     conditions: [
-      { indicator: 'RSI', operator: '>=', value: 75, weight: 0.4, required: true },
-      { indicator: 'MA', operator: '>', value: 0.05, period: 20, weight: 0.4, required: true }, // 偏離MA20超過5%
-      { indicator: 'KDJ', operator: '>=', value: 80, weight: 0.2, required: false }
+      {
+        indicator: 'RSI',
+        operator: '>=',
+        value: 75,
+        weight: 0.4,
+        required: true,
+      },
+      {
+        indicator: 'MA',
+        operator: '>',
+        value: 0.05,
+        period: 20,
+        weight: 0.4,
+        required: true,
+      }, // 偏離MA20超過5%
+      {
+        indicator: 'KDJ',
+        operator: '>=',
+        value: 80,
+        weight: 0.2,
+        required: false,
+      },
     ],
     action: 'sell',
     weight: 0.7,
     riskLevel: 'medium',
     expectedReturn: 0.06,
-    maxDrawdown: 0.08
+    maxDrawdown: 0.08,
   },
 
   // 突破策略規則
@@ -112,30 +195,68 @@ export const STRATEGY_RULES: StrategyRule[] = [
     name: '放量突破',
     description: 'MACD強勢金叉+突破關鍵阻力',
     conditions: [
-      { indicator: 'MACD', operator: '>', value: 0.3, weight: 0.4, required: true }, // 強勢金叉
-      { indicator: 'RSI', operator: 'between', value: [50, 75], weight: 0.3, required: true },
-      { indicator: 'MA', operator: '>', value: 0.03, period: 20, weight: 0.3, required: true }
+      {
+        indicator: 'MACD',
+        operator: '>',
+        value: 0.3,
+        weight: 0.4,
+        required: true,
+      }, // 強勢金叉
+      {
+        indicator: 'RSI',
+        operator: 'between',
+        value: [50, 75],
+        weight: 0.3,
+        required: true,
+      },
+      {
+        indicator: 'MA',
+        operator: '>',
+        value: 0.03,
+        period: 20,
+        weight: 0.3,
+        required: true,
+      },
     ],
     action: 'buy',
     weight: 0.8,
     riskLevel: 'high',
     expectedReturn: 0.25,
-    maxDrawdown: 0.15
+    maxDrawdown: 0.15,
   },
   {
     id: 'breakout_breakdown',
     name: '跌破支撐',
     description: 'MACD死叉+跌破關鍵支撐',
     conditions: [
-      { indicator: 'MACD', operator: '<', value: -0.2, weight: 0.4, required: true },
-      { indicator: 'MA', operator: '<', value: -0.03, period: 20, weight: 0.35, required: true },
-      { indicator: 'RSI', operator: '<', value: 45, weight: 0.25, required: false }
+      {
+        indicator: 'MACD',
+        operator: '<',
+        value: -0.2,
+        weight: 0.4,
+        required: true,
+      },
+      {
+        indicator: 'MA',
+        operator: '<',
+        value: -0.03,
+        period: 20,
+        weight: 0.35,
+        required: true,
+      },
+      {
+        indicator: 'RSI',
+        operator: '<',
+        value: 45,
+        weight: 0.25,
+        required: false,
+      },
     ],
     action: 'sell',
     weight: 0.75,
     riskLevel: 'high',
     expectedReturn: 0.2,
-    maxDrawdown: 0.2
+    maxDrawdown: 0.2,
   },
 
   // 保守策略規則
@@ -144,16 +265,35 @@ export const STRATEGY_RULES: StrategyRule[] = [
     name: '保守持有',
     description: '指標中性，建議持有觀望',
     conditions: [
-      { indicator: 'RSI', operator: 'between', value: [35, 65], weight: 0.4, required: false },
-      { indicator: 'MACD', operator: 'between', value: [-0.1, 0.1], weight: 0.4, required: false },
-      { indicator: 'MA', operator: 'between', value: [-0.02, 0.02], period: 20, weight: 0.2, required: false }
+      {
+        indicator: 'RSI',
+        operator: 'between',
+        value: [35, 65],
+        weight: 0.4,
+        required: false,
+      },
+      {
+        indicator: 'MACD',
+        operator: 'between',
+        value: [-0.1, 0.1],
+        weight: 0.4,
+        required: false,
+      },
+      {
+        indicator: 'MA',
+        operator: 'between',
+        value: [-0.02, 0.02],
+        period: 20,
+        weight: 0.2,
+        required: false,
+      },
     ],
     action: 'hold',
     weight: 0.3,
     riskLevel: 'low',
     expectedReturn: 0.03,
-    maxDrawdown: 0.03
-  }
+    maxDrawdown: 0.03,
+  },
 ];
 
 // ==================== 條件匹配引擎 ====================
@@ -162,26 +302,36 @@ export class RuleEngine {
   /**
    * 評估單個條件是否滿足
    */
-  static evaluateCondition(condition: RuleCondition, data: StockAnalysisDTO, currentPrice?: number): boolean {
-    const { indicator, operator, value, period } = condition;
+  static evaluateCondition(
+    condition: RuleCondition,
+    data: StockAnalysisDTO,
+    currentPrice?: number
+  ): boolean {
+    const { indicator, operator, value } = condition;
 
     let actualValue: number | undefined;
 
     // 獲取指標實際值
     switch (indicator) {
       case 'RSI':
-        actualValue = data.rsi?.[period || 14];
+        // RSI只支持14期，忽略period參數
+        actualValue = data.rsi?.['14'];
         break;
       case 'MACD':
-        if (operator === '>' || operator === '<' || operator === '>=' || operator === '<=') {
+        if (
+          operator === '>' ||
+          operator === '<' ||
+          operator === '>=' ||
+          operator === '<='
+        ) {
           // 比較histogram值
           actualValue = data.macd?.histogram;
         }
         break;
       case 'MA':
-        if (currentPrice && data.ma?.[period || 20]) {
-          // 計算價格與MA的偏離程度
-          const ma = data.ma[period || 20];
+        if (currentPrice && data.ma?.['20']) {
+          // 計算價格與MA的偏離程度 (只支持20期MA)
+          const ma = data.ma['20'];
           actualValue = (currentPrice - ma) / ma;
         }
         break;
@@ -215,13 +365,16 @@ export class RuleEngine {
         return Math.abs(actualValue - (value as number)) < 0.001;
       case '!=':
         return Math.abs(actualValue - (value as number)) >= 0.001;
-      case 'between':
+      case 'between': {
         const [min, max] = value as number[];
         return actualValue >= min && actualValue <= max;
+      }
       case 'cross_above':
       case 'cross_below':
         // 穿越條件需要歷史數據，暫時簡化處理
-        return operator === 'cross_above' ? actualValue > (value as number) : actualValue < (value as number);
+        return operator === 'cross_above'
+          ? actualValue > (value as number)
+          : actualValue < (value as number);
       default:
         return false;
     }
@@ -230,7 +383,11 @@ export class RuleEngine {
   /**
    * 評估策略規則匹配度
    */
-  static evaluateRule(rule: StrategyRule, data: StockAnalysisDTO, currentPrice?: number): RuleMatchResult {
+  static evaluateRule(
+    rule: StrategyRule,
+    data: StockAnalysisDTO,
+    currentPrice?: number
+  ): RuleMatchResult {
     const matchedConditions: string[] = [];
     const failedConditions: string[] = [];
     let totalScore = 0;
@@ -269,7 +426,12 @@ export class RuleEngine {
     }
 
     // 生成建議
-    const recommendation = this.generateRecommendation(rule, matched, score, confidence);
+    const recommendation = this.generateRecommendation(
+      rule,
+      matched,
+      score,
+      confidence
+    );
 
     return {
       ruleId: rule.id,
@@ -278,23 +440,31 @@ export class RuleEngine {
       confidence,
       matchedConditions,
       failedConditions,
-      recommendation
+      recommendation,
     };
   }
 
   /**
    * 評估所有策略規則
    */
-  static evaluateAllRules(data: StockAnalysisDTO, currentPrice?: number): RuleMatchResult[] {
-    return STRATEGY_RULES.map(rule => this.evaluateRule(rule, data, currentPrice));
+  static evaluateAllRules(
+    data: StockAnalysisDTO,
+    currentPrice?: number
+  ): RuleMatchResult[] {
+    return STRATEGY_RULES.map((rule) =>
+      this.evaluateRule(rule, data, currentPrice)
+    );
   }
 
   /**
    * 獲取最佳匹配的策略
    */
-  static getBestStrategy(data: StockAnalysisDTO, currentPrice?: number): RuleMatchResult | null {
+  static getBestStrategy(
+    data: StockAnalysisDTO,
+    currentPrice?: number
+  ): RuleMatchResult | null {
     const results = this.evaluateAllRules(data, currentPrice);
-    const matchedResults = results.filter(r => r.matched);
+    const matchedResults = results.filter((r) => r.matched);
 
     if (matchedResults.length === 0) return null;
 
@@ -314,7 +484,7 @@ export class RuleEngine {
       MA: `MA${period || 20}`,
       KDJ: 'KDJ',
       price: '價格',
-      volume: '成交量'
+      volume: '成交量',
     }[indicator];
 
     const operatorDesc = {
@@ -324,9 +494,9 @@ export class RuleEngine {
       '<=': '小於等於',
       '==': '等於',
       '!=': '不等於',
-      'between': '介於',
-      'cross_above': '突破',
-      'cross_below': '跌破'
+      between: '介於',
+      cross_above: '突破',
+      cross_below: '跌破',
     }[operator];
 
     if (operator === 'between') {
@@ -343,7 +513,7 @@ export class RuleEngine {
   private static generateRecommendation(
     rule: StrategyRule,
     matched: boolean,
-    score: number,
+    _score: number,
     confidence: ConfidenceLevel
   ): string {
     if (!matched) {
@@ -353,20 +523,20 @@ export class RuleEngine {
     const confidenceDesc = {
       strong: '強烈',
       moderate: '適度',
-      weak: '謹慎'
+      weak: '謹慎',
     }[confidence];
 
     const actionDesc = {
       buy: '買入',
       sell: '賣出',
       hold: '持有',
-      reduce: '減倉'
+      reduce: '減倉',
     }[rule.action];
 
     const riskDesc = {
       low: '低風險',
       medium: '中等風險',
-      high: '高風險'
+      high: '高風險',
     }[rule.riskLevel];
 
     return `${confidenceDesc}建議${actionDesc} (${riskDesc}, 預期收益${(rule.expectedReturn * 100).toFixed(1)}%)`;
@@ -385,35 +555,37 @@ export class StrategyScorer {
     recommendation: string;
     topStrategies: RuleMatchResult[];
   } {
-    const matchedResults = results.filter(r => r.matched);
-    
+    const matchedResults = results.filter((r) => r.matched);
+
     if (matchedResults.length === 0) {
       return {
         score: 0,
         confidence: 'weak',
         recommendation: '沒有明確策略信號，建議觀望',
-        topStrategies: []
+        topStrategies: [],
       };
     }
 
     // 計算加權平均分
     const totalWeight = matchedResults.reduce((sum, r) => {
-      const rule = STRATEGY_RULES.find(rule => rule.id === r.ruleId);
+      const rule = STRATEGY_RULES.find((rule) => rule.id === r.ruleId);
       return sum + (rule?.weight || 0);
     }, 0);
 
     const weightedScore = matchedResults.reduce((sum, r) => {
-      const rule = STRATEGY_RULES.find(rule => rule.id === r.ruleId);
+      const rule = STRATEGY_RULES.find((rule) => rule.id === r.ruleId);
       const weight = rule?.weight || 0;
-      return sum + (r.score * weight);
+      return sum + r.score * weight;
     }, 0);
 
     const overallScore = totalWeight > 0 ? weightedScore / totalWeight : 0;
 
     // 確定信心水平
     let confidence: ConfidenceLevel;
-    const strongCount = matchedResults.filter(r => r.confidence === 'strong').length;
-    
+    const strongCount = matchedResults.filter(
+      (r) => r.confidence === 'strong'
+    ).length;
+
     if (strongCount >= 2 && overallScore >= 75) {
       confidence = 'strong';
     } else if (strongCount >= 1 && overallScore >= 60) {
@@ -429,21 +601,26 @@ export class StrategyScorer {
 
     // 生成綜合建議
     const primaryStrategy = topStrategies[0];
-    const primaryRule = STRATEGY_RULES.find(r => r.id === primaryStrategy.ruleId);
-    
+    const primaryRule = STRATEGY_RULES.find(
+      (r) => r.id === primaryStrategy.ruleId
+    );
+
     let recommendation = `主要建議: ${primaryRule?.name || '未知策略'}`;
     if (topStrategies.length > 1) {
-      recommendation += `，備選策略: ${topStrategies.slice(1).map(s => {
-        const rule = STRATEGY_RULES.find(r => r.id === s.ruleId);
-        return rule?.name || '未知';
-      }).join('、')}`;
+      recommendation += `，備選策略: ${topStrategies
+        .slice(1)
+        .map((s) => {
+          const rule = STRATEGY_RULES.find((r) => r.id === s.ruleId);
+          return rule?.name || '未知';
+        })
+        .join('、')}`;
     }
 
     return {
       score: Math.round(overallScore),
       confidence,
       recommendation,
-      topStrategies
+      topStrategies,
     };
   }
 
@@ -455,15 +632,15 @@ export class StrategyScorer {
     riskFactors: string[];
     suggestions: string[];
   } {
-    const matchedResults = results.filter(r => r.matched);
-    const riskLevels = matchedResults.map(r => {
-      const rule = STRATEGY_RULES.find(rule => rule.id === r.ruleId);
+    const matchedResults = results.filter((r) => r.matched);
+    const riskLevels = matchedResults.map((r) => {
+      const rule = STRATEGY_RULES.find((rule) => rule.id === r.ruleId);
       return rule?.riskLevel || 'low';
     });
 
     // 計算總體風險水平
-    const highRiskCount = riskLevels.filter(r => r === 'high').length;
-    const mediumRiskCount = riskLevels.filter(r => r === 'medium').length;
+    const highRiskCount = riskLevels.filter((r) => r === 'high').length;
+    const mediumRiskCount = riskLevels.filter((r) => r === 'medium').length;
 
     let overallRisk: RiskLevel;
     if (highRiskCount > 0) {
@@ -489,7 +666,9 @@ export class StrategyScorer {
       suggestions.push('選擇信心度最高的1-2個策略');
     }
 
-    const weakSignals = matchedResults.filter(r => r.confidence === 'weak').length;
+    const weakSignals = matchedResults.filter(
+      (r) => r.confidence === 'weak'
+    ).length;
     if (weakSignals > matchedResults.length / 2) {
       riskFactors.push('多數策略信心度較低');
       suggestions.push('等待更明確的信號');
@@ -498,7 +677,7 @@ export class StrategyScorer {
     return {
       overallRisk,
       riskFactors,
-      suggestions
+      suggestions,
     };
   }
 }

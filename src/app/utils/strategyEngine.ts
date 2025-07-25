@@ -26,6 +26,7 @@ export interface IndicatorJudgment {
 export interface StrategySignal {
   type: StrategyType;
   action: 'buy' | 'sell' | 'hold' | 'reduce';
+  signal: 'bullish' | 'bearish' | 'neutral';
   strength: number; // 0-100
   confidence: ConfidenceLevel;
   riskLevel: RiskLevel;
@@ -67,32 +68,38 @@ export class RSIAnalyzer {
       signal = 'extreme';
       strength = Math.min(95, 60 + (rsi - 80) * 2);
       confidence = 'strong';
-      message = '極度超買，強烈反轉信號';
-      reasons = ['RSI超過80，極度超買', '短期回調風險極高'];
+      message = 'strategy_rsi_extreme_overbought';
+      reasons = ['strategy_rsi_above_80', 'strategy_short_term_pullback_risk'];
     } else if (rsi >= 70) {
       signal = 'bearish';
       strength = 60 + (rsi - 70);
       confidence = rsi >= 75 ? 'strong' : 'moderate';
-      message = '超買區間，注意回調風險';
-      reasons = ['RSI進入超買區間', '建議考慮減倉'];
+      message = 'strategy_rsi_overbought_zone';
+      reasons = [
+        'strategy_rsi_entered_overbought',
+        'strategy_consider_reducing_position',
+      ];
     } else if (rsi <= 20) {
       signal = 'extreme';
       strength = Math.min(95, 60 + (20 - rsi) * 2);
       confidence = 'strong';
-      message = '極度超賣，強烈反彈信號';
-      reasons = ['RSI低於20，極度超賣', '反彈機會較大'];
+      message = 'strategy_rsi_extreme_oversold';
+      reasons = ['strategy_rsi_below_20', 'strategy_rebound_opportunity'];
     } else if (rsi <= 30) {
       signal = 'bullish';
       strength = 60 + (30 - rsi);
       confidence = rsi <= 25 ? 'strong' : 'moderate';
-      message = '超賣區間，考慮買入機會';
-      reasons = ['RSI進入超賣區間', '可考慮逐步建倉'];
+      message = 'strategy_rsi_oversold_zone';
+      reasons = [
+        'strategy_rsi_entered_oversold',
+        'strategy_consider_gradual_buy',
+      ];
     } else {
       signal = 'neutral';
       strength = 50 - Math.abs(rsi - 50) / 2;
       confidence = 'weak';
-      message = '中性區間，無明確信號';
-      reasons = ['RSI處於中性區間', '等待明確信號'];
+      message = 'strategy_rsi_neutral_zone';
+      reasons = ['strategy_rsi_in_neutral', 'strategy_wait_clear_signal'];
     }
 
     return {
@@ -101,7 +108,7 @@ export class RSIAnalyzer {
       strength,
       confidence,
       message,
-      reasons
+      reasons,
     };
   }
 }
@@ -110,7 +117,11 @@ export class RSIAnalyzer {
  * MACD 判斷規則
  */
 export class MACDAnalyzer {
-  static analyze(macd: { dif: number; dea: number; histogram: number }): IndicatorJudgment {
+  static analyze(macd: {
+    dif: number;
+    dea: number;
+    histogram: number;
+  }): IndicatorJudgment {
     const { dif, dea, histogram } = macd;
     let signal: IndicatorSignal;
     let strength: number;
@@ -128,20 +139,32 @@ export class MACDAnalyzer {
       signal = 'bullish';
       strength = isStrong ? Math.min(90, 70 + trendStrength) : 60;
       confidence = isStrong ? 'strong' : 'moderate';
-      message = 'MACD金叉，看漲信號';
-      reasons = ['DIF上穿DEA', 'Histogram為正', isStrong ? '信號強度較高' : '信號強度中等'];
+      message = 'strategy_macd_golden_cross';
+      reasons = [
+        'strategy_dif_crosses_above_dea',
+        'strategy_histogram_positive',
+        isStrong
+          ? 'strategy_signal_strength_high'
+          : 'strategy_signal_strength_medium',
+      ];
     } else if (isDeathCross) {
       signal = 'bearish';
       strength = isStrong ? Math.min(90, 70 + trendStrength) : 60;
       confidence = isStrong ? 'strong' : 'moderate';
-      message = 'MACD死叉，看跌信號';
-      reasons = ['DIF下穿DEA', 'Histogram為負', isStrong ? '信號強度較高' : '信號強度中等'];
+      message = 'strategy_macd_death_cross';
+      reasons = [
+        'strategy_dif_crosses_below_dea',
+        'strategy_histogram_negative',
+        isStrong
+          ? 'strategy_signal_strength_high'
+          : 'strategy_signal_strength_medium',
+      ];
     } else {
       signal = 'neutral';
       strength = 50;
       confidence = 'weak';
-      message = 'MACD無明確方向';
-      reasons = ['等待金叉或死叉信號'];
+      message = 'strategy_macd_no_clear_direction';
+      reasons = ['strategy_wait_golden_death_cross'];
     }
 
     return {
@@ -150,7 +173,7 @@ export class MACDAnalyzer {
       strength,
       confidence,
       message,
-      reasons
+      reasons,
     };
   }
 }
@@ -173,30 +196,39 @@ export class MAAnalyzer {
       signal = 'bullish';
       strength = Math.min(85, 60 + deviation * 500);
       confidence = deviation > 0.05 ? 'strong' : 'moderate';
-      message = '價格明顯高於MA20，趨勢向上';
-      reasons = [`價格高於MA20約${(priceToMA20Ratio * 100).toFixed(1)}%`, '短期趨勢看漲'];
+      message = 'strategy_ma_price_above_ma20';
+      reasons = [
+        `strategy_price_above_ma20_by_${(priceToMA20Ratio * 100).toFixed(1)}_percent`,
+        'strategy_short_term_bullish',
+      ];
     } else if (priceToMA20Ratio < -0.03) {
       signal = 'bearish';
       strength = Math.min(85, 60 + deviation * 500);
       confidence = deviation > 0.05 ? 'strong' : 'moderate';
-      message = '價格明顯低於MA20，趨勢向下';
-      reasons = [`價格低於MA20約${(Math.abs(priceToMA20Ratio) * 100).toFixed(1)}%`, '短期趨勢看跌'];
+      message = 'strategy_ma_price_below_ma20';
+      reasons = [
+        `strategy_price_below_ma20_by_${(Math.abs(priceToMA20Ratio) * 100).toFixed(1)}_percent`,
+        'strategy_short_term_bearish',
+      ];
     } else {
       signal = 'neutral';
       strength = 50;
       confidence = 'weak';
-      message = '價格接近MA20，趨勢不明';
-      reasons = ['價格在MA20附近波動', '等待趨勢明確'];
+      message = 'strategy_ma_price_near_ma20';
+      reasons = [
+        'strategy_price_fluctuating_near_ma20',
+        'strategy_wait_trend_clear',
+      ];
     }
 
     // 如果有MA5，加入短期趨勢判斷
     if (ma5) {
       const ma5ToMA20 = (ma5 - ma20) / ma20;
       if (ma5ToMA20 > 0.01 && signal === 'bullish') {
-        reasons.push('MA5高於MA20，短期趨勢確認');
+        reasons.push('strategy_ma5_above_ma20_confirm');
         strength = Math.min(95, strength + 10);
       } else if (ma5ToMA20 < -0.01 && signal === 'bearish') {
-        reasons.push('MA5低於MA20，短期趨勢確認');
+        reasons.push('strategy_ma5_below_ma20_confirm');
         strength = Math.min(95, strength + 10);
       }
     }
@@ -207,7 +239,7 @@ export class MAAnalyzer {
       strength,
       confidence,
       message,
-      reasons
+      reasons,
     };
   }
 }
@@ -232,32 +264,38 @@ export class KDJAnalyzer {
       signal = 'bearish';
       strength = 60 + (avgKDJ - 80);
       confidence = avgKDJ >= 90 ? 'strong' : 'moderate';
-      message = 'KDJ超買，注意回調';
-      reasons = ['KDJ值過高', '短期調整風險'];
+      message = 'strategy_kdj_overbought';
+      reasons = [
+        'strategy_kdj_values_too_high',
+        'strategy_short_term_adjustment_risk',
+      ];
     } else if (avgKDJ <= 20) {
       signal = 'bullish';
       strength = 60 + (20 - avgKDJ);
       confidence = avgKDJ <= 10 ? 'strong' : 'moderate';
-      message = 'KDJ超賣，反彈機會';
-      reasons = ['KDJ值過低', '反彈機會增加'];
+      message = 'strategy_kdj_oversold';
+      reasons = [
+        'strategy_kdj_values_too_low',
+        'strategy_rebound_opportunity_increased',
+      ];
     } else if (isGoldenCross && avgKDJ < 80) {
       signal = 'bullish';
       strength = 70;
       confidence = 'moderate';
-      message = 'KDJ金叉，短期看漲';
-      reasons = ['K線上穿D線', 'J線確認向上'];
+      message = 'strategy_kdj_golden_cross';
+      reasons = ['strategy_k_crosses_above_d', 'strategy_j_confirms_upward'];
     } else if (isDeathCross && avgKDJ > 20) {
       signal = 'bearish';
       strength = 70;
       confidence = 'moderate';
-      message = 'KDJ死叉，短期看跌';
-      reasons = ['K線下穿D線', 'J線確認向下'];
+      message = 'strategy_kdj_death_cross';
+      reasons = ['strategy_k_crosses_below_d', 'strategy_j_confirms_downward'];
     } else {
       signal = 'neutral';
       strength = 50;
       confidence = 'weak';
-      message = 'KDJ無明確信號';
-      reasons = ['等待交叉信號或極值'];
+      message = 'strategy_kdj_no_clear_signal';
+      reasons = ['strategy_wait_cross_or_extreme'];
     }
 
     return {
@@ -266,12 +304,28 @@ export class KDJAnalyzer {
       strength,
       confidence,
       message,
-      reasons
+      reasons,
     };
   }
 }
 
 // ==================== 策略引擎核心 ====================
+
+// Helper function to map action to signal
+function actionToSignal(
+  action: 'buy' | 'sell' | 'hold' | 'reduce'
+): 'bullish' | 'bearish' | 'neutral' {
+  switch (action) {
+    case 'buy':
+      return 'bullish';
+    case 'sell':
+      return 'bearish';
+    case 'hold':
+    case 'reduce':
+    default:
+      return 'neutral';
+  }
+}
 
 export class StrategyEngine {
   /**
@@ -307,7 +361,9 @@ export class StrategyEngine {
   /**
    * 生成策略信號
    */
-  static generateStrategySignals(judgments: IndicatorJudgment[]): StrategySignal[] {
+  static generateStrategySignals(
+    judgments: IndicatorJudgment[]
+  ): StrategySignal[] {
     const signals: StrategySignal[] = [];
 
     // 動量策略
@@ -325,12 +381,20 @@ export class StrategyEngine {
   /**
    * 動量策略
    */
-  private static generateMomentumStrategy(judgments: IndicatorJudgment[]): StrategySignal {
-    const bullishIndicators = judgments.filter(j => j.signal === 'bullish' || j.signal === 'extreme');
-    const bearishIndicators = judgments.filter(j => j.signal === 'bearish');
-    
-    const bullishStrength = bullishIndicators.reduce((sum, j) => sum + j.strength, 0) / bullishIndicators.length || 0;
-    const bearishStrength = bearishIndicators.reduce((sum, j) => sum + j.strength, 0) / bearishIndicators.length || 0;
+  private static generateMomentumStrategy(
+    judgments: IndicatorJudgment[]
+  ): StrategySignal {
+    const bullishIndicators = judgments.filter(
+      (j) => j.signal === 'bullish' || j.signal === 'extreme'
+    );
+    const bearishIndicators = judgments.filter((j) => j.signal === 'bearish');
+
+    const bullishStrength =
+      bullishIndicators.reduce((sum, j) => sum + j.strength, 0) /
+        bullishIndicators.length || 0;
+    const bearishStrength =
+      bearishIndicators.reduce((sum, j) => sum + j.strength, 0) /
+        bearishIndicators.length || 0;
 
     let action: 'buy' | 'sell' | 'hold' | 'reduce';
     let strength: number;
@@ -341,54 +405,65 @@ export class StrategyEngine {
       action = 'buy';
       strength = bullishStrength;
       confidence = bullishStrength > 80 ? 'strong' : 'moderate';
-      recommendation = '多個指標看漲，適合趨勢跟踪操作';
+      recommendation = 'strategy_momentum_multiple_bullish';
     } else if (bearishIndicators.length >= 2 && bearishStrength > 65) {
       action = 'sell';
       strength = bearishStrength;
       confidence = bearishStrength > 80 ? 'strong' : 'moderate';
-      recommendation = '多個指標看跌，建議減倉或止損';
+      recommendation = 'strategy_momentum_multiple_bearish';
     } else {
       action = 'hold';
       strength = 50;
       confidence = 'weak';
-      recommendation = '指標信號不一致，建議觀望';
+      recommendation = 'strategy_momentum_inconsistent_signals';
     }
 
     return {
       type: 'momentum',
       action,
+      signal: actionToSignal(action),
       strength,
       confidence,
       riskLevel: strength > 80 ? 'high' : strength > 60 ? 'medium' : 'low',
-      supportingIndicators: bullishIndicators.map(j => j.indicator),
-      conflictingIndicators: bearishIndicators.map(j => j.indicator),
-      recommendation
+      supportingIndicators: bullishIndicators.map((j) => j.indicator),
+      conflictingIndicators: bearishIndicators.map((j) => j.indicator),
+      recommendation,
     };
   }
 
   /**
    * 均值回歸策略
    */
-  private static generateMeanReversionStrategy(judgments: IndicatorJudgment[]): StrategySignal {
-    const extremeIndicators = judgments.filter(j => j.signal === 'extreme');
-    const rsiJudgment = judgments.find(j => j.indicator === 'RSI');
-    const kdjJudgment = judgments.find(j => j.indicator === 'KDJ');
+  private static generateMeanReversionStrategy(
+    judgments: IndicatorJudgment[]
+  ): StrategySignal {
+    const extremeIndicators = judgments.filter((j) => j.signal === 'extreme');
+    const rsiJudgment = judgments.find((j) => j.indicator === 'RSI');
 
     let action: 'buy' | 'sell' | 'hold' | 'reduce' = 'hold';
     let strength = 50;
     let confidence: ConfidenceLevel = 'weak';
-    let recommendation = '等待極值反轉機會';
+    let recommendation = 'strategy_mean_reversion_wait_extreme';
 
     if (extremeIndicators.length > 0) {
-      const avgStrength = extremeIndicators.reduce((sum, j) => sum + j.strength, 0) / extremeIndicators.length;
-      
+      const avgStrength =
+        extremeIndicators.reduce((sum, j) => sum + j.strength, 0) /
+        extremeIndicators.length;
+
       if (rsiJudgment && rsiJudgment.signal === 'extreme') {
         // RSI極值反轉
         if (rsiJudgment.strength > 85) {
-          action = rsiJudgment.reasons.some(r => r.includes('超賣')) ? 'buy' : 'sell';
+          action = rsiJudgment.reasons.some(
+            (r) => r.includes('oversold') || r.includes('超賣')
+          )
+            ? 'buy'
+            : 'sell';
           strength = avgStrength;
           confidence = 'strong';
-          recommendation = `RSI${action === 'buy' ? '極度超賣' : '極度超買'}，反轉機會較大`;
+          recommendation =
+            action === 'buy'
+              ? 'strategy_rsi_extreme_oversold_reversal'
+              : 'strategy_rsi_extreme_overbought_reversal';
         }
       }
     }
@@ -396,64 +471,80 @@ export class StrategyEngine {
     return {
       type: 'mean_reversion',
       action,
+      signal: actionToSignal(action),
       strength,
       confidence,
       riskLevel: 'medium',
-      supportingIndicators: extremeIndicators.map(j => j.indicator),
+      supportingIndicators: extremeIndicators.map((j) => j.indicator),
       conflictingIndicators: [],
-      recommendation
+      recommendation,
     };
   }
 
   /**
    * 突破策略
    */
-  private static generateBreakoutStrategy(judgments: IndicatorJudgment[]): StrategySignal {
-    const macdJudgment = judgments.find(j => j.indicator === 'MACD');
-    const strongSignals = judgments.filter(j => j.confidence === 'strong');
+  private static generateBreakoutStrategy(
+    judgments: IndicatorJudgment[]
+  ): StrategySignal {
+    const macdJudgment = judgments.find((j) => j.indicator === 'MACD');
+    const strongSignals = judgments.filter((j) => j.confidence === 'strong');
 
     let action: 'buy' | 'sell' | 'hold' | 'reduce' = 'hold';
     let strength = 50;
     let confidence: ConfidenceLevel = 'weak';
-    let recommendation = '等待突破確認信號';
+    let recommendation = 'strategy_breakout_wait_confirmation';
 
     if (macdJudgment && strongSignals.length >= 1) {
       if (macdJudgment.signal === 'bullish' && macdJudgment.strength > 75) {
         action = 'buy';
         strength = macdJudgment.strength;
         confidence = 'strong';
-        recommendation = 'MACD強勢金叉，突破向上可能性大';
-      } else if (macdJudgment.signal === 'bearish' && macdJudgment.strength > 75) {
+        recommendation = 'strategy_macd_strong_golden_breakout';
+      } else if (
+        macdJudgment.signal === 'bearish' &&
+        macdJudgment.strength > 75
+      ) {
         action = 'sell';
         strength = macdJudgment.strength;
         confidence = 'strong';
-        recommendation = 'MACD強勢死叉，突破向下風險高';
+        recommendation = 'strategy_macd_strong_death_breakout';
       }
     }
 
     return {
       type: 'breakout',
       action,
+      signal: actionToSignal(action),
       strength,
       confidence,
       riskLevel: 'high',
-      supportingIndicators: strongSignals.map(j => j.indicator),
+      supportingIndicators: strongSignals.map((j) => j.indicator),
       conflictingIndicators: [],
-      recommendation
+      recommendation,
     };
   }
 
   /**
    * 綜合策略分析
    */
-  static performCompleteAnalysis(data: StockAnalysisDTO, symbol: string): StrategyAnalysis {
+  static performCompleteAnalysis(
+    data: StockAnalysisDTO,
+    symbol: string
+  ): StrategyAnalysis {
     const indicatorJudgments = this.analyzeIndicators(data);
     const strategySignals = this.generateStrategySignals(indicatorJudgments);
 
     // 計算整體信號
-    const avgStrength = indicatorJudgments.reduce((sum, j) => sum + j.strength, 0) / indicatorJudgments.length;
-    const bullishCount = indicatorJudgments.filter(j => j.signal === 'bullish' || j.signal === 'extreme').length;
-    const bearishCount = indicatorJudgments.filter(j => j.signal === 'bearish').length;
+    const avgStrength =
+      indicatorJudgments.reduce((sum, j) => sum + j.strength, 0) /
+      indicatorJudgments.length;
+    const bullishCount = indicatorJudgments.filter(
+      (j) => j.signal === 'bullish' || j.signal === 'extreme'
+    ).length;
+    const bearishCount = indicatorJudgments.filter(
+      (j) => j.signal === 'bearish'
+    ).length;
 
     let overallSignal: IndicatorSignal;
     if (bullishCount > bearishCount && avgStrength > 60) {
@@ -465,7 +556,7 @@ export class StrategyEngine {
     }
 
     // 生成最終建議
-    const bestStrategy = strategySignals.reduce((best, current) => 
+    const bestStrategy = strategySignals.reduce((best, current) =>
       current.strength > best.strength ? current : best
     );
 
@@ -477,15 +568,36 @@ export class StrategyEngine {
       indicatorJudgments,
       strategySignals,
       finalRecommendation: {
-        primaryAction: bestStrategy.action === 'reduce' ? 'sell' : bestStrategy.action,
+        primaryAction:
+          bestStrategy.action === 'reduce' ? 'sell' : bestStrategy.action,
         secondaryActions: strategySignals
-          .filter(s => s !== bestStrategy && s.strength > 60)
-          .map(s => `${s.type}: ${s.recommendation}`),
+          .filter((s) => s !== bestStrategy && s.strength > 60)
+          .map((s) => `${s.type}: ${s.recommendation}`),
         riskWarnings: strategySignals
-          .filter(s => s.riskLevel === 'high')
-          .map(s => `${s.type}策略風險較高`),
-        timeframe: '短期(1-5個交易日)'
-      }
+          .filter((s) => s.riskLevel === 'high')
+          .map((s) => `strategy_${s.type}_high_risk`),
+        timeframe: 'strategy_short_term_timeframe',
+      },
     };
   }
 }
+
+// ==================== 輔助工具函數 ====================
+
+/**
+ * 將 StrategySignal.action 映射為前端組件期望的 signal 值
+ */
+export const mapActionToSignal = (
+  action: 'buy' | 'sell' | 'hold' | 'reduce'
+): 'bullish' | 'bearish' | 'neutral' => {
+  switch (action) {
+    case 'buy':
+      return 'bullish';
+    case 'sell':
+      return 'bearish';
+    case 'hold':
+    case 'reduce':
+    default:
+      return 'neutral';
+  }
+};

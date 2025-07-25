@@ -4,9 +4,22 @@
  */
 
 import type { StockAnalysisDTO } from './dto';
-import { StrategyEngine, type StrategyAnalysis } from './strategyEngine';
-import { RuleEngine, StrategyScorer, type RuleMatchResult } from './strategyRuleEngine';
-import { SignalFormatter, SignalFilter, type StandardizedSignal } from './strategySignalFormatter';
+import {
+  StrategyEngine,
+  type StrategyAnalysis,
+  type ConfidenceLevel,
+} from './strategyEngine';
+import {
+  RuleEngine,
+  StrategyScorer,
+  type RuleMatchResult,
+  type StrategyRule,
+} from './strategyRuleEngine';
+import {
+  SignalFormatter,
+  SignalFilter,
+  type StandardizedSignal,
+} from './strategySignalFormatter';
 import { STRATEGY_RULES } from './strategyRuleEngine';
 
 // ==================== 集成分析結果 ====================
@@ -16,10 +29,10 @@ export interface IntegratedAnalysis {
   symbol: string;
   timestamp: Date;
   dataQuality: 'excellent' | 'good' | 'fair' | 'poor';
-  
+
   // 原始技術指標分析
   technicalAnalysis: StrategyAnalysis;
-  
+
   // 規則引擎分析
   ruleAnalysis: {
     matchedRules: RuleMatchResult[];
@@ -32,10 +45,10 @@ export interface IntegratedAnalysis {
       suggestions: string[];
     };
   };
-  
+
   // 標準化信號
   signals: StandardizedSignal[];
-  
+
   // 最終建議
   finalRecommendation: {
     primaryAction: 'buy' | 'sell' | 'hold' | 'reduce';
@@ -45,7 +58,7 @@ export interface IntegratedAnalysis {
     alternatives: string[];
     warnings: string[];
   };
-  
+
   // 風險管理
   riskManagement: {
     recommendedPosition: number; // 0-1
@@ -72,64 +85,72 @@ export class StrategyIntegrator {
       minConfidence?: 'weak' | 'moderate' | 'strong';
     }
   ): Promise<IntegratedAnalysis> {
-    
     // 1. 執行技術指標分析
-    const technicalAnalysis = StrategyEngine.performCompleteAnalysis(data, symbol);
-    
+    const technicalAnalysis = StrategyEngine.performCompleteAnalysis(
+      data,
+      symbol
+    );
+
     // 2. 執行規則引擎分析
     const ruleResults = RuleEngine.evaluateAllRules(data, currentPrice);
     const ruleScoring = StrategyScorer.calculateOverallScore(ruleResults);
     const riskAssessment = StrategyScorer.assessRisk(ruleResults);
-    
+
     // 3. 生成標準化信號
-    let signals = SignalFormatter.formatMultipleSignals(ruleResults, symbol, currentPrice);
-    
+    let signals = SignalFormatter.formatMultipleSignals(
+      ruleResults,
+      symbol,
+      currentPrice
+    );
+
     // 4. 根據選項篩選信號
     if (options?.riskPreference) {
-      signals = SignalFilter.filterByRiskPreference(signals, options.riskPreference);
+      signals = SignalFilter.filterByRiskPreference(
+        signals,
+        options.riskPreference
+      );
     }
-    
+
     if (options?.minConfidence) {
       signals = SignalFilter.filterByConfidence(signals, options.minConfidence);
     }
-    
+
     // 5. 去除衝突並排序
     signals = SignalFilter.removeConflictingSignals(signals);
     signals = SignalFilter.sortByPriority(signals);
-    
+
     // 6. 生成最終建議
     const finalRecommendation = this.generateFinalRecommendation(
       technicalAnalysis,
       ruleScoring,
-      signals,
-      options
+      signals
     );
-    
+
     // 7. 計算風險管理參數
-    const riskManagement = this.calculateRiskManagement(signals, currentPrice);
-    
+    const riskManagement = this.calculateRiskManagement(signals);
+
     // 8. 評估數據質量
     const dataQuality = this.assessDataQuality(data);
-    
+
     return {
       symbol,
       timestamp: new Date(),
       dataQuality,
       technicalAnalysis,
       ruleAnalysis: {
-        matchedRules: ruleResults.filter(r => r.matched),
+        matchedRules: ruleResults.filter((r) => r.matched),
         overallScore: ruleScoring.score,
         confidence: ruleScoring.confidence,
         recommendation: ruleScoring.recommendation,
         riskAssessment: {
           level: riskAssessment.overallRisk,
           factors: riskAssessment.riskFactors,
-          suggestions: riskAssessment.suggestions
-        }
+          suggestions: riskAssessment.suggestions,
+        },
       },
       signals,
       finalRecommendation,
-      riskManagement
+      riskManagement,
     };
   }
 
@@ -138,7 +159,7 @@ export class StrategyIntegrator {
    */
   static quickAnalysis(
     data: StockAnalysisDTO,
-    symbol: string,
+    _symbol: string,
     currentPrice?: number
   ): {
     action: 'buy' | 'sell' | 'hold';
@@ -146,26 +167,30 @@ export class StrategyIntegrator {
     reason: string;
     risk: 'low' | 'medium' | 'high';
   } {
-    const ruleResults = RuleEngine.evaluateAllRules(data, currentPrice);
     const bestStrategy = RuleEngine.getBestStrategy(data, currentPrice);
-    
+
     if (!bestStrategy) {
       return {
         action: 'hold',
         confidence: 0,
         reason: '沒有明確策略信號',
-        risk: 'low'
+        risk: 'low',
       };
     }
-    
-    const matchedRule = ruleResults.find(r => r.ruleId === bestStrategy.ruleId);
-    const rule = STRATEGY_RULES.find((r: any) => r.id === bestStrategy.ruleId);
-    
+
+    const rule = STRATEGY_RULES.find(
+      (r: StrategyRule) => r.id === bestStrategy.ruleId
+    );
+
+    const action = rule?.action || 'hold';
+    const validAction: 'buy' | 'sell' | 'hold' =
+      action === 'reduce' ? 'sell' : (action as 'buy' | 'sell' | 'hold');
+
     return {
-      action: rule?.action || 'hold',
+      action: validAction,
       confidence: bestStrategy.score,
       reason: bestStrategy.recommendation,
-      risk: rule?.riskLevel || 'low'
+      risk: rule?.riskLevel || 'low',
     };
   }
 
@@ -187,17 +212,22 @@ export class StrategyIntegrator {
         symbol,
         score: quick.confidence,
         action: quick.action,
-        confidence: quick.confidence >= 70 ? 'high' : quick.confidence >= 50 ? 'medium' : 'low',
-        rank: 0
+        confidence:
+          quick.confidence >= 70
+            ? 'high'
+            : quick.confidence >= 50
+              ? 'medium'
+              : 'low',
+        rank: 0,
       };
     });
-    
+
     // 按得分排序並設置排名
     results.sort((a, b) => b.score - a.score);
     results.forEach((result, index) => {
       result.rank = index + 1;
     });
-    
+
     return results;
   }
 
@@ -206,9 +236,13 @@ export class StrategyIntegrator {
    */
   private static generateFinalRecommendation(
     technicalAnalysis: StrategyAnalysis,
-    ruleScoring: any,
-    signals: StandardizedSignal[],
-    options?: any
+    ruleScoring: {
+      score: number;
+      confidence: ConfidenceLevel;
+      recommendation: string;
+      topStrategies: RuleMatchResult[];
+    },
+    signals: StandardizedSignal[]
   ) {
     if (signals.length === 0) {
       return {
@@ -217,83 +251,82 @@ export class StrategyIntegrator {
         urgency: 'patient' as const,
         reasoning: '沒有足夠的策略信號支持明確行動',
         alternatives: ['等待更清晰的市場信號', '關注技術指標變化'],
-        warnings: ['避免盲目操作', '保持耐心等待']
+        warnings: ['避免盲目操作', '保持耐心等待'],
       };
     }
 
     const topSignal = signals[0];
     const signalSummary = SignalFormatter.generateSignalSummary(signals);
-    
+
     // 綜合技術分析和規則分析的建議
     const technicalAction = technicalAnalysis.finalRecommendation.primaryAction;
     const ruleAction = signalSummary.overallAction;
-    
-    let primaryAction = topSignal.primary.action;
+
+    const primaryAction = topSignal.primary.action;
     let confidence = ruleScoring.confidence;
-    
+
     // 如果技術分析和規則分析一致，提高信心度
     if (technicalAction === ruleAction) {
       if (confidence === 'moderate') confidence = 'strong';
       if (confidence === 'weak') confidence = 'moderate';
     }
-    
+
     const urgency = topSignal.primary.urgency;
     const reasoning = `${topSignal.strategy.name}策略信號(${topSignal.primary.strength}%)與${ruleScoring.recommendation}一致`;
-    
-    const alternatives = signals.slice(1, 3).map(s => 
-      `${s.strategy.name}: ${s.primary.strength}%`
-    );
-    
+
+    const alternatives = signals
+      .slice(1, 3)
+      .map((s) => `${s.strategy.name}: ${s.primary.strength}%`);
+
     const warnings = [
       ...signalSummary.warnings,
-      ...technicalAnalysis.finalRecommendation.riskWarnings
+      ...technicalAnalysis.finalRecommendation.riskWarnings,
     ].slice(0, 3); // 最多顯示3個警告
-    
+
     return {
       primaryAction,
       confidence,
       urgency,
       reasoning,
       alternatives,
-      warnings
+      warnings,
     };
   }
 
   /**
    * 計算風險管理參數
    */
-  private static calculateRiskManagement(
-    signals: StandardizedSignal[],
-    currentPrice?: number
-  ) {
+  private static calculateRiskManagement(signals: StandardizedSignal[]) {
     if (signals.length === 0) {
       return {
         recommendedPosition: 0,
         maxRisk: 0,
-        timeframe: '短期'
+        timeframe: '短期',
       };
     }
 
     const topSignal = signals[0];
     const guidance = topSignal.guidance;
-    
+
     // 根據信號強度調整倉位
     const strengthMultiplier = topSignal.primary.strength / 100;
     const adjustedPosition = guidance.positionSize * strengthMultiplier;
-    
+
     return {
       recommendedPosition: Math.min(adjustedPosition, guidance.positionSize),
       stopLoss: guidance.stopLoss,
       takeProfit: guidance.takeProfit,
       maxRisk: guidance.maxRisk,
-      timeframe: topSignal.strategy.timeframe
+      timeframe: topSignal.strategy.timeframe,
     };
   }
 
   /**
    * 評估數據質量
    */
-  private static assessDataQuality(data: StockAnalysisDTO): 'excellent' | 'good' | 'fair' | 'poor' {
+  private static assessDataQuality(
+    data: StockAnalysisDTO
+  ): 'excellent' | 'good' | 'fair' | 'poor' {
     let score = 0;
     let maxScore = 0;
 
@@ -314,7 +347,7 @@ export class StrategyIntegrator {
     // 檢查MA
     if (data.ma?.[20] !== undefined) {
       score += 2;
-      if (data.ma[5] !== undefined) score += 1;
+      if (data.ema?.[5] !== undefined) score += 1;
     }
     maxScore += 3;
 
@@ -326,7 +359,7 @@ export class StrategyIntegrator {
     maxScore += 2;
 
     const percentage = score / maxScore;
-    
+
     if (percentage >= 0.9) return 'excellent';
     if (percentage >= 0.7) return 'good';
     if (percentage >= 0.5) return 'fair';
@@ -349,7 +382,12 @@ export const analyzeStrategy = async (
     minConfidence?: 'weak' | 'moderate' | 'strong';
   }
 ): Promise<IntegratedAnalysis> => {
-  return StrategyIntegrator.performCompleteAnalysis(data, symbol, currentPrice, options);
+  return StrategyIntegrator.performCompleteAnalysis(
+    data,
+    symbol,
+    currentPrice,
+    options
+  );
 };
 
 /**

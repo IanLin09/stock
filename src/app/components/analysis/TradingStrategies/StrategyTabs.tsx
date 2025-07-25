@@ -9,24 +9,26 @@ import type { StrategySignal } from '@/utils/strategyEngine';
 
 interface StrategyTabsProps {
   activeTab: string;
-  onTabChange: (tab: 'momentum' | 'mean_reversion' | 'breakout' | 'risk' | 'advice') => void;
+  onTabChange: (
+    tab: 'momentum' | 'mean_reversion' | 'breakout' | 'risk' | 'advice'
+  ) => void;
   strategies: StrategySignal[];
 }
 
 const StrategyTabs: React.FC<StrategyTabsProps> = ({
   activeTab,
   onTabChange,
-  strategies
+  strategies,
 }) => {
   const { t } = useTranslation();
   // 計算各策略的強度以顯示在Tab上
   const getStrategyStrength = (type: string) => {
-    const strategy = strategies.find(s => s.type === type);
+    const strategy = strategies.find((s) => s.type === type);
     return strategy ? Math.round(strategy.strength) : 0;
   };
 
   const getStrategySignal = (type: string) => {
-    const strategy = strategies.find(s => s.type === type);
+    const strategy = strategies.find((s) => s.type === type);
     return strategy?.signal || 'neutral';
   };
 
@@ -37,7 +39,7 @@ const StrategyTabs: React.FC<StrategyTabsProps> = ({
       icon: '📈',
       description: t('trend_direction'),
       strength: getStrategyStrength('momentum'),
-      signal: getStrategySignal('momentum')
+      signal: getStrategySignal('momentum'),
     },
     {
       id: 'mean_reversion',
@@ -45,7 +47,7 @@ const StrategyTabs: React.FC<StrategyTabsProps> = ({
       icon: '🔄',
       description: t('neutral'),
       strength: getStrategyStrength('mean_reversion'),
-      signal: getStrategySignal('mean_reversion')
+      signal: getStrategySignal('mean_reversion'),
     },
     {
       id: 'breakout',
@@ -53,7 +55,7 @@ const StrategyTabs: React.FC<StrategyTabsProps> = ({
       icon: '🚀',
       description: t('breakout_direction'),
       strength: getStrategyStrength('breakout'),
-      signal: getStrategySignal('breakout')
+      signal: getStrategySignal('breakout'),
     },
     {
       id: 'risk',
@@ -61,7 +63,7 @@ const StrategyTabs: React.FC<StrategyTabsProps> = ({
       icon: '⚠️',
       description: t('risk_level'),
       strength: 0,
-      signal: 'neutral'
+      signal: 'neutral',
     },
     {
       id: 'advice',
@@ -69,14 +71,17 @@ const StrategyTabs: React.FC<StrategyTabsProps> = ({
       icon: '💡',
       description: t('overall_assessment'),
       strength: 0,
-      signal: 'neutral'
-    }
+      signal: 'neutral',
+    },
   ];
 
   const getSignalColor = (signal: string, strength: number = 0) => {
-    if (signal === 'bullish' && strength > 60) return 'text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-800';
-    if (signal === 'bearish' && strength > 60) return 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/30 dark:border-red-800';
-    if (strength > 50) return 'text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/30 dark:border-blue-800';
+    if (signal === 'bullish' && strength > 60)
+      return 'text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-800';
+    if (signal === 'bearish' && strength > 60)
+      return 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/30 dark:border-red-800';
+    if (strength > 50)
+      return 'text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/30 dark:border-blue-800';
     return 'text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600';
   };
 
@@ -85,8 +90,8 @@ const StrategyTabs: React.FC<StrategyTabsProps> = ({
       <nav className="flex space-x-1 px-4" aria-label={t('strategy_analysis')}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
-          const tabColorClass = isActive 
-            ? 'border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' 
+          const tabColorClass = isActive
+            ? 'border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200';
 
           return (
@@ -106,29 +111,39 @@ const StrategyTabs: React.FC<StrategyTabsProps> = ({
                   <span className="text-base">{tab.icon}</span>
                   <span className="font-medium">{tab.name}</span>
                 </div>
-                
+
                 {/* 描述和強度指示器 */}
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-gray-400 dark:text-gray-500">
                     {tab.description}
                   </span>
-                  
+
                   {/* 策略強度指示器 (只有前三個策略顯示) */}
-                  {['momentum', 'mean_reversion', 'breakout'].includes(tab.id) && (
+                  {['momentum', 'mean_reversion', 'breakout'].includes(
+                    tab.id
+                  ) && (
                     <div className="flex items-center space-x-1">
-                      <div className={`
+                      <div
+                        className={`
                         px-1.5 py-0.5 rounded-full text-xs font-medium border
                         ${getSignalColor(tab.signal, tab.strength)}
-                      `}>
+                      `}
+                      >
                         {tab.strength}%
                       </div>
-                      
+
                       {/* 信號狀態點 */}
-                      <div className={`w-2 h-2 rounded-full ${
-                        tab.signal === 'bullish' && tab.strength > 60 ? 'bg-green-500' :
-                        tab.signal === 'bearish' && tab.strength > 60 ? 'bg-red-500' :
-                        tab.strength > 50 ? 'bg-blue-500' : 'bg-gray-400'
-                      }`} />
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          tab.signal === 'bullish' && tab.strength > 60
+                            ? 'bg-green-500'
+                            : tab.signal === 'bearish' && tab.strength > 60
+                              ? 'bg-red-500'
+                              : tab.strength > 50
+                                ? 'bg-blue-500'
+                                : 'bg-gray-400'
+                        }`}
+                      />
                     </div>
                   )}
                 </div>

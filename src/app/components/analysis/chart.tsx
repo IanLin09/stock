@@ -19,7 +19,7 @@ const AnalysisChartGroup = () => {
 
   // 響應式 hooks
   const { currentScreenSize } = useAnalysisBreakpoints();
-  
+
   const {
     data: prices,
     isLoading,
@@ -28,7 +28,7 @@ const AnalysisChartGroup = () => {
     queryKey: ['chartData', currentSymbol, timeRange],
     queryFn: () => getRangeList(currentSymbol, timeRange),
   });
-  
+
   const { data: analysis, isLoading: analysisLoading } = useQuery<
     StockAnalysisDTO[],
     Error
@@ -56,8 +56,8 @@ const AnalysisChartGroup = () => {
   if (prices && analysis) {
     return (
       <div className="h-full flex flex-col gap-2 text-black dark:text-white p-2">
-        {/* 主圖表區域 */}
-        <div className="flex-[2] min-h-0 border border-black dark:border-white rounded-lg flex flex-col">
+        {/* 主圖表區域 - 調整為55%高度 */}
+        <div className="flex-[11] min-h-0 border border-black dark:border-white rounded-lg flex flex-col">
           <div className="flex-1 min-h-0">
             <CandleStickChart data={prices.data} extra={analysis} />
           </div>
@@ -66,34 +66,40 @@ const AnalysisChartGroup = () => {
           </div>
         </div>
 
-        {/* 技術指標區域 - 修正高度問題 */}
-        <div className="flex-1 min-h-0 border border-black dark:border-white rounded-lg">
+        {/* 技術指標區域 - 調整為45%高度 */}
+        <div className="flex-[9] min-h-0 border border-black dark:border-white rounded-lg">
           <Tabs defaultValue="RSI" className="h-full flex flex-col">
             <TabsList
               className={`grid w-full grid-cols-3 flex-shrink-0 ${
-                currentScreenSize === 'xs' ? 'h-8 text-xs' : 'h-10'
+                currentScreenSize === 'xs' ? 'h-6 text-xs' : 'h-8'
               }`}
             >
               <TabsTrigger
                 value="RSI"
-                className={currentScreenSize === 'xs' ? 'text-xs py-1' : ''}
+                className={
+                  currentScreenSize === 'xs' ? 'text-xs py-0.5' : 'text-sm py-1'
+                }
               >
                 RSI
               </TabsTrigger>
               <TabsTrigger
                 value="MACD"
-                className={currentScreenSize === 'xs' ? 'text-xs py-1' : ''}
+                className={
+                  currentScreenSize === 'xs' ? 'text-xs py-0.5' : 'text-sm py-1'
+                }
               >
                 MACD
               </TabsTrigger>
               <TabsTrigger
                 value="KDJ"
-                className={currentScreenSize === 'xs' ? 'text-xs py-1' : ''}
+                className={
+                  currentScreenSize === 'xs' ? 'text-xs py-0.5' : 'text-sm py-1'
+                }
               >
                 KDJ
               </TabsTrigger>
             </TabsList>
-            
+
             {/* 修正 TabsContent 高度 */}
             <div className="flex-1 min-h-0">
               <TabsContent value="RSI" className="h-full m-0 p-2">

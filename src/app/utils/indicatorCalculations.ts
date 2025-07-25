@@ -151,46 +151,47 @@ export const formatIndicatorValue = (
   return value.toFixed(decimals);
 };
 
-// 指標狀況描述
+// 指標狀況描述 - 返回翻譯鍵而非硬編碼文字
 export const getIndicatorStatusDescription = (
   indicator: string,
   status: IndicatorStatus
 ): string => {
   const descriptions = {
     rsi: {
-      bullish: '超賣區間，可能反彈',
-      bearish: '超買區間，注意回調',
-      neutral: '中性區間',
-      extreme: '極端區間，注意反轉',
+      bullish: 'indicator_rsi_oversold_rebound',
+      bearish: 'indicator_rsi_overbought_pullback',
+      neutral: 'indicator_rsi_neutral_zone',
+      extreme: 'indicator_rsi_extreme_reversal',
     },
     macd: {
-      bullish: '金叉信號，看漲',
-      bearish: '死叉信號，看跌',
-      neutral: '中性狀態',
-      extreme: '強勢信號',
+      bullish: 'indicator_macd_golden_bullish',
+      bearish: 'indicator_macd_death_bearish',
+      neutral: 'indicator_macd_neutral_state',
+      extreme: 'indicator_macd_strong_signal',
     },
     ma: {
-      bullish: '價格高於均線，看漲',
-      bearish: '價格低於均線，看跌',
-      neutral: '價格接近均線',
-      extreme: '偏離均線較大',
+      bullish: 'indicator_ma_above_bullish',
+      bearish: 'indicator_ma_below_bearish',
+      neutral: 'indicator_ma_near_neutral',
+      extreme: 'indicator_ma_deviation_large',
     },
     kdj: {
-      bullish: '超賣區間，可能反彈',
-      bearish: '超買區間，注意回調',
-      neutral: '中性區間',
-      extreme: '極端區間',
+      bullish: 'indicator_kdj_oversold_rebound',
+      bearish: 'indicator_kdj_overbought_pullback',
+      neutral: 'indicator_kdj_neutral_zone',
+      extreme: 'indicator_kdj_extreme_zone',
     },
     bollinger: {
-      bullish: '觸及下軌，支撐強勁',
-      bearish: '觸及上軌，壓力較大',
-      neutral: '中軌附近',
-      extreme: '帶寬收窄，變盤在即',
+      bullish: 'indicator_bb_lower_support',
+      bearish: 'indicator_bb_upper_resistance',
+      neutral: 'indicator_bb_middle_neutral',
+      extreme: 'indicator_bb_squeeze_breakout',
     },
   };
 
   return (
-    descriptions[indicator as keyof typeof descriptions]?.[status] || '未知狀態'
+    descriptions[indicator as keyof typeof descriptions]?.[status] ||
+    'indicator_unknown_status'
   );
 };
 

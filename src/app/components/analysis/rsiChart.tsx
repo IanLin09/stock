@@ -86,7 +86,6 @@ const RSIChart = ({ extra }: RSIChartProps) => {
 
   const series = [
     {
-      name: 'RSI',
       data: extra.map((price) => ({
         x: new Date(price.datetime),
         y: Number(price.rsi[14].toFixed(2)),

@@ -101,6 +101,8 @@ export const useStrategyEngine = (options: UseStrategyEngineOptions): StrategyEn
           symbol,
           undefined, // currentPrice - 可以從rawData獲取
           {
+            totalValue: 100000, // 默認組合價值，可以從用戶設置獲取
+            currentPositions: [], // 默認空倉位，可以從用戶數據獲取
             riskTolerance: 'moderate', // 可以從用戶設置獲取
             timeHorizon: 'medium'
           }

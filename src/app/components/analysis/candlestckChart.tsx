@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useStockPriceStyle } from '@/utils/zustand';
 import {
   useAnalysisBreakpoints,
-  useChartDimensions,
+  useChartDimensions, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from '@/hooks/use-analysis-responsive';
 import { getAnalysisChartOptions } from '@/utils/analysis-responsive';
 
@@ -21,8 +21,8 @@ const CandleStickChart = ({ data, extra }: CandlestickChartProps) => {
 
   // 響應式 hooks
   const { currentScreenSize } = useAnalysisBreakpoints();
-  const { candlestickHeight } = useChartDimensions();
-  // 獲取完整的響應式圖表配置
+  // const { candlestickHeight } = useChartDimensions();
+  // // 獲取完整的響應式圖表配置
   const candlestickOptions: ApexOptions = getAnalysisChartOptions(
     currentScreenSize,
     'candlestick',

@@ -84,7 +84,6 @@ export const getSymbolDetail = async (
       },
     }
   );
-
   return await res.json();
 };
 

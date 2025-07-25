@@ -147,11 +147,7 @@ const AnalysisList = () => {
           className={`basis-2/5 ${currentLayout === 'mobile' ? 'pt-2' : 'pt-4'} overflow-y-auto custom-scrollbar-thin`}
           style={indicatorScrollStyle}
         >
-          <TradingStrategies 
-            symbol={currentSymbol} 
-            timeRange="1M"
-            className="h-full"
-          />
+          <TradingStrategies className="h-full" />
         </div>
       </div>
     );

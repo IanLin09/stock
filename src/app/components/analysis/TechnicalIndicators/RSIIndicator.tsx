@@ -50,9 +50,7 @@ const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
       {/* 指標標題和數值 */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className={`font-semibold ${titleSize}`}>
-            {t('rsi_full_name')}
-          </h3>
+          <h3 className={`font-semibold ${titleSize}`}>{t('rsi_full_name')}</h3>
           <p className={`text-gray-600 dark:text-gray-400 ${smallTextSize}`}>
             {t('rsi_description')}
           </p>
@@ -62,7 +60,7 @@ const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
             {formatIndicatorValue(rsiValue)}
           </div>
           <div className={`${smallTextSize} text-gray-500`}>
-            {getIndicatorStatusDescription('rsi', status)}
+            {t(getIndicatorStatusDescription('rsi', status))}
           </div>
         </div>
       </div>
@@ -123,27 +121,21 @@ const RSIIndicator = ({ data, status }: RSIIndicatorProps) => {
 
       {/* 狀態說明 */}
       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div className={`font-medium ${textSize} mb-2`}>{t('current_status')}</div>
+        <div className={`font-medium ${textSize} mb-2`}>
+          {t('current_status')}
+        </div>
         <div className={`${smallTextSize} text-gray-600 dark:text-gray-400`}>
           {status === 'bullish' && (
-            <div className="text-green-600">
-              {t('rsi_status_bullish')}
-            </div>
+            <div className="text-green-600">{t('rsi_status_bullish')}</div>
           )}
           {status === 'bearish' && (
-            <div className="text-red-600">
-              {t('rsi_status_bearish')}
-            </div>
+            <div className="text-red-600">{t('rsi_status_bearish')}</div>
           )}
           {status === 'neutral' && (
-            <div className="text-gray-600">
-              {t('rsi_status_neutral')}
-            </div>
+            <div className="text-gray-600">{t('rsi_status_neutral')}</div>
           )}
           {status === 'extreme' && (
-            <div className="text-orange-600">
-              {t('rsi_status_extreme')}
-            </div>
+            <div className="text-orange-600">{t('rsi_status_extreme')}</div>
           )}
         </div>
       </div>

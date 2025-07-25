@@ -86,16 +86,16 @@ export const useChartDimensions = () => {
       }
     };
     
-    // 指標圖高度 - 無滾動優化
+    // 指標圖高度 - 無滾動優化，增加高度以容納底部標籤
     const getIndicatorHeight = (): number => {
       switch (currentScreenSize) {
-        case 'xs': return 100;
-        case 'sm': return 120;
-        case 'md': return 140;
-        case 'lg': return 160;
-        case 'xl': return 180;
-        case '2xl': return 200;
-        default: return 140;
+        case 'xs': return 120;
+        case 'sm': return 140;
+        case 'md': return 160;
+        case 'lg': return 180;
+        case 'xl': return 200;
+        case '2xl': return 220;
+        default: return 160;
       }
     };
     
@@ -132,9 +132,9 @@ export const useChartDimensions = () => {
       mainChartWidth: getMainChartWidth(),
       chartSpacing: getChartSpacing(),
       
-      // 百分比版本 (for Flexbox)
-      candlestickHeightPercent: windowWidth < 768 ? '60%' : '65%',
-      indicatorHeightPercent: windowWidth < 768 ? '40%' : '35%',
+      // 百分比版本 (for Flexbox) - 調整為50:50比例以改善技術指標顯示
+      candlestickHeightPercent: '50%',
+      indicatorHeightPercent: '50%',
       volumeHeightPercent: '5%',
       
       // 容器高度
@@ -219,7 +219,7 @@ export const useAnalysisStyles = () => {
         return 'w-full h-full';
       }
       
-      return `w-full ${dimensions.candlestickHeightPercent === '60%' ? 'flex-[3]' : 'flex-[2]'}`;
+      return `w-full flex-[1]`; // 50:50比例使用相同的flex值
     },
     
     // 指標圖表容器樣式
@@ -228,7 +228,7 @@ export const useAnalysisStyles = () => {
         return 'w-full h-full';
       }
       
-      return `w-full ${dimensions.indicatorHeightPercent === '40%' ? 'flex-[2]' : 'flex-[1]'} pt-4`;
+      return `w-full flex-[1] pt-4`; // 50:50比例使用相同的flex值
     },
     
     layout,

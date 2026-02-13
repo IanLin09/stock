@@ -2,64 +2,61 @@ import { render, screen } from '@testing-library/react';
 import StrategyDashboard from '../StrategyDashboard';
 import type { StockAnalysisDTO } from '@/utils/dto';
 
-// Mock strategySystemController
-jest.mock('../../../utils/strategySystemController', () => ({
-  quickAnalyzeStock: jest.fn(() => ({
-    action: 'buy',
-    confidence: 75,
-    riskLevel: 'medium',
-    reasoning: 'Technical indicators show bullish signals',
-    keyPoints: ['MACD positive', 'RSI above 50'],
-    symbol: 'QQQ',
-    timestamp: new Date('2025-02-12'),
-    overallSignal: 'bullish',
-    overallStrength: 75,
-    indicatorJudgments: [
-      {
-        indicator: 'RSI',
-        signal: 'bullish',
-        strength: 70,
-        confidence: 'strong',
-        message: 'RSI in bullish zone',
-        reasons: ['RSI above 50'],
+// Mock StrategyEngine
+jest.mock('../../../utils/strategyEngine', () => ({
+  StrategyEngine: {
+    performCompleteAnalysis: jest.fn(() => ({
+      symbol: 'QQQ',
+      timestamp: new Date('2025-02-12'),
+      overallSignal: 'bullish',
+      overallStrength: 75,
+      indicatorJudgments: [
+        {
+          indicator: 'RSI',
+          signal: 'bullish',
+          strength: 70,
+          confidence: 'strong',
+          message: 'RSI in bullish zone',
+          reasons: ['RSI above 50'],
+        },
+        {
+          indicator: 'MACD',
+          signal: 'bullish',
+          strength: 80,
+          confidence: 'strong',
+          message: 'MACD golden cross',
+          reasons: ['DIF above DEA'],
+        },
+        {
+          indicator: 'KDJ',
+          signal: 'neutral',
+          strength: 50,
+          confidence: 'weak',
+          message: 'KDJ neutral',
+          reasons: ['K around 50'],
+        },
+      ],
+      strategySignals: [
+        {
+          type: 'momentum',
+          action: 'buy',
+          signal: 'bullish',
+          strength: 75,
+          confidence: 'strong',
+          riskLevel: 'medium',
+          supportingIndicators: ['RSI', 'MACD'],
+          conflictingIndicators: [],
+          recommendation: 'Consider buying',
+        },
+      ],
+      finalRecommendation: {
+        primaryAction: 'buy',
+        secondaryActions: ['Set stop loss', 'Monitor volume'],
+        riskWarnings: ['Market volatility'],
+        timeframe: 'short-term',
       },
-      {
-        indicator: 'MACD',
-        signal: 'bullish',
-        strength: 80,
-        confidence: 'strong',
-        message: 'MACD golden cross',
-        reasons: ['DIF above DEA'],
-      },
-      {
-        indicator: 'KDJ',
-        signal: 'neutral',
-        strength: 50,
-        confidence: 'weak',
-        message: 'KDJ neutral',
-        reasons: ['K around 50'],
-      },
-    ],
-    strategySignals: [
-      {
-        type: 'momentum',
-        action: 'buy',
-        signal: 'bullish',
-        strength: 75,
-        confidence: 'strong',
-        riskLevel: 'medium',
-        supportingIndicators: ['RSI', 'MACD'],
-        conflictingIndicators: [],
-        recommendation: 'Consider buying',
-      },
-    ],
-    finalRecommendation: {
-      primaryAction: 'buy',
-      secondaryActions: ['Set stop loss', 'Monitor volume'],
-      riskWarnings: ['Market volatility'],
-      timeframe: 'short-term',
-    },
-  })),
+    })),
+  },
 }));
 
 // Mock data

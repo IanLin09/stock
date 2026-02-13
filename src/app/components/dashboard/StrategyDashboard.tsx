@@ -1,6 +1,7 @@
 'use client';
 import type { StockAnalysisDTO } from '@/utils/dto';
-import { quickAnalyzeStock } from '@/utils/strategySystemController';
+import { StrategyEngine } from '@/utils/strategyEngine';
+import type { StrategyAnalysis } from '@/utils/strategyEngine';
 import { useMemo } from 'react';
 
 type StrategyDashboardProps = {
@@ -12,10 +13,10 @@ export default function StrategyDashboard({
   symbol,
   analysis,
 }: StrategyDashboardProps) {
-  // Compute strategy analysis
-  const strategyAnalysis = useMemo(() => {
+  // Compute strategy analysis using the full StrategyEngine
+  const strategyAnalysis: StrategyAnalysis | null = useMemo(() => {
     if (!analysis) return null;
-    return quickAnalyzeStock(analysis, symbol);
+    return StrategyEngine.performCompleteAnalysis(analysis, symbol);
   }, [analysis, symbol]);
 
   if (!analysis || !strategyAnalysis) {
@@ -31,23 +32,14 @@ export default function StrategyDashboard({
   }
 
   const {
-    action,
-    confidence,
-    riskLevel,
     overallSignal,
+    overallStrength,
     indicatorJudgments = [],
     strategySignals = [],
     finalRecommendation,
   } = strategyAnalysis;
 
-  // Map action to signal type for coloring
-  const getSignalFromAction = (action: string): string => {
-    if (action.includes('buy')) return 'bullish';
-    if (action.includes('sell')) return 'bearish';
-    return 'neutral';
-  };
-
-  const signal = getSignalFromAction(action);
+  const signal = overallSignal;
 
   // Determine signal color
   const getSignalColor = (signal: string) => {
@@ -65,12 +57,12 @@ export default function StrategyDashboard({
     }
   };
 
-  // Determine action color
-  const getActionColor = (action: string) => {
-    if (action.includes('buy')) {
+  // Determine action color based on primary action
+  const getActionColor = (primaryAction: string) => {
+    if (primaryAction === 'buy') {
       return 'text-green-700 bg-green-100 border-green-300';
     }
-    if (action.includes('sell')) {
+    if (primaryAction === 'sell') {
       return 'text-red-700 bg-red-100 border-red-300';
     }
     return 'text-blue-700 bg-blue-100 border-blue-300';
@@ -78,7 +70,7 @@ export default function StrategyDashboard({
 
   // Calculate convergence count
   const convergenceCount = indicatorJudgments.filter(
-    (ind) => ind.signal === overallSignal
+    (ind: { signal: string }) => ind.signal === overallSignal
   ).length;
 
   // Get indicator signal color
@@ -130,7 +122,7 @@ export default function StrategyDashboard({
               className={`px-4 py-2 rounded-md border font-medium text-center ${getSignalColor(signal)}`}
               data-testid="signal-strength"
             >
-              {signal.toUpperCase()} ({confidence}%)
+              {signal.toUpperCase()} ({Math.round(overallStrength)}%)
             </div>
           </div>
 
@@ -138,10 +130,10 @@ export default function StrategyDashboard({
           <div className="space-y-2">
             <div className="text-sm text-gray-600">Recommended Action</div>
             <div
-              className={`px-4 py-2 rounded-md border font-medium text-center ${getActionColor(action)}`}
+              className={`px-4 py-2 rounded-md border font-medium text-center ${getActionColor(finalRecommendation.primaryAction)}`}
               data-testid="primary-action"
             >
-              {action.toUpperCase().replace('_', ' ')}
+              {finalRecommendation.primaryAction.toUpperCase().replace('_', ' ')}
             </div>
           </div>
         </div>
@@ -165,7 +157,7 @@ export default function StrategyDashboard({
 
           {/* Individual Indicators */}
           <div className="space-y-2" data-testid="indicator-list">
-            {indicatorJudgments.map((indicator) => (
+            {indicatorJudgments.map((indicator: any) => (
               <div
                 key={indicator.indicator}
                 className="flex items-center justify-between p-3 border rounded-md"
@@ -206,7 +198,7 @@ export default function StrategyDashboard({
                   Risk Warnings
                 </div>
                 <ul className="text-sm text-yellow-700 space-y-1">
-                  {finalRecommendation.riskWarnings.map((warning, index) => (
+                  {finalRecommendation.riskWarnings.map((warning: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <span className="mr-2">•</span>
                       <span>{warning}</span>
@@ -221,7 +213,7 @@ export default function StrategyDashboard({
             <div className="text-sm font-medium text-gray-700 mb-2">
               Strategy Signals
             </div>
-            {strategySignals.map((signal, index) => (
+            {strategySignals.map((signal: any, index: number) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-3 border rounded-md"
@@ -282,7 +274,7 @@ export default function StrategyDashboard({
                   Secondary Actions
                 </div>
                 <ul className="space-y-2">
-                  {finalRecommendation.secondaryActions.map((action, index) => (
+                  {finalRecommendation.secondaryActions.map((action: string, index: number) => (
                     <li
                       key={index}
                       className="flex items-start p-2 bg-gray-50 rounded-md"

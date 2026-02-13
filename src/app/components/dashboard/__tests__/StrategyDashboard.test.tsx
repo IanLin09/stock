@@ -137,4 +137,19 @@ describe('StrategyDashboard', () => {
     expect(screen.getByText(/risk assessment/i)).toBeInTheDocument();
     expect(screen.getByTestId('strategy-signals-list')).toBeInTheDocument();
   });
+
+  test('should display action recommendations section', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/action recommendations/i)).toBeInTheDocument();
+    expect(screen.getByTestId('primary-recommendation')).toBeInTheDocument();
+  });
+
+  test('should display secondary actions and timeframe', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/action recommendations/i)).toBeInTheDocument();
+    expect(screen.getByTestId('secondary-actions')).toBeInTheDocument();
+    expect(screen.getByTestId('timeframe')).toBeInTheDocument();
+  });
 });

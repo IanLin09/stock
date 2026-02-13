@@ -245,6 +245,57 @@ export default function StrategyDashboard({
           </div>
         </div>
       </div>
+
+      {/* Action Recommendations Section */}
+      <div className="border rounded-lg p-4 space-y-3">
+        <h3 className="text-lg font-medium">Action Recommendations</h3>
+
+        <div className="space-y-3">
+          {/* Primary Action */}
+          {finalRecommendation && (
+            <div
+              className="p-4 bg-blue-50 border border-blue-200 rounded-md"
+              data-testid="primary-recommendation"
+            >
+              <div className="text-sm font-medium text-blue-800 mb-2">
+                Primary Action
+              </div>
+              <div className="text-lg font-semibold text-blue-900 capitalize">
+                {finalRecommendation.primaryAction}
+              </div>
+              {finalRecommendation.timeframe && (
+                <div
+                  className="text-sm text-blue-700 mt-2"
+                  data-testid="timeframe"
+                >
+                  Timeframe: {finalRecommendation.timeframe}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Secondary Actions */}
+          {finalRecommendation?.secondaryActions &&
+            finalRecommendation.secondaryActions.length > 0 && (
+              <div data-testid="secondary-actions">
+                <div className="text-sm font-medium text-gray-700 mb-2">
+                  Secondary Actions
+                </div>
+                <ul className="space-y-2">
+                  {finalRecommendation.secondaryActions.map((action, index) => (
+                    <li
+                      key={index}
+                      className="flex items-start p-2 bg-gray-50 rounded-md"
+                    >
+                      <span className="text-blue-600 mr-2 mt-0.5">→</span>
+                      <span className="text-sm text-gray-700">{action}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+        </div>
+      </div>
     </div>
   );
 }

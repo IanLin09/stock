@@ -2,6 +2,17 @@ import { render, screen } from '@testing-library/react';
 import StrategyDashboard from '../StrategyDashboard';
 import type { StockAnalysisDTO } from '@/utils/dto';
 
+// Mock strategySystemController
+jest.mock('../../../utils/strategySystemController', () => ({
+  quickAnalyzeStock: jest.fn(() => ({
+    action: 'buy',
+    confidence: 75,
+    riskLevel: 'medium',
+    reasoning: 'Technical indicators show bullish signals',
+    keyPoints: ['MACD positive', 'RSI above 50'],
+  })),
+}));
+
 // Mock data
 const mockAnalysis: StockAnalysisDTO = {
   _id: '507f1f77bcf86cd799439011',
@@ -34,5 +45,19 @@ describe('StrategyDashboard', () => {
     render(<StrategyDashboard symbol="QQQ" analysis={null} />);
 
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
+  });
+
+  test('should display overall signal strength', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/overall signal/i)).toBeInTheDocument();
+    expect(screen.getByTestId('signal-strength')).toBeInTheDocument();
+  });
+
+  test('should display primary action recommendation', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/recommended action/i)).toBeInTheDocument();
+    expect(screen.getByTestId('primary-action')).toBeInTheDocument();
   });
 });

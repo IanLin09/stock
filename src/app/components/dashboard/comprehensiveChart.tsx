@@ -252,7 +252,7 @@ const ComprehensiveChart = ({
   symbol,
   closePrice,
 }: ComprehensiveChartProps) => {
-  const [range, setRange] = useState<string>('1D');
+  const [range, setRange] = useState<string>('1M');
   const { t } = useTranslation();
 
   const { data, isLoading, error } = useQuery<StockChartDTO, Error>({
@@ -281,17 +281,14 @@ const ComprehensiveChart = ({
     <>
       <Tabs defaultValue={range} className="w-full">
         <TabsList>
-          <TabsTrigger onClick={() => setRange('1D')} value="1D">
-            {t('1d')}
-          </TabsTrigger>
-          <TabsTrigger onClick={() => setRange('1W')} value="1W">
-            {t('1w')}
-          </TabsTrigger>
           <TabsTrigger onClick={() => setRange('1M')} value="1M">
             {t('1m')}
           </TabsTrigger>
           <TabsTrigger onClick={() => setRange('3M')} value="3M">
             {t('3m')}
+          </TabsTrigger>
+          <TabsTrigger onClick={() => setRange('6M')} value="6M">
+            {t('6m')}
           </TabsTrigger>
         </TabsList>
 

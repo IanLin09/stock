@@ -155,7 +155,7 @@ describe('ComprehensiveChart', () => {
   };
 
   describe('Basic Rendering', () => {
-    it('should render chart with default 1D timeframe', async () => {
+    it('should render chart with default 1M timeframe', async () => {
       renderWithProviders(
         <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
       );
@@ -172,49 +172,14 @@ describe('ComprehensiveChart', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('1d')).toBeInTheDocument();
-        expect(screen.getByText('1w')).toBeInTheDocument();
         expect(screen.getByText('1m')).toBeInTheDocument();
         expect(screen.getByText('3m')).toBeInTheDocument();
+        expect(screen.getByText('6m')).toBeInTheDocument();
       });
     });
   });
 
   describe('Time Range Selection', () => {
-    it('should handle 1D tab selection', async () => {
-      renderWithProviders(
-        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('1d')).toBeInTheDocument();
-      });
-
-      const oneDayTab = screen.getByText('1d');
-      fireEvent.click(oneDayTab);
-
-      await waitFor(() => {
-        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1D');
-      });
-    });
-
-    it('should handle 1W tab selection', async () => {
-      renderWithProviders(
-        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('1w')).toBeInTheDocument();
-      });
-
-      const oneWeekTab = screen.getByText('1w');
-      fireEvent.click(oneWeekTab);
-
-      await waitFor(() => {
-        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1W');
-      });
-    });
-
     it('should handle 1M tab selection', async () => {
       renderWithProviders(
         <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
@@ -248,6 +213,23 @@ describe('ComprehensiveChart', () => {
         expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '3M');
       });
     });
+
+    it('should handle 6M tab selection', async () => {
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('6m')).toBeInTheDocument();
+      });
+
+      const sixMonthTab = screen.getByText('6m');
+      fireEvent.click(sixMonthTab);
+
+      await waitFor(() => {
+        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '6M');
+      });
+    });
   });
 
   describe('Data Integration', () => {
@@ -257,7 +239,7 @@ describe('ComprehensiveChart', () => {
       );
 
       await waitFor(() => {
-        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1D');
+        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1M');
       });
     });
 
@@ -354,7 +336,7 @@ describe('ComprehensiveChart', () => {
 
       // Component should still render tabs even with API error
       await waitFor(() => {
-        expect(screen.getByText('1d')).toBeInTheDocument();
+        expect(screen.getByText('1m')).toBeInTheDocument();
       });
     });
   });
@@ -390,7 +372,7 @@ describe('ComprehensiveChart', () => {
       );
 
       await waitFor(() => {
-        expect(mockGetRangeList).toHaveBeenCalledWith('TQQQ', '1D');
+        expect(mockGetRangeList).toHaveBeenCalledWith('TQQQ', '1M');
       });
     });
   });
@@ -402,15 +384,63 @@ describe('ComprehensiveChart', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('1w')).toBeInTheDocument();
+        expect(screen.getByText('3m')).toBeInTheDocument();
       });
 
-      const oneWeekTab = screen.getByText('1w');
-      fireEvent.click(oneWeekTab);
+      const threeMonthTab = screen.getByText('3m');
+      fireEvent.click(threeMonthTab);
 
       await waitFor(() => {
         // Check that the new range was called
-        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1W');
+        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '3M');
+      });
+    });
+  });
+
+  describe('Timeframe Tabs Visibility', () => {
+    it('should not show 1D tab', async () => {
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('1m')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('1d')).not.toBeInTheDocument();
+    });
+
+    it('should not show 1W tab', async () => {
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('1m')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('1w')).not.toBeInTheDocument();
+    });
+
+    it('should show 1M, 3M, 6M tabs', async () => {
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('1m')).toBeInTheDocument();
+        expect(screen.getByText('3m')).toBeInTheDocument();
+        expect(screen.getByText('6m')).toBeInTheDocument();
+      });
+    });
+
+    it('should default to 1M range', async () => {
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
+
+      await waitFor(() => {
+        expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1M');
       });
     });
   });

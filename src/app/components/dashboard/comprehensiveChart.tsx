@@ -268,13 +268,14 @@ const ComprehensiveChart = ({
     enabled: range !== 'Strategy',
   });
 
+  // Strategy tab uses 1M analysis data since 'Strategy' is not a valid API range value
   const {
     data: analysisData,
     isLoading: isAnalysisLoading,
     error: analysisError,
   } = useQuery({
     queryKey: ['analysis', symbol, range],
-    queryFn: () => getAnalysisList(symbol, range),
+    queryFn: () => getAnalysisList(symbol, '1M'),
     enabled: range === 'Strategy',
   });
 

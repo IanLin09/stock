@@ -12,7 +12,11 @@ export default function StrategyDashboard({
 }: StrategyDashboardProps) {
   if (!analysis) {
     return (
-      <div className="p-4 text-center text-gray-500">
+      <div
+        role="status"
+        aria-live="polite"
+        className="p-4 text-center text-gray-500"
+      >
         Loading strategy analysis...
       </div>
     );

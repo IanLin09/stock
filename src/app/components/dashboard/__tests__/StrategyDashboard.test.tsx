@@ -4,15 +4,17 @@ import type { StockAnalysisDTO } from '@/utils/dto';
 
 // Mock data
 const mockAnalysis: StockAnalysisDTO = {
+  _id: '507f1f77bcf86cd799439011',
   symbol: 'QQQ',
-  datetime: '2025-02-12',
-  indicators: {
-    macd: { dif: 2.5, dea: 1.8, histogram: 0.7 },
-    rsi: { '14': 65 },
-    kdj: { k: 70, d: 65, j: 80 },
-    bollingerBands: { upper: 110, middle: 105, lower: 100 },
-    ma: { '20': 105 },
-  },
+  datetime: new Date('2025-02-12'),
+  open: 104.5,
+  close: 105.2,
+  macd: { dif: 2.5, dea: 1.8, histogram: 0.7, ema12: 103.5, ema26: 102.0 },
+  rsi: { '14': 65, gain: 1.5, loss: 0.8 },
+  kdj: { datetime: new Date('2025-02-12'), k: 70, d: 65, j: 80, rsv: 75 },
+  bollinger: { datetime: new Date('2025-02-12'), upper: 110, middle: 105, lower: 100 },
+  ma: { '20': 105 },
+  ema: { '5': 104 }
 };
 
 describe('StrategyDashboard', () => {

@@ -30,7 +30,13 @@ export default function StrategyDashboard({
     );
   }
 
-  const { action, confidence, riskLevel } = strategyAnalysis;
+  const {
+    action,
+    confidence,
+    riskLevel,
+    overallSignal,
+    indicatorJudgments = [],
+  } = strategyAnalysis;
 
   // Map action to signal type for coloring
   const getSignalFromAction = (action: string): string => {
@@ -68,6 +74,27 @@ export default function StrategyDashboard({
     return 'text-blue-700 bg-blue-100 border-blue-300';
   };
 
+  // Calculate convergence count
+  const convergenceCount = indicatorJudgments.filter(
+    (ind) => ind.signal === overallSignal
+  ).length;
+
+  // Get indicator signal color
+  const getIndicatorSignalColor = (sig: string) => {
+    switch (sig) {
+      case 'bullish':
+        return 'text-green-600 bg-green-50';
+      case 'bearish':
+        return 'text-red-600 bg-red-50';
+      case 'neutral':
+        return 'text-gray-600 bg-gray-50';
+      case 'extreme':
+        return 'text-orange-600 bg-orange-50';
+      default:
+        return 'text-gray-600 bg-gray-50';
+    }
+  };
+
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
@@ -100,6 +127,49 @@ export default function StrategyDashboard({
             >
               {action.toUpperCase().replace('_', ' ')}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Indicator Convergence Section */}
+      <div className="border rounded-lg p-4 space-y-3">
+        <h3 className="text-lg font-medium">Indicator Convergence</h3>
+
+        <div className="space-y-3">
+          {/* Convergence Count */}
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+            <span className="text-sm text-gray-700">Indicators Agreeing</span>
+            <span
+              className="font-semibold text-lg"
+              data-testid="convergence-count"
+            >
+              {convergenceCount} / {indicatorJudgments.length}
+            </span>
+          </div>
+
+          {/* Individual Indicators */}
+          <div className="space-y-2" data-testid="indicator-list">
+            {indicatorJudgments.map((indicator) => (
+              <div
+                key={indicator.indicator}
+                className="flex items-center justify-between p-3 border rounded-md"
+              >
+                <div className="flex-1">
+                  <div className="font-medium text-sm">
+                    {indicator.indicator}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">
+                    Strength: {Math.round(indicator.strength)}% | Confidence:{' '}
+                    {indicator.confidence}
+                  </div>
+                </div>
+                <div
+                  className={`px-3 py-1 rounded-md text-xs font-medium ${getIndicatorSignalColor(indicator.signal)}`}
+                >
+                  {indicator.signal.toUpperCase()}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

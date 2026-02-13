@@ -10,6 +10,55 @@ jest.mock('../../../utils/strategySystemController', () => ({
     riskLevel: 'medium',
     reasoning: 'Technical indicators show bullish signals',
     keyPoints: ['MACD positive', 'RSI above 50'],
+    symbol: 'QQQ',
+    timestamp: new Date('2025-02-12'),
+    overallSignal: 'bullish',
+    overallStrength: 75,
+    indicatorJudgments: [
+      {
+        indicator: 'RSI',
+        signal: 'bullish',
+        strength: 70,
+        confidence: 'strong',
+        message: 'RSI in bullish zone',
+        reasons: ['RSI above 50'],
+      },
+      {
+        indicator: 'MACD',
+        signal: 'bullish',
+        strength: 80,
+        confidence: 'strong',
+        message: 'MACD golden cross',
+        reasons: ['DIF above DEA'],
+      },
+      {
+        indicator: 'KDJ',
+        signal: 'neutral',
+        strength: 50,
+        confidence: 'weak',
+        message: 'KDJ neutral',
+        reasons: ['K around 50'],
+      },
+    ],
+    strategySignals: [
+      {
+        type: 'momentum',
+        action: 'buy',
+        signal: 'bullish',
+        strength: 75,
+        confidence: 'strong',
+        riskLevel: 'medium',
+        supportingIndicators: ['RSI', 'MACD'],
+        conflictingIndicators: [],
+        recommendation: 'Consider buying',
+      },
+    ],
+    finalRecommendation: {
+      primaryAction: 'buy',
+      secondaryActions: ['Set stop loss', 'Monitor volume'],
+      riskWarnings: ['Market volatility'],
+      timeframe: 'short-term',
+    },
   })),
 }));
 
@@ -59,5 +108,19 @@ describe('StrategyDashboard', () => {
 
     expect(screen.getByText(/recommended action/i)).toBeInTheDocument();
     expect(screen.getByTestId('primary-action')).toBeInTheDocument();
+  });
+
+  test('should display indicator convergence section', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/indicator convergence/i)).toBeInTheDocument();
+    expect(screen.getByTestId('convergence-count')).toBeInTheDocument();
+  });
+
+  test('should display individual indicator judgments', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/indicator convergence/i)).toBeInTheDocument();
+    expect(screen.getByTestId('indicator-list')).toBeInTheDocument();
   });
 });

@@ -4,13 +4,14 @@ import React, { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getRangeList } from '@/utils/api';
+import { getRangeList, getAnalysisList } from '@/utils/api';
 import { useTranslation } from 'react-i18next';
 import { useStockPriceStyle } from '@/utils/zustand';
 import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
 import { useChartResponsive } from '@/hooks/use-chart-responsive';
 import { useScreenSize, useWindowSize } from '@/hooks/use-responsive';
+import StrategyDashboard from './StrategyDashboard';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -258,11 +259,23 @@ const ComprehensiveChart = ({
   const { data, isLoading, error } = useQuery<StockChartDTO, Error>({
     queryKey: ['chartData', { symbol }, { range }],
     queryFn: () => getRangeList(symbol, range),
+    enabled: range !== 'Strategy',
   });
 
   const previousPrice = useQuery<PreviousPriceDTO>({
     queryKey: ['previousClose', symbol, range],
     queryFn: () => getPreviousPrice(symbol, range),
+    enabled: range !== 'Strategy',
+  });
+
+  const {
+    data: analysisData,
+    isLoading: isAnalysisLoading,
+    error: analysisError,
+  } = useQuery({
+    queryKey: ['analysis', symbol, range],
+    queryFn: () => getAnalysisList(symbol, range),
+    enabled: range === 'Strategy',
   });
 
   useEffect(() => {
@@ -273,14 +286,21 @@ const ComprehensiveChart = ({
     if (previousPrice.error) {
       handleError(previousPrice.error, { context: 'Data Fetch' });
     }
-  }, [error, previousPrice.error]);
 
-  if (isLoading) return <p>Loading...</p>;
+    if (analysisError) {
+      handleError(analysisError, { context: 'Analysis Fetch' });
+    }
+  }, [error, previousPrice.error, analysisError]);
+
+  if (isLoading || isAnalysisLoading) return <p>Loading...</p>;
 
   return (
     <>
       <Tabs defaultValue={range} className="w-full">
         <TabsList>
+          <TabsTrigger onClick={() => setRange('Strategy')} value="Strategy">
+            Strategy
+          </TabsTrigger>
           <TabsTrigger onClick={() => setRange('1M')} value="1M">
             {t('1m')}
           </TabsTrigger>
@@ -294,14 +314,21 @@ const ComprehensiveChart = ({
 
         <div className="flex flex-col">
           <div className="basis-2/3">
-            {data && (
-              <ComprehensiveChartGenerator
-                closePrice={closePrice}
-                prices={data.data}
-                previousPrice={
-                  previousPrice.data?.close ? previousPrice.data?.close : 0
-                }
+            {range === 'Strategy' ? (
+              <StrategyDashboard
+                symbol={symbol}
+                analysis={analysisData?.[0] || null}
               />
+            ) : (
+              data && (
+                <ComprehensiveChartGenerator
+                  closePrice={closePrice}
+                  prices={data.data}
+                  previousPrice={
+                    previousPrice.data?.close ? previousPrice.data?.close : 0
+                  }
+                />
+              )
             )}
           </div>
         </div>

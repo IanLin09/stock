@@ -55,6 +55,7 @@ jest.mock('../../../utils/zustand', () => ({
 // Mock API calls
 jest.mock('../../../utils/api', () => ({
   getRangeList: jest.fn(),
+  getAnalysisList: jest.fn(),
 }));
 
 // Mock translations
@@ -64,9 +65,21 @@ jest.mock('react-i18next', () => ({
   })),
 }));
 
+// Mock StrategyDashboard
+jest.mock('../StrategyDashboard', () => {
+  return function MockStrategyDashboard({ symbol, analysis }: any) {
+    return (
+      <div data-testid="strategy-dashboard">
+        <div>Strategy Dashboard for {symbol}</div>
+        {analysis && <div>Analysis data loaded</div>}
+      </div>
+    );
+  };
+});
+
 import { useScreenSize, useWindowSize } from '../../../hooks/use-responsive';
 import { useChartResponsive } from '../../../hooks/use-chart-responsive';
-import { getRangeList } from '../../../utils/api';
+import { getRangeList, getAnalysisList } from '../../../utils/api';
 
 const mockUseScreenSize = useScreenSize as jest.MockedFunction<
   typeof useScreenSize
@@ -79,6 +92,9 @@ const mockUseChartResponsive = useChartResponsive as jest.MockedFunction<
 >;
 const mockGetRangeList = getRangeList as jest.MockedFunction<
   typeof getRangeList
+>;
+const mockGetAnalysisList = getAnalysisList as jest.MockedFunction<
+  typeof getAnalysisList
 >;
 
 // Mock fetch for previous price API call
@@ -144,6 +160,21 @@ describe('ComprehensiveChart', () => {
     (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       json: jest.fn().mockResolvedValue({ close: 349.0 }),
     } as any);
+
+    // Mock the analysis API response
+    mockGetAnalysisList.mockResolvedValue([
+      {
+        symbol: 'QQQ',
+        datetime: '2024-01-16T09:30:00.000Z',
+        close: 351.5,
+        macd: { dif: 1.2, dea: 0.8, histogram: 0.4 },
+        rsi: { rsi: 65 },
+        kdj: { k: 70, d: 65, j: 75 },
+        bollinger: { upper: 360, middle: 350, lower: 340 },
+        ma: { ma20: 348 },
+        ema: { ema5: 350, ema12: 349, ema26: 347 },
+      },
+    ]);
   });
 
   const renderWithProviders = (component: React.ReactElement) => {
@@ -441,6 +472,35 @@ describe('ComprehensiveChart', () => {
 
       await waitFor(() => {
         expect(mockGetRangeList).toHaveBeenCalledWith('QQQ', '1M');
+      });
+    });
+  });
+
+  describe('Strategy Tab', () => {
+    it('should show Strategy tab', async () => {
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Strategy')).toBeInTheDocument();
+      });
+    });
+
+    it('should render StrategyDashboard when Strategy tab is active', async () => {
+      renderWithProviders(
+        <ComprehensiveChart symbol="QQQ" closePrice={350.25} />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Strategy')).toBeInTheDocument();
+      });
+
+      const strategyTab = screen.getByText('Strategy');
+      fireEvent.click(strategyTab);
+
+      await waitFor(() => {
+        expect(screen.getByText(/strategy dashboard/i)).toBeInTheDocument();
       });
     });
   });

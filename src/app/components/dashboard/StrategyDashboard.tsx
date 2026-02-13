@@ -36,6 +36,8 @@ export default function StrategyDashboard({
     riskLevel,
     overallSignal,
     indicatorJudgments = [],
+    strategySignals = [],
+    finalRecommendation,
   } = strategyAnalysis;
 
   // Map action to signal type for coloring
@@ -92,6 +94,20 @@ export default function StrategyDashboard({
         return 'text-orange-600 bg-orange-50';
       default:
         return 'text-gray-600 bg-gray-50';
+    }
+  };
+
+  // Get risk level color
+  const getRiskLevelColor = (risk: string) => {
+    switch (risk) {
+      case 'low':
+        return 'text-green-700 bg-green-100';
+      case 'medium':
+        return 'text-yellow-700 bg-yellow-100';
+      case 'high':
+        return 'text-red-700 bg-red-100';
+      default:
+        return 'text-gray-700 bg-gray-100';
     }
   };
 
@@ -167,6 +183,62 @@ export default function StrategyDashboard({
                   className={`px-3 py-1 rounded-md text-xs font-medium ${getIndicatorSignalColor(indicator.signal)}`}
                 >
                   {indicator.signal.toUpperCase()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Risk Assessment Section */}
+      <div className="border rounded-lg p-4 space-y-3">
+        <h3 className="text-lg font-medium">Risk Assessment</h3>
+
+        <div className="space-y-3">
+          {/* Risk Warnings */}
+          {finalRecommendation?.riskWarnings &&
+            finalRecommendation.riskWarnings.length > 0 && (
+              <div
+                className="p-3 bg-yellow-50 border border-yellow-200 rounded-md"
+                data-testid="risk-warnings"
+              >
+                <div className="text-sm font-medium text-yellow-800 mb-2">
+                  Risk Warnings
+                </div>
+                <ul className="text-sm text-yellow-700 space-y-1">
+                  {finalRecommendation.riskWarnings.map((warning, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="mr-2">•</span>
+                      <span>{warning}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+          {/* Strategy Signals */}
+          <div className="space-y-2" data-testid="strategy-signals-list">
+            <div className="text-sm font-medium text-gray-700 mb-2">
+              Strategy Signals
+            </div>
+            {strategySignals.map((signal, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 border rounded-md"
+              >
+                <div className="flex-1">
+                  <div className="font-medium text-sm capitalize">
+                    {signal.type.replace('_', ' ')} Strategy
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">
+                    Action: {signal.action} | Strength:{' '}
+                    {Math.round(signal.strength)}%
+                  </div>
+                </div>
+                <div
+                  className={`px-3 py-1 rounded-md text-xs font-medium ${getRiskLevelColor(signal.riskLevel)}`}
+                >
+                  {signal.riskLevel.toUpperCase()} RISK
                 </div>
               </div>
             ))}

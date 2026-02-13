@@ -123,4 +123,18 @@ describe('StrategyDashboard', () => {
     expect(screen.getByText(/indicator convergence/i)).toBeInTheDocument();
     expect(screen.getByTestId('indicator-list')).toBeInTheDocument();
   });
+
+  test('should display risk assessment section', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/risk assessment/i)).toBeInTheDocument();
+    expect(screen.getByTestId('risk-warnings')).toBeInTheDocument();
+  });
+
+  test('should display strategy signals with risk levels', () => {
+    render(<StrategyDashboard symbol="QQQ" analysis={mockAnalysis} />);
+
+    expect(screen.getByText(/risk assessment/i)).toBeInTheDocument();
+    expect(screen.getByTestId('strategy-signals-list')).toBeInTheDocument();
+  });
 });

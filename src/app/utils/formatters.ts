@@ -36,7 +36,10 @@ export function formatVolume(volume: number): string {
  * @returns Formatted percentage string (e.g., "+5.00%", "-3.25%", "N/A")
  * @note Uses toFixed() which applies "round half up" behavior (e.g., 5.125% rounds to 5.13%)
  */
-export function formatPercentage(current: number, previous: number): string {
+export function formatPercentage(
+  current: number,
+  previous: number | undefined
+): string {
   // Validate inputs
   if (
     current == null ||

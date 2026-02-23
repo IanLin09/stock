@@ -30,6 +30,11 @@ const getPreviousPrice = async (symbol: string): Promise<PreviousPriceDTO> => {
       },
     }
   );
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
   return await res.json();
 };
 

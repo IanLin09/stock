@@ -35,6 +35,7 @@ describe('PreviousPrice Hook', () => {
     };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
       json: async () => mockData,
     });
 
@@ -79,5 +80,39 @@ describe('PreviousPrice Hook', () => {
     expect(result.current.isLoading).toBe(false);
     expect(result.current.data).toBeUndefined();
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test('handles HTTP 404 error', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      json: async () => ({ error: 'Symbol not found' }),
+    });
+
+    const { result } = renderHook(() => PreviousPrice('INVALID'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.error?.message).toContain('404');
+  });
+
+  test('handles HTTP 401 authentication error', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: async () => ({ error: 'Unauthorized' }),
+    });
+
+    const { result } = renderHook(() => PreviousPrice('QQQ'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.error?.message).toContain('401');
   });
 });

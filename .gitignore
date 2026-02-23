@@ -43,4 +43,4 @@ docker-compose.yml
 Dockerfile
 *.md
 !README.md
-!docs/*.md
+!docs/**/*.md

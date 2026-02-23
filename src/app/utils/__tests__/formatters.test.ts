@@ -66,6 +66,20 @@ describe('formatVolume', () => {
       expect(formatVolume(-1234567890)).toBe('0');
     });
   });
+
+  describe('Invalid numbers', () => {
+    it('should return "0" for NaN', () => {
+      expect(formatVolume(NaN)).toBe('0');
+    });
+
+    it('should return "0" for Infinity', () => {
+      expect(formatVolume(Infinity)).toBe('0');
+    });
+
+    it('should return "0" for negative Infinity', () => {
+      expect(formatVolume(-Infinity)).toBe('0');
+    });
+  });
 });
 
 describe('formatPercentage', () => {
@@ -144,6 +158,26 @@ describe('formatPercentage', () => {
 
     it('should return "N/A" when both are null', () => {
       expect(formatPercentage(null as any, null as any)).toBe('N/A');
+    });
+
+    it('should return "N/A" when current is NaN', () => {
+      expect(formatPercentage(NaN, 100)).toBe('N/A');
+    });
+
+    it('should return "N/A" when current is Infinity', () => {
+      expect(formatPercentage(Infinity, 100)).toBe('N/A');
+    });
+
+    it('should return "N/A" when previous is NaN', () => {
+      expect(formatPercentage(100, NaN)).toBe('N/A');
+    });
+
+    it('should return "N/A" when previous is Infinity', () => {
+      expect(formatPercentage(100, Infinity)).toBe('N/A');
+    });
+
+    it('should return "N/A" when both are NaN', () => {
+      expect(formatPercentage(NaN, NaN)).toBe('N/A');
     });
   });
 });

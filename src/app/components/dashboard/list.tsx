@@ -62,6 +62,12 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
     }
   }, [latestClosePriceQuery.error]);
 
+  useEffect(() => {
+    if (previousPricesQuery.error) {
+      handleError(previousPricesQuery.error, { context: 'Data Fetch' });
+    }
+  }, [previousPricesQuery.error]);
+
   // Loading state
   const isLoading =
     latestClosePriceQuery.isLoading || previousPricesQuery.isLoading;

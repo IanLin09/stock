@@ -1,5 +1,5 @@
 'use client';
-import { ClosePrices, PreviousPrice } from './closePrice';
+import { ClosePrices, PreviousPrices } from './closePrice';
 import { useStockPriceStyle } from '@/utils/zustand';
 import { useEffect, useMemo } from 'react';
 import { handleError } from '@/utils/error';
@@ -31,28 +31,16 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
     if (!latestClosePriceQuery.data) return [];
     return Object.keys(latestClosePriceQuery.data).sort();
   }, [latestClosePriceQuery.data]);
-
-  // Fetch previous prices for each symbol
-  // Note: We're conditionally calling hooks based on the symbols array.
-  // This is safe because the symbols array is stable (same order and length).
-  const symbol1 = symbols[0] || '';
-  const symbol2 = symbols[1] || '';
-  const symbol3 = symbols[2] || '';
-
-  const prev1 = PreviousPrice(symbol1);
-  const prev2 = PreviousPrice(symbol2);
-  const prev3 = PreviousPrice(symbol3);
-
-  const previousPriceQueries = [prev1, prev2, prev3];
+  // Fetch previous prices for all symbols in a single bulk request
+  const previousPricesQuery = PreviousPrices('1D');
 
   // Calculate display data
   const displayData = useMemo<StockDisplayData[]>(() => {
     if (!latestClosePriceQuery.data) return [];
 
-    return symbols.map((symbol, index) => {
+    return symbols.map((symbol) => {
       const current = latestClosePriceQuery.data[symbol];
-      const previousQuery = previousPriceQueries[index];
-      const previous = previousQuery?.data?.close;
+      const previous = previousPricesQuery.data?.[symbol]?.close;
 
       const change = previous ? current.close - previous : 0;
       const percentage = formatPercentage(current.close, previous);
@@ -65,7 +53,7 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
         change,
       };
     });
-  }, [latestClosePriceQuery.data, symbols, previousPriceQueries]);
+  }, [latestClosePriceQuery.data, symbols, previousPricesQuery.data]);
 
   // Handle errors
   useEffect(() => {
@@ -76,8 +64,7 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
 
   // Loading state
   const isLoading =
-    latestClosePriceQuery.isLoading ||
-    previousPriceQueries.some((q) => q.isLoading);
+    latestClosePriceQuery.isLoading || previousPricesQuery.isLoading;
 
   if (isLoading) {
     return <div className={getResponsiveSpacing('sm')}>Loading...</div>;

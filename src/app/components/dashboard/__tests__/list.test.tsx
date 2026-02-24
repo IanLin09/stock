@@ -47,7 +47,7 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
       data: null,
       isLoading: true,
       error: null,
@@ -88,11 +88,14 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockImplementation((symbol) => ({
-      data: { close: symbol === 'QQQ' ? 100.0 : 50.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+        TQQQ: { close: 50.0, _id: '2', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
-    }));
+    });
 
     render(<DashboardList setSymbol={mockSetSymbol} />, {
       wrapper: createWrapper(),
@@ -126,8 +129,10 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
-      data: { close: 100.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
     });
@@ -160,8 +165,10 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
-      data: { close: 100.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        TQQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
     });
@@ -194,7 +201,7 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
       data: null,
       isLoading: false,
       error: null,
@@ -228,8 +235,10 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
-      data: { close: 100.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
     });
@@ -262,8 +271,10 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
-      data: { close: 100.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
     });
@@ -303,8 +314,10 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
-      data: { close: 100.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
     });
@@ -337,8 +350,10 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
-      data: { close: 100.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
     });
@@ -374,8 +389,10 @@ describe('DashboardList', () => {
       error: null,
     });
 
-    (closePrice.PreviousPrice as jest.Mock).mockReturnValue({
-      data: { close: 100.0 },
+    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+      data: {
+        TQQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
+      },
       isLoading: false,
       error: null,
     });

@@ -23,9 +23,7 @@ const createWrapper = () => {
     },
   });
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
 
@@ -350,7 +348,9 @@ describe('DashboardList', () => {
     });
 
     await waitFor(() => {
-      const row = screen.getByText('QQQ').closest('div[class*="cursor-pointer"]');
+      const row = screen
+        .getByText('QQQ')
+        .closest('div[class*="cursor-pointer"]');
       expect(row).toHaveStyle({ color: '#10b981' });
     });
   });
@@ -385,7 +385,9 @@ describe('DashboardList', () => {
     });
 
     await waitFor(() => {
-      const row = screen.getByText('TQQQ').closest('div[class*="cursor-pointer"]');
+      const row = screen
+        .getByText('TQQQ')
+        .closest('div[class*="cursor-pointer"]');
       expect(row).toHaveStyle({ color: '#ef4444' });
     });
   });

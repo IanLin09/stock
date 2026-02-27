@@ -8,6 +8,7 @@ const customJestConfig = {
     '\\.(css|scss|sass)$': 'identity-obj-proxy',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/e2e/'],
 };
 
 module.exports = createJestConfig(customJestConfig);

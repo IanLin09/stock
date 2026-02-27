@@ -79,20 +79,22 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
   return (
     <>
       <div
-        className={`${getResponsiveSpacing('sm')} flex flex-col space-y-1 sm:space-y-2 ${
-          displayData.length > 4 ? 'overflow-y-auto' : 'overflow-y-hidden'
+        className={`${getResponsiveSpacing('sm')} flex flex-col min-h-0 h-full ${
+          isMobile ? 'overflow-y-auto space-y-1' : ''
         }`}
-        style={{
-          height: 'auto',
-          maxHeight:
-            displayData.length > 4 ? (isMobile ? '60vh' : '55vh') : 'auto',
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'rgb(156 163 175) transparent',
-        }}
+        style={
+          isMobile
+            ? {
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgb(156 163 175) transparent',
+              }
+            : undefined
+        }
       >
         {displayData.map((stock) => (
           <div
             key={stock.symbol}
+            data-testid={`stock-row-${stock.symbol}`}
             onClick={() => setSymbol(stock.symbol)}
             className={`
               cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg
@@ -100,7 +102,7 @@ const DashboardList = ({ setSymbol }: DashboardListProps) => {
               ${
                 isMobile
                   ? 'flex flex-col space-y-2 p-3 border border-gray-200 dark:border-gray-700'
-                  : 'flex flex-row items-center py-1 px-2'
+                  : 'flex flex-row items-center py-1 px-2 flex-1 min-h-0'
               }
             `}
             style={{

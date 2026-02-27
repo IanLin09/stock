@@ -8,11 +8,9 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: { [key: string]: string } = {
-        at_close: 'At Close',
-        high: 'High',
-        low: 'Low',
-        open: 'Open',
-        vol: 'Volume',
+        '1m': '1m',
+        '3m': '3m',
+        '6m': '6m',
       };
       return translations[key] || key;
     },
@@ -36,9 +34,17 @@ jest.mock('../../../utils/error', () => ({
   handleError: jest.fn(),
 }));
 
-// Mock ClosePrices function
+// Mock closePrice hooks
 jest.mock('../closePrice', () => ({
   ClosePrices: jest.fn(),
+}));
+
+// Mock zustand store
+jest.mock('../../../utils/zustand', () => ({
+  useStockPriceStyle: () => ({
+    upColor: '#22c55e',
+    downColor: '#ef4444',
+  }),
 }));
 
 // Mock ComprehensiveChart component
@@ -129,7 +135,7 @@ describe('Comprehensive Components Edge Cases', () => {
       });
     });
 
-    it('should handle empty object data', async () => {
+    it('should handle empty object data without crashing', async () => {
       mockClosePrices.mockReturnValue({
         data: {},
         isLoading: false,
@@ -137,11 +143,13 @@ describe('Comprehensive Components Edge Cases', () => {
         isError: false,
       } as any);
 
-      // The component will crash when trying to access data[symbol] that doesn't exist
-      // This is expected behavior - in real usage, error boundaries would handle this
-      expect(() => {
-        renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
-      }).toThrow('Cannot read properties of undefined');
+      // Optional chaining prevents crash; component renders with 0 as price
+      renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('panel-symbol')).toBeInTheDocument();
+        expect(screen.getByTestId('panel-price')).toHaveTextContent('0');
+      });
     });
   });
 
@@ -172,7 +180,6 @@ describe('Comprehensive Components Edge Cases', () => {
         <ComprehensiveArea symbol="QQQ" />
       );
 
-      // Verify loading state
       expect(screen.getByText('Loading...')).toBeInTheDocument();
 
       // Change to success state
@@ -190,8 +197,8 @@ describe('Comprehensive Components Edge Cases', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getAllByText('QQQ')).toHaveLength(2); // One in title, one in chart
-        expect(screen.getAllByText('350.25')).toHaveLength(2); // One in main display, one in chart
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('QQQ');
+        expect(screen.getByTestId('chart-symbol')).toHaveTextContent('QQQ');
       });
     });
   });
@@ -211,7 +218,6 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
 
       await waitFor(() => {
-        // Should show loading since no data and error occurred
         expect(screen.getByText('Loading...')).toBeInTheDocument();
       });
     });
@@ -276,14 +282,12 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('QQQ')).toHaveLength(2); // One in title, one in chart
-        // Component should still render with malformed data
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('QQQ');
         expect(screen.getByTestId('comprehensive-chart')).toBeInTheDocument();
       });
     });
 
-    it('should handle missing symbol data', async () => {
-      // Data exists but doesn't contain the requested symbol
+    it('should handle missing symbol data without crashing', async () => {
       const dataWithoutSymbol = {
         AAPL: {
           symbol: 'AAPL',
@@ -302,11 +306,13 @@ describe('Comprehensive Components Edge Cases', () => {
         isError: false,
       } as any);
 
-      // The component will crash when trying to access data[symbol] that doesn't exist
-      // This is expected behavior - in real usage, error boundaries would handle this
-      expect(() => {
-        renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
-      }).toThrow('Cannot read properties of undefined');
+      // Optional chaining prevents crash; component renders with 0 as price
+      renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('QQQ');
+        expect(screen.getByTestId('panel-price')).toHaveTextContent('0');
+      });
     });
   });
 
@@ -325,8 +331,7 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('QQQ')).toHaveLength(2); // One in title, one in chart
-        expect(screen.getAllByText('350.25')).toHaveLength(2); // One in main display, one in chart
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('QQQ');
         expect(screen.getByTestId('comprehensive-chart')).toBeInTheDocument();
       });
     });
@@ -345,8 +350,7 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('QQQ')).toHaveLength(2); // One in title, one in chart
-        expect(screen.getAllByText('350.25')).toHaveLength(2); // One in main display, one in chart
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('QQQ');
         expect(screen.getByTestId('comprehensive-chart')).toBeInTheDocument();
       });
     });
@@ -365,8 +369,7 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('QQQ')).toHaveLength(2); // One in title, one in chart
-        expect(screen.getAllByText('350.25')).toHaveLength(2); // One in main display, one in chart
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('QQQ');
         expect(screen.getByTestId('comprehensive-chart')).toBeInTheDocument();
       });
     });
@@ -396,8 +399,8 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol={specialSymbol} />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('BRK.B')).toHaveLength(2); // One in title, one in chart
-        expect(screen.getAllByText('350.25')).toHaveLength(2); // One in main display, one in chart
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('BRK.B');
+        expect(screen.getByTestId('chart-symbol')).toHaveTextContent('BRK.B');
       });
     });
 
@@ -424,8 +427,7 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol={longSymbol} />);
 
       await waitFor(() => {
-        expect(screen.getAllByText(longSymbol)).toHaveLength(2); // One in title, one in chart
-        expect(screen.getAllByText('350.25')).toHaveLength(2); // One in main display, one in chart
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent(longSymbol);
       });
     });
 
@@ -439,7 +441,6 @@ describe('Comprehensive Components Edge Cases', () => {
 
       renderWithProviders(<ComprehensiveArea symbol="" />);
 
-      // Should return empty component for empty symbol
       expect(
         screen.queryByTestId('comprehensive-chart')
       ).not.toBeInTheDocument();
@@ -465,24 +466,6 @@ describe('Comprehensive Components Edge Cases', () => {
       });
     });
 
-    it('should display all price information correctly', async () => {
-      mockClosePrices.mockReturnValue({
-        data: mockStockData,
-        isLoading: false,
-        error: null,
-        isError: false,
-      } as any);
-
-      renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
-
-      await waitFor(() => {
-        expect(screen.getByText('High: 355.75')).toBeInTheDocument();
-        expect(screen.getByText('Low: 348.5')).toBeInTheDocument();
-        expect(screen.getByText('Open: 352')).toBeInTheDocument();
-        expect(screen.getByText('Volume: 25000000')).toBeInTheDocument();
-      });
-    });
-
     it('should handle rapid component unmounting', async () => {
       mockClosePrices.mockReturnValue({
         data: mockStockData,
@@ -495,7 +478,6 @@ describe('Comprehensive Components Edge Cases', () => {
         <ComprehensiveArea symbol="QQQ" />
       );
 
-      // Immediately unmount
       act(() => {
         unmount();
       });

@@ -90,7 +90,7 @@ const ComprehensiveArea = ({ symbol }: ComprehensiveAreaProps) => {
         {/* Right: time range tabs */}
         <Tabs value={range} onValueChange={setRange}>
           <TabsList>
-            <TabsTrigger value="Range">Range</TabsTrigger>
+            {!isMobile && <TabsTrigger value="Range">Range</TabsTrigger>}
             <TabsTrigger value="1M">{t('1m')}</TabsTrigger>
             <TabsTrigger value="3M">{t('3m')}</TabsTrigger>
             <TabsTrigger value="6M">{t('6m')}</TabsTrigger>

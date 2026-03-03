@@ -39,9 +39,12 @@ jest.mock('../comprehensiveChart', () => {
   };
 });
 
+// Mobile mock — default desktop; flip to true in mobile tests
+let mockIsMobile = false;
+
 // Mock responsive hooks
 jest.mock('../../../hooks/use-responsive', () => ({
-  useIsMobile: jest.fn(() => false),
+  useIsMobile: () => mockIsMobile,
   useIsTablet: jest.fn(() => false),
 }));
 
@@ -410,6 +413,69 @@ describe('ComprehensiveArea', () => {
       await waitFor(() => {
         expect(screen.getByTestId('panel-price')).toHaveTextContent('350.25');
       });
+    });
+  });
+});
+
+describe('ComprehensiveArea mobile Range tab', () => {
+  let queryClient: QueryClient;
+
+  const mockStockData = {
+    symbol: 'QQQ',
+    close: 350.25,
+    high: 355.75,
+    low: 348.5,
+    open: 352.0,
+    volume: 25000000,
+    datetime: '2024-01-15',
+  };
+
+  beforeEach(() => {
+    mockIsMobile = true;
+    queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    mockIsMobile = false;
+  });
+
+  const renderWithProviders = (component: React.ReactElement) =>
+    render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
+
+  it('hides the Range tab trigger on mobile', async () => {
+    mockClosePrices.mockReturnValue({
+      data: { QQQ: mockStockData },
+      isLoading: false,
+      error: null,
+      isError: false,
+    } as any);
+
+    renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('panel-symbol')).toBeInTheDocument()
+    );
+
+    expect(screen.queryByText('Range')).not.toBeInTheDocument();
+  });
+
+  it('still shows range tabs 1m/3m/6m on mobile', async () => {
+    mockClosePrices.mockReturnValue({
+      data: { QQQ: mockStockData },
+      isLoading: false,
+      error: null,
+      isError: false,
+    } as any);
+
+    renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('1m')).toBeInTheDocument();
+      expect(screen.getByText('3m')).toBeInTheDocument();
+      expect(screen.getByText('6m')).toBeInTheDocument();
     });
   });
 });

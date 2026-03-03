@@ -8,6 +8,12 @@ jest.mock('../../../utils/api', () => ({
   getSymbolDetail: jest.fn(),
 }));
 
+// Mobile mock — default desktop; flip to true in mobile tests
+let mockIsMobile = false;
+jest.mock('../../../hooks/use-responsive', () => ({
+  useIsMobile: () => mockIsMobile,
+}));
+
 import { getSymbolDetail } from '../../../utils/api';
 const mockGetSymbolDetail = getSymbolDetail as jest.MockedFunction<
   typeof getSymbolDetail
@@ -134,5 +140,53 @@ describe('IndicatorSummary', () => {
       expect(screen.getByTestId('indicator-row-ema')).toBeInTheDocument()
     );
     expect(screen.queryByTestId('signal-badge-ema')).toBeNull();
+  });
+});
+
+describe('IndicatorSummary mobile compact', () => {
+  beforeEach(() => {
+    mockIsMobile = true;
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    mockIsMobile = false;
+  });
+
+  it('uses abbreviated MACD labels on mobile', async () => {
+    mockGetSymbolDetail.mockResolvedValue(mockIndicatorData);
+    renderWithQuery(<IndicatorSummary symbol="QQQ" />);
+    await waitFor(() =>
+      expect(screen.getByTestId('indicator-row-macd')).toBeInTheDocument()
+    );
+    const macdRow = screen.getByTestId('indicator-row-macd');
+    // Mobile shows "D: / A: / H:" instead of "DIF / DEA / Hist"
+    expect(macdRow).toHaveTextContent('D:');
+    expect(macdRow).toHaveTextContent('A:');
+    expect(macdRow).toHaveTextContent('H:');
+  });
+
+  it('uses abbreviated KDJ labels on mobile', async () => {
+    mockGetSymbolDetail.mockResolvedValue(mockIndicatorData);
+    renderWithQuery(<IndicatorSummary symbol="QQQ" />);
+    await waitFor(() =>
+      expect(screen.getByTestId('indicator-row-kdj')).toBeInTheDocument()
+    );
+    const kdjRow = screen.getByTestId('indicator-row-kdj');
+    // Mobile: "K: / D: / J:" instead of "K / D / J"
+    expect(kdjRow).toHaveTextContent('K:');
+  });
+
+  it('uses abbreviated Bollinger labels on mobile', async () => {
+    mockGetSymbolDetail.mockResolvedValue(mockIndicatorData);
+    renderWithQuery(<IndicatorSummary symbol="QQQ" />);
+    await waitFor(() =>
+      expect(screen.getByTestId('indicator-row-bollinger')).toBeInTheDocument()
+    );
+    const bbandsRow = screen.getByTestId('indicator-row-bollinger');
+    // Mobile: "U: / M: / L:" instead of "Upper / Mid / Lower"
+    expect(bbandsRow).toHaveTextContent('U:');
+    expect(bbandsRow).toHaveTextContent('M:');
+    expect(bbandsRow).toHaveTextContent('L:');
   });
 });

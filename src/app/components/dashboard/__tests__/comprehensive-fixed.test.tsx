@@ -8,20 +8,16 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: { [key: string]: string } = {
-        close: 'Close',
-        high: 'High',
-        low: 'Low',
-        open: 'Open',
-        volume: 'Volume',
-        at_close: 'at close',
-        vol: 'Volume',
+        '1m': '1m',
+        '3m': '3m',
+        '6m': '6m',
       };
       return translations[key] || key;
     },
   }),
 }));
 
-// Mock the ClosePrices hook
+// Mock the closePrice hooks
 jest.mock('../closePrice', () => ({
   ClosePrices: jest.fn(),
 }));
@@ -34,6 +30,8 @@ jest.mock('../comprehensiveChart', () => {
   }: {
     symbol: string;
     closePrice: number;
+    range: string;
+    onPlotOffsetChange?: (offset: number) => void;
   }) {
     return (
       <div data-testid="comprehensive-chart">
@@ -58,6 +56,14 @@ jest.mock('../../../utils/responsive', () => ({
 // Mock error handler
 jest.mock('../../../utils/error', () => ({
   handleError: jest.fn(),
+}));
+
+// Mock zustand store
+jest.mock('../../../utils/zustand', () => ({
+  useStockPriceStyle: () => ({
+    upColor: '#22c55e',
+    downColor: '#ef4444',
+  }),
 }));
 
 import { ClosePrices } from '../closePrice';
@@ -108,12 +114,8 @@ describe('ComprehensiveArea', () => {
       renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
 
       await waitFor(() => {
-        expect(screen.getByText('QQQ')).toBeInTheDocument();
-        expect(screen.getByText('350.25')).toBeInTheDocument();
-        expect(screen.getByText('High: 355.75')).toBeInTheDocument();
-        expect(screen.getByText('Low: 348.5')).toBeInTheDocument();
-        expect(screen.getByText('Open: 352')).toBeInTheDocument();
-        expect(screen.getByText('Volume: 25000000')).toBeInTheDocument();
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent('QQQ');
+        expect(screen.getByTestId('panel-price')).toHaveTextContent('350.25');
       });
     });
 
@@ -161,13 +163,25 @@ describe('ComprehensiveArea', () => {
 
       renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
 
-      // Component should show loading when no data
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
   });
 
   describe('Hook Integration', () => {
     it('should call ClosePrices hook', () => {
+      mockClosePrices.mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        error: null,
+        isError: false,
+      } as any);
+
+      renderWithProviders(<ComprehensiveArea symbol="QQQ" />);
+
+      expect(mockClosePrices).toHaveBeenCalled();
+    });
+
+    it('should call ClosePrices to get current price', () => {
       mockClosePrices.mockReturnValue({
         data: undefined,
         isLoading: true,

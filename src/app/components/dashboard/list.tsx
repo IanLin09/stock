@@ -1,139 +1,163 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import StockChart from './lineChart';
-import { StockChartDTO } from '@/utils/dto';
-import { ClosePrices } from './closePrice';
+import { ClosePrices, PreviousPrices } from './closePrice';
 import { useStockPriceStyle } from '@/utils/zustand';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { handleError } from '@/utils/error';
 import { useIsMobile } from '@/hooks/use-responsive';
 import { getResponsiveSpacing } from '@/utils/responsive';
+import { formatVolume, formatPercentage } from '@/utils/formatters';
 
 type DashboardListProps = {
   setSymbol: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const getList = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/intraday/latest`, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
-  const data: StockChartDTO[] = await res.json();
-  return data;
+type StockDisplayData = {
+  symbol: string;
+  close: number;
+  volume: number;
+  percentage: string;
+  change: number;
 };
 
 const DashboardList = ({ setSymbol }: DashboardListProps) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['intra_day_list'],
-    queryFn: getList,
-  });
   const { upColor, downColor } = useStockPriceStyle();
   const latestClosePriceQuery = ClosePrices();
 
   // Responsive hooks
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    if (error) {
-      handleError(error, { context: 'Data Fetch' });
-    }
+  // Get list of symbols from latest prices
+  const symbols = useMemo(() => {
+    if (!latestClosePriceQuery.data) return [];
+    return Object.keys(latestClosePriceQuery.data).sort();
+  }, [latestClosePriceQuery.data]);
+  // Fetch previous prices for all symbols in a single bulk request
+  const previousPricesQuery = PreviousPrices('1D');
 
+  // Calculate display data
+  const displayData = useMemo<StockDisplayData[]>(() => {
+    if (!latestClosePriceQuery.data) return [];
+
+    return symbols.map((symbol) => {
+      const current = latestClosePriceQuery.data[symbol];
+      const previous = previousPricesQuery.data?.[symbol]?.close;
+
+      const change = previous ? current.close - previous : 0;
+      const percentage = formatPercentage(current.close, previous);
+
+      return {
+        symbol,
+        close: current.close,
+        volume: current.volume,
+        percentage,
+        change,
+      };
+    });
+  }, [latestClosePriceQuery.data, symbols, previousPricesQuery.data]);
+
+  // Handle errors
+  useEffect(() => {
     if (latestClosePriceQuery.error) {
       handleError(latestClosePriceQuery.error, { context: 'Data Fetch' });
     }
-  }, [error, latestClosePriceQuery.error]);
+  }, [latestClosePriceQuery.error]);
 
-  if (latestClosePriceQuery.isLoading) {
+  useEffect(() => {
+    if (previousPricesQuery.error) {
+      handleError(previousPricesQuery.error, { context: 'Data Fetch' });
+    }
+  }, [previousPricesQuery.error]);
+
+  // Loading state
+  const isLoading =
+    latestClosePriceQuery.isLoading || previousPricesQuery.isLoading;
+
+  if (isLoading) {
     return <div className={getResponsiveSpacing('sm')}>Loading...</div>;
   }
-  if (isLoading)
-    return <p className={getResponsiveSpacing('sm')}>Loading...</p>;
 
   return (
     <>
       <div
-        className={`${getResponsiveSpacing('sm')} flex flex-col space-y-1 sm:space-y-2 ${
-          data && data.length > 4 ? 'overflow-y-auto' : 'overflow-y-hidden'
+        className={`${getResponsiveSpacing('sm')} flex flex-col min-h-0 h-full ${
+          isMobile ? 'overflow-y-auto space-y-1' : ''
         }`}
-        style={{
-          height: 'auto',
-          maxHeight:
-            data && data.length > 4 ? (isMobile ? '60vh' : '55vh') : 'auto',
-          scrollbarWidth: 'thin',
-          scrollbarColor: 'rgb(156 163 175) transparent',
-        }}
+        style={
+          isMobile
+            ? {
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgb(156 163 175) transparent',
+              }
+            : undefined
+        }
       >
-        {data &&
-          data.map((stock) => (
-            <div
-              key={stock._id}
-              onClick={() => setSymbol(stock._id)}
-              className={`
-                cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg
-                transition-colors duration-200
-                ${
-                  isMobile
-                    ? 'flex flex-col space-y-2 p-3 border border-gray-200 dark:border-gray-700'
-                    : 'flex flex-row items-center py-1 px-2'
-                }
-              `}
-              style={{
-                color:
-                  (latestClosePriceQuery.data?.[stock._id]?.close ?? 0) -
-                    (stock.previous ?? 0) >
-                  0
-                    ? upColor
-                    : downColor,
-              }}
-            >
-              {/* Stock Symbol */}
-              <div
-                className={`
-                ${
-                  isMobile
-                    ? 'text-center text-lg font-bold mb-2'
-                    : 'w-20 sm:w-24 md:w-32 text-left text-sm sm:text-base font-medium'
-                }
-              `}
-              >
-                {stock._id}
-              </div>
+        {displayData.map((stock) => (
+          <div
+            key={stock.symbol}
+            data-testid={`stock-row-${stock.symbol}`}
+            onClick={() => setSymbol(stock.symbol)}
+            className={`
+              cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg
+              transition-colors duration-200
+              ${
+                isMobile
+                  ? 'flex flex-col space-y-2 p-3 border border-gray-200 dark:border-gray-700'
+                  : 'flex flex-row items-center py-1 px-2 flex-1 min-h-0'
+              }
+            `}
+            style={{
+              color: stock.change >= 0 ? upColor : downColor,
+            }}
+          >
+            {isMobile ? (
+              <>
+                {/* Mobile Layout */}
+                {/* Symbol */}
+                <div className="text-center text-lg font-bold">
+                  {stock.symbol}
+                </div>
 
-              {/* Chart Section */}
-              <div
-                className={`
-                ${
-                  isMobile
-                    ? 'flex justify-center items-center h-16 mb-2'
-                    : 'flex-1 max-w-[120px] sm:max-w-[140px] md:max-w-[160px] text-right'
-                }
-              `}
-              >
-                <StockChart
-                  close={latestClosePriceQuery.data?.[stock._id]?.close ?? 0}
-                  prices={stock.data}
-                  previousPrice={stock.previous ? stock.previous : 0}
-                />
-              </div>
+                {/* Close Price */}
+                <div className="text-center text-xl font-bold">
+                  {stock.close.toFixed(2)}
+                </div>
 
-              {/* Price Section */}
-              <div
-                className={`
-                ${
-                  isMobile
-                    ? 'text-center text-xl font-bold'
-                    : 'w-16 sm:w-20 md:w-24 text-right text-sm sm:text-base font-medium'
-                }
-              `}
-              >
-                {latestClosePriceQuery.data &&
-                  latestClosePriceQuery.data[stock._id].close}
-              </div>
-            </div>
-          ))}
+                {/* Percentage */}
+                <div className="text-center text-base font-bold">
+                  {stock.percentage}
+                </div>
+
+                {/* Volume */}
+                <div className="text-center text-sm">
+                  Vol: {formatVolume(stock.volume)}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Desktop Layout */}
+                {/* Symbol */}
+                <div className="w-20 sm:w-24 md:w-32 text-left text-sm sm:text-base font-medium">
+                  {stock.symbol}
+                </div>
+
+                {/* Close Price */}
+                <div className="flex-1 text-right text-sm sm:text-base">
+                  {stock.close.toFixed(2)}
+                </div>
+
+                {/* Percentage */}
+                <div className="w-24 sm:w-28 text-right text-sm sm:text-base font-bold">
+                  {stock.percentage}
+                </div>
+
+                {/* Volume */}
+                <div className="w-20 sm:w-24 text-right text-xs sm:text-sm">
+                  {formatVolume(stock.volume)}
+                </div>
+              </>
+            )}
+          </div>
+        ))}
       </div>
     </>
   );

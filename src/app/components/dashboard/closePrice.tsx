@@ -1,4 +1,4 @@
-import { StockClosePriceList, StockDTO } from '@/utils/dto';
+import { StockClosePriceList, StockDTO, PreviousPriceDTO, PreviousPriceList } from '@/utils/dto';
 import { useQuery } from '@tanstack/react-query';
 
 const getClosePrice = async (): Promise<StockClosePriceList> => {
@@ -19,9 +19,63 @@ const getClosePrice = async (): Promise<StockClosePriceList> => {
   return stocksBySymbol;
 };
 
+const getPreviousPrice = async (symbol: string): Promise<PreviousPriceDTO> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API}/daily/previousDayPrice?symbol=${symbol}&range=1D`,
+    {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
+  return await res.json();
+};
+
 export const ClosePrices = () => {
   return useQuery<StockClosePriceList, Error>({
     queryKey: ['closePrice'],
     queryFn: () => getClosePrice(),
+  });
+};
+
+export const PreviousPrice = (symbol: string) => {
+  return useQuery<PreviousPriceDTO, Error>({
+    queryKey: ['previousPrice', symbol],
+    queryFn: () => getPreviousPrice(symbol),
+    enabled: !!symbol,
+  });
+};
+
+const getPreviousPrices = async (range: string): Promise<PreviousPriceList> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API}/daily/previousDayPrices?range=${range}`,
+    {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
+  return await res.json();
+};
+
+export const PreviousPrices = (range: string) => {
+  return useQuery<PreviousPriceList, Error>({
+    queryKey: ['previousPrices', range],
+    queryFn: () => getPreviousPrices(range),
+    enabled: !!range,
   });
 };

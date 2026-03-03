@@ -1,16 +1,15 @@
 'use client';
-import { PreviousPriceDTO, StockChartDTO, StockDTO } from '@/utils/dto';
-import React, { useState, useMemo } from 'react';
+import { StockChartDTO, StockDTO } from '@/utils/dto';
+import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getRangeList } from '@/utils/api';
-import { useTranslation } from 'react-i18next';
+import { getRangeList, getAnalysisList } from '@/utils/api';
 import { useStockPriceStyle } from '@/utils/zustand';
 import { useEffect } from 'react';
 import { handleError } from '@/utils/error';
 import { useChartResponsive } from '@/hooks/use-chart-responsive';
 import { useScreenSize, useWindowSize } from '@/hooks/use-responsive';
+import StrategyDashboard from './StrategyDashboard';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -18,43 +17,28 @@ type ChartParams = {
   prices: StockDTO[];
   previousPrice: number;
   closePrice: number;
+  onPlotOffsetChange?: (offset: number) => void;
 };
 
 type ComprehensiveChartProps = {
   symbol: string;
   closePrice: number;
+  range: string;
+  onPlotOffsetChange?: (offset: number) => void;
+  onPreviousPriceChange?: (price: number) => void;
 };
 
 const ComprehensiveChartGenerator = ({
   closePrice,
   prices,
   previousPrice,
+  onPlotOffsetChange,
 }: ChartParams) => {
   const { upColor, downColor } = useStockPriceStyle();
   const { getChartOptions, getChartContainerClasses } = useChartResponsive();
   const screenSize = useScreenSize();
   const windowSize = useWindowSize();
   const color = closePrice - previousPrice > 0 ? upColor : downColor;
-
-  // Container-based sizing with dynamic height adjustment
-  const containerHeight = useMemo(() => {
-    switch (screenSize) {
-      case 'xs':
-        return 180;
-      case 'sm':
-        return 200;
-      case 'md':
-        return 220;
-      case 'lg':
-        return 240;
-      case 'xl':
-        return 260;
-      case '2xl':
-        return 280;
-      default:
-        return 220;
-    }
-  }, [screenSize]);
 
   const containerWidth = useMemo(() => {
     if (windowSize.width === 0) return '100%';
@@ -66,7 +50,17 @@ const ComprehensiveChartGenerator = ({
     chart: {
       id: 'comprehensive-bar',
       toolbar: { show: screenSize !== 'xs' && screenSize !== 'sm' },
-      height: containerHeight,
+      height: '100%',
+      events: {
+        mounted: (chartInstance: any) => {
+          const offset = chartInstance?.w?.globals?.translateX;
+          if (typeof offset === 'number') onPlotOffsetChange?.(offset);
+        },
+        updated: (chartInstance: any) => {
+          const offset = chartInstance?.w?.globals?.translateX;
+          if (typeof offset === 'number') onPlotOffsetChange?.(offset);
+        },
+      },
     },
     annotations: {
       yaxis: [
@@ -135,7 +129,6 @@ const ComprehensiveChartGenerator = ({
         breakpoint: 1024,
         options: {
           chart: {
-            height: containerHeight * 0.9,
             toolbar: { show: true },
           },
           stroke: {
@@ -150,7 +143,6 @@ const ComprehensiveChartGenerator = ({
         breakpoint: 768,
         options: {
           chart: {
-            height: containerHeight * 0.8,
             toolbar: { show: false },
           },
           stroke: {
@@ -178,7 +170,6 @@ const ComprehensiveChartGenerator = ({
         breakpoint: 480,
         options: {
           chart: {
-            height: containerHeight * 0.7,
             toolbar: { show: false },
           },
           stroke: {
@@ -215,101 +206,84 @@ const ComprehensiveChartGenerator = ({
 
   return (
     <div
-      className={`w-full mx-auto overflow-hidden ${getChartContainerClasses()}`}
-      style={{
-        height: `${containerHeight}px`,
-        maxWidth: '100%',
-      }}
+      className={`w-full h-full mx-auto overflow-hidden ${getChartContainerClasses()}`}
+      style={{ maxWidth: '100%' }}
     >
       <Chart
         options={options}
         series={series}
         type="area"
-        height={containerHeight}
+        height="100%"
         width={containerWidth}
       />
     </div>
   );
 };
 
-const getPreviousPrice = async (symbol: string, range: string) => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/daily/previousDayPrice?symbol=${symbol}&range=${range}`,
-    {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-      },
-    }
-  );
-
-  const data: PreviousPriceDTO = await res.json();
-  return data;
-};
 
 const ComprehensiveChart = ({
   symbol,
   closePrice,
+  range,
+  onPlotOffsetChange,
+  onPreviousPriceChange,
 }: ComprehensiveChartProps) => {
-  const [range, setRange] = useState<string>('1D');
-  const { t } = useTranslation();
-
   const { data, isLoading, error } = useQuery<StockChartDTO, Error>({
     queryKey: ['chartData', { symbol }, { range }],
     queryFn: () => getRangeList(symbol, range),
+    enabled: range !== 'Range',
   });
 
-  const previousPrice = useQuery<PreviousPriceDTO>({
-    queryKey: ['previousClose', symbol, range],
-    queryFn: () => getPreviousPrice(symbol, range),
+  // Range tab uses 1M analysis data since 'Range' is not a valid API range value
+  const {
+    data: analysisData,
+    isLoading: isAnalysisLoading,
+    error: analysisError,
+  } = useQuery({
+    queryKey: ['analysis', symbol, range],
+    queryFn: () => getAnalysisList(symbol, '1M'),
+    enabled: range === 'Range',
   });
 
   useEffect(() => {
     if (error) {
       handleError(error, { context: 'Data Fetch' });
     }
-
-    if (previousPrice.error) {
-      handleError(previousPrice.error, { context: 'Data Fetch' });
+    if (analysisError) {
+      handleError(analysisError, { context: 'Analysis Fetch' });
     }
-  }, [error, previousPrice.error]);
+  }, [error, analysisError]);
 
-  if (isLoading) return <p>Loading...</p>;
+  // Use the first data point in the chart as the start-of-range reference price.
+  // This works for every range (1M, 3M, 6M) because data.data is sorted ascending
+  // and data.data[0] is always the first visible candle of the selected period.
+  useEffect(() => {
+    const startClose = data?.data?.[0]?.close;
+    if (startClose != null) {
+      onPreviousPriceChange?.(startClose);
+    }
+  }, [data, onPreviousPriceChange]);
+
+  if (isLoading || isAnalysisLoading) return <p>Loading...</p>;
 
   return (
-    <>
-      <Tabs defaultValue={range} className="w-full">
-        <TabsList>
-          <TabsTrigger onClick={() => setRange('1D')} value="1D">
-            {t('1d')}
-          </TabsTrigger>
-          <TabsTrigger onClick={() => setRange('1W')} value="1W">
-            {t('1w')}
-          </TabsTrigger>
-          <TabsTrigger onClick={() => setRange('1M')} value="1M">
-            {t('1m')}
-          </TabsTrigger>
-          <TabsTrigger onClick={() => setRange('3M')} value="3M">
-            {t('3m')}
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="flex flex-col">
-          <div className="basis-2/3">
-            {data && (
-              <ComprehensiveChartGenerator
-                closePrice={closePrice}
-                prices={data.data}
-                previousPrice={
-                  previousPrice.data?.close ? previousPrice.data?.close : 0
-                }
-              />
-            )}
-          </div>
-        </div>
-      </Tabs>
-    </>
+    <div className="w-full h-full">
+      {range === 'Range' ? (
+        <StrategyDashboard
+          symbol={symbol}
+          analysis={analysisData?.[0] || null}
+        />
+      ) : (
+        data && (
+          <ComprehensiveChartGenerator
+            closePrice={closePrice}
+            prices={data.data}
+            previousPrice={data.data[0]?.close ?? 0}
+            onPlotOffsetChange={onPlotOffsetChange}
+          />
+        )
+      )}
+    </div>
   );
 };
 export default ComprehensiveChart;

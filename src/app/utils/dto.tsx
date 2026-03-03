@@ -78,6 +78,8 @@ export type PreviousPriceDTO = {
   close: number;
 };
 
+export type PreviousPriceList = Record<string, PreviousPriceDTO>;
+
 export type NewsDTO = {
   category: string;
   datetime: string;

@@ -13,11 +13,10 @@ export const getRangeList = async (
 
   switch (range) {
     case '1D':
-      api = `${process.env.NEXT_PUBLIC_API}/intraday/latest?symbol=${symbol}`;
-      break;
     case '1W':
-      api = `${process.env.NEXT_PUBLIC_API}/intraday/week?symbol=${symbol}`;
-      break;
+      throw new Error(
+        `Intraday data (${range}) is not available. Use 1M or longer timeframes.`
+      );
     case '1M':
       api = `${process.env.NEXT_PUBLIC_API}/daily/RangeData?range=1&symbol=${symbol}`;
       break;

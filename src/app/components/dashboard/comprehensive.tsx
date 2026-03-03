@@ -2,164 +2,117 @@
 import ComprehensiveChart from './comprehensiveChart';
 import { ClosePrices } from './closePrice';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { handleError } from '@/utils/error';
-import { useIsMobile, useIsTablet } from '@/hooks/use-responsive';
+import { useIsMobile } from '@/hooks/use-responsive';
 import {
   getResponsiveTextSize,
   getResponsiveSpacing,
 } from '@/utils/responsive';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useStockPriceStyle } from '@/utils/zustand';
 
 type ComprehensiveAreaProps = {
   symbol: string;
 };
 
 const ComprehensiveArea = ({ symbol }: ComprehensiveAreaProps) => {
+  const [range, setRange] = useState<string>('1M');
+  const [plotLeft, setPlotLeft] = useState<number>(0);
+  const [prevClose, setPrevClose] = useState<number | null>(null);
   const { data, isLoading, error } = ClosePrices();
+  const { upColor, downColor } = useStockPriceStyle();
   const { t } = useTranslation();
-
-  // Responsive hooks
   const isMobile = useIsMobile();
-  const isTablet = useIsTablet();
 
   useEffect(() => {
-    if (error) {
-      handleError(error, { context: 'Data Fetch' });
-    }
+    if (error) handleError(error, { context: 'Data Fetch' });
   }, [error]);
+
+  // Reset the previous-close reference whenever the symbol changes so stale
+  // data from the old symbol is not shown while the new query is in-flight.
+  useEffect(() => {
+    setPrevClose(null);
+  }, [symbol]);
 
   if (!symbol) return <></>;
   if (isLoading)
     return <p className={getResponsiveSpacing('sm')}>Loading...</p>;
   if (!data) return <p className={getResponsiveSpacing('sm')}>Loading...</p>;
+
+  const closePrice = data[symbol]?.close ?? 0;
+  const pctChange =
+    prevClose != null ? ((closePrice - prevClose) / prevClose) * 100 : null;
+  const pctColor =
+    pctChange !== null ? (pctChange >= 0 ? upColor : downColor) : undefined;
+  const pctText =
+    pctChange !== null
+      ? `${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(2)}%`
+      : '';
+
   return (
-    <div className={`flex flex-col ${getResponsiveSpacing('md')}`}>
-      {/* Header Section */}
+    <div className={`flex flex-col h-full ${getResponsiveSpacing('md')}`}>
+      {/* Header */}
       <div
         className={`
-        ${getResponsiveSpacing('sm')}
-        ${
-          isMobile
-            ? 'flex flex-col space-y-3'
-            : 'flex items-center justify-between'
-        }
-      `}
+          ${getResponsiveSpacing('sm')}
+          ${isMobile ? 'flex flex-col space-y-2' : 'flex items-center justify-between'}
+        `}
       >
-        {/* Symbol Section */}
-        <div className="flex items-center">
-          <div
-            className={`
-            ${getResponsiveTextSize('3xl')} font-bold
-            ${isMobile ? 'text-center w-full' : ''}
-          `}
+        {/* Left: symbol + close price + % change — indented to align with chart Y-axis */}
+        <div
+          className="flex items-baseline gap-3 flex-wrap"
+          style={plotLeft > 0 ? { paddingLeft: plotLeft } : undefined}
+        >
+          <span
+            data-testid="panel-symbol"
+            className={`${getResponsiveTextSize('3xl')} font-bold`}
           >
             {symbol}
-          </div>
+          </span>
+          <span
+            data-testid="panel-price"
+            className={`${getResponsiveTextSize('2xl')} font-bold`}
+          >
+            {closePrice}
+          </span>
+          {pctText && (
+            <span
+              data-testid="panel-pct-change"
+              className={`${getResponsiveTextSize('base')} font-medium`}
+              style={{ color: pctColor }}
+            >
+              {pctText}
+            </span>
+          )}
         </div>
 
-        {/* Price Section */}
-        <div
-          className={`
-          ${
-            isMobile
-              ? 'flex flex-col items-center space-y-1'
-              : 'flex text-right'
-          }
-        `}
-        >
-          <div
-            className={`
-            ${isMobile ? 'text-center' : 'text-right mr-4 sm:mr-8'}
-          `}
-          >
-            <div className={`${getResponsiveTextSize('2xl')} font-bold`}>
-              {data[symbol].close}
-            </div>
-            <div className={`text-gray-400 ${getResponsiveTextSize('sm')}`}>
-              {t('at_close')}
-            </div>
-          </div>
-        </div>
+        {/* Right: time range tabs */}
+        <Tabs value={range} onValueChange={setRange}>
+          <TabsList>
+            {!isMobile && <TabsTrigger value="Range">Range</TabsTrigger>}
+            <TabsTrigger value="1M">{t('1m')}</TabsTrigger>
+            <TabsTrigger value="3M">{t('3m')}</TabsTrigger>
+            <TabsTrigger value="6M">{t('6m')}</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Chart Section */}
       <div
         className={`
-        ${
-          isMobile
-            ? 'min-h-[180px] mt-4'
-            : isTablet
-              ? 'min-h-[200px] mt-6'
-              : 'min-h-[220px] mt-6'
-        }
-        ${getResponsiveSpacing('sm')}
-      `}
+          flex-1 min-h-0
+          ${isMobile ? 'mt-4' : 'mt-2'}
+          ${getResponsiveSpacing('sm')}
+        `}
       >
-        <ComprehensiveChart closePrice={data[symbol].close} symbol={symbol} />
-      </div>
-
-      {/* Stats Grid */}
-      <div
-        className={`
-        ${
-          isMobile
-            ? 'grid grid-cols-1 gap-2 mt-4'
-            : 'grid grid-cols-2 gap-2 sm:gap-4 mt-6'
-        }
-      `}
-      >
-        <div
-          className={`
-          text-left
-          ${
-            isMobile
-              ? 'px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded'
-              : 'pl-4 sm:pl-6 md:pl-10'
-          }
-          ${getResponsiveTextSize('base')}
-        `}
-        >
-          {t('high')}: {data[symbol].high}
-        </div>
-        <div
-          className={`
-          text-left
-          ${
-            isMobile
-              ? 'px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded'
-              : 'pl-4 sm:pl-6 md:pl-10'
-          }
-          ${getResponsiveTextSize('base')}
-        `}
-        >
-          {t('low')}: {data[symbol].low}
-        </div>
-        <div
-          className={`
-          text-left
-          ${
-            isMobile
-              ? 'px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded'
-              : 'pl-4 sm:pl-6 md:pl-10'
-          }
-          ${getResponsiveTextSize('base')}
-        `}
-        >
-          {t('open')}: {data[symbol].open}
-        </div>
-        <div
-          className={`
-          text-left
-          ${
-            isMobile
-              ? 'px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded'
-              : 'pl-4 sm:pl-6 md:pl-10'
-          }
-          ${getResponsiveTextSize('base')}
-        `}
-        >
-          {t('vol')}: {data[symbol].volume}
-        </div>
+        <ComprehensiveChart
+          closePrice={closePrice}
+          symbol={symbol}
+          range={range}
+          onPlotOffsetChange={setPlotLeft}
+          onPreviousPriceChange={setPrevClose}
+        />
       </div>
     </div>
   );

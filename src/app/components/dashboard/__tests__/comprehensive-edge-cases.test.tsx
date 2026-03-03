@@ -427,7 +427,9 @@ describe('Comprehensive Components Edge Cases', () => {
       renderWithProviders(<ComprehensiveArea symbol={longSymbol} />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('panel-symbol')).toHaveTextContent(longSymbol);
+        expect(screen.getByTestId('panel-symbol')).toHaveTextContent(
+          longSymbol
+        );
       });
     });
 

@@ -2,8 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(rg:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)",
+      "Bash(grep -n \"use-responsive\\\\|use-mobile\" /Users/ian/App/side_project/stock_monitoring/frontend/src/app/components/dashboard/__tests__/*.test.tsx 2>&1 | head -20)",
+      "mcp__MongoDB__find"
     ],
     "deny": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "MongoDB",
+    "next-devtools"
+  ]
 }

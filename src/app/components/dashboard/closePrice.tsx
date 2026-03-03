@@ -1,4 +1,9 @@
-import { StockClosePriceList, StockDTO, PreviousPriceDTO, PreviousPriceList } from '@/utils/dto';
+import {
+  StockClosePriceList,
+  StockDTO,
+  PreviousPriceDTO,
+  PreviousPriceList,
+} from '@/utils/dto';
 import { useQuery } from '@tanstack/react-query';
 
 const getClosePrice = async (): Promise<StockClosePriceList> => {

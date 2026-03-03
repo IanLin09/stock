@@ -69,9 +69,14 @@ const mockAnalysis: StockAnalysisDTO = {
   macd: { dif: 2.5, dea: 1.8, histogram: 0.7, ema12: 103.5, ema26: 102.0 },
   rsi: { '14': 65, gain: 1.5, loss: 0.8 },
   kdj: { datetime: new Date('2025-02-12'), k: 70, d: 65, j: 80, rsv: 75 },
-  bollinger: { datetime: new Date('2025-02-12'), upper: 110, middle: 105, lower: 100 },
+  bollinger: {
+    datetime: new Date('2025-02-12'),
+    upper: 110,
+    middle: 105,
+    lower: 100,
+  },
   ma: { '20': 105 },
-  ema: { '5': 104 }
+  ema: { '5': 104 },
 };
 
 describe('StrategyDashboard', () => {

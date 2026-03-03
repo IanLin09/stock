@@ -31,7 +31,7 @@ describe('PreviousPrice Hook', () => {
     const mockData: PreviousPriceDTO = {
       _id: '507f1f77bcf86cd799439011',
       datetime: '2026-02-21T00:00:00.000Z',
-      close: 348.50,
+      close: 348.5,
     };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({

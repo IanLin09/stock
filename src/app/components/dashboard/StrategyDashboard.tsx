@@ -133,7 +133,9 @@ export default function StrategyDashboard({
               className={`px-4 py-2 rounded-md border font-medium text-center ${getActionColor(finalRecommendation.primaryAction)}`}
               data-testid="primary-action"
             >
-              {finalRecommendation.primaryAction.toUpperCase().replace('_', ' ')}
+              {finalRecommendation.primaryAction
+                .toUpperCase()
+                .replace('_', ' ')}
             </div>
           </div>
         </div>
@@ -198,12 +200,14 @@ export default function StrategyDashboard({
                   Risk Warnings
                 </div>
                 <ul className="text-sm text-yellow-700 space-y-1">
-                  {finalRecommendation.riskWarnings.map((warning: string, index: number) => (
-                    <li key={index} className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>{warning}</span>
-                    </li>
-                  ))}
+                  {finalRecommendation.riskWarnings.map(
+                    (warning: string, index: number) => (
+                      <li key={index} className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>{warning}</span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
             )}
@@ -274,15 +278,17 @@ export default function StrategyDashboard({
                   Secondary Actions
                 </div>
                 <ul className="space-y-2">
-                  {finalRecommendation.secondaryActions.map((action: string, index: number) => (
-                    <li
-                      key={index}
-                      className="flex items-start p-2 bg-gray-50 rounded-md"
-                    >
-                      <span className="text-blue-600 mr-2 mt-0.5">→</span>
-                      <span className="text-sm text-gray-700">{action}</span>
-                    </li>
-                  ))}
+                  {finalRecommendation.secondaryActions.map(
+                    (action: string, index: number) => (
+                      <li
+                        key={index}
+                        className="flex items-start p-2 bg-gray-50 rounded-md"
+                      >
+                        <span className="text-blue-600 mr-2 mt-0.5">→</span>
+                        <span className="text-sm text-gray-700">{action}</span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
             )}

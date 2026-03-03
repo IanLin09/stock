@@ -167,20 +167,20 @@ export const useNewsLayout = () => {
       `${titleFontSize || 'text-base'} ${titleLineHeight || 'leading-6'} ${titleLineClamp || 'line-clamp-3'} font-medium hover:text-primary transition-colors`,
     getContainerClasses: () =>
       `${containerPadding || 'p-4'} grid ${gridCols || 'grid-cols-3'} ${gridGap || 'gap-4'}`,
-    
+
     // 文字截斷工具函數
     truncateText: (text: string, maxLength?: number) => {
       const limit = maxLength || maxCharacters || 100;
       if (text.length <= limit) return text;
-      
+
       // 在最後一個完整單詞處截斷，避免截斷單詞中間
       const truncated = text.substring(0, limit);
       const lastSpaceIndex = truncated.lastIndexOf(' ');
-      
+
       if (lastSpaceIndex > limit * 0.8) {
         return truncated.substring(0, lastSpaceIndex) + '...';
       }
-      
+
       return truncated + '...';
     },
   };

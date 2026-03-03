@@ -173,8 +173,19 @@ describe('ComprehensiveChart', () => {
         close: 351.5,
         macd: { dif: 1.2, dea: 0.8, histogram: 0.4, ema12: 349, ema26: 347 },
         rsi: { 14: 65, gain: 1.2, loss: 0.8 },
-        kdj: { k: 70, d: 65, j: 75, rsv: 72, datetime: new Date('2024-01-16T09:30:00.000Z') },
-        bollinger: { upper: 360, middle: 350, lower: 340, datetime: new Date('2024-01-16T09:30:00.000Z') },
+        kdj: {
+          k: 70,
+          d: 65,
+          j: 75,
+          rsv: 72,
+          datetime: new Date('2024-01-16T09:30:00.000Z'),
+        },
+        bollinger: {
+          upper: 360,
+          middle: 350,
+          lower: 340,
+          datetime: new Date('2024-01-16T09:30:00.000Z'),
+        },
         ma: { 20: 348 },
         ema: { 5: 350 },
       },
@@ -375,7 +386,9 @@ describe('ComprehensiveChart', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('strategy-dashboard')).toBeInTheDocument();
-        expect(screen.getByText(/strategy dashboard for QQQ/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/strategy dashboard for QQQ/i)
+        ).toBeInTheDocument();
       });
     });
 

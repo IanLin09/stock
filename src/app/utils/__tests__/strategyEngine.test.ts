@@ -1,4 +1,5 @@
 import { RSIAnalyzer, StrategyEngine } from '../strategyEngine';
+import { RuleEngine, STRATEGY_RULES } from '../strategyRuleEngine';
 import type { StockAnalysisDTO } from '../dto';
 
 describe('RSIAnalyzer.analyze — direction field', () => {
@@ -57,5 +58,20 @@ describe('StrategyEngine — mean reversion direction check', () => {
     const signals = StrategyEngine.generateStrategySignals(judgments);
     const meanReversion = signals.find((s) => s.type === 'mean_reversion');
     expect(meanReversion?.action).toBe('sell');
+  });
+});
+
+describe('RuleEngine — no dead volume conditions', () => {
+  it('STRATEGY_RULES contains no volume conditions', () => {
+    const volumeConditions = STRATEGY_RULES.flatMap((r) => r.conditions).filter(
+      (c) => c.indicator === 'volume'
+    );
+    expect(volumeConditions).toHaveLength(0);
+  });
+
+  it('evaluateCondition does not accept volume indicator type', () => {
+    const ruleIds = STRATEGY_RULES.map((r) => r.id);
+    expect(ruleIds).toContain('breakout_macd_surge');
+    expect(ruleIds).not.toContain('breakout_volume_surge');
   });
 });

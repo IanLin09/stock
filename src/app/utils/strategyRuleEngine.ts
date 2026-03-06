@@ -21,7 +21,7 @@ export interface StrategyRule {
 }
 
 export interface RuleCondition {
-  indicator: 'RSI' | 'MACD' | 'MA' | 'KDJ' | 'price' | 'volume';
+  indicator: 'RSI' | 'MACD' | 'MA' | 'KDJ' | 'price';
   operator:
     | '>'
     | '<'
@@ -191,8 +191,8 @@ export const STRATEGY_RULES: StrategyRule[] = [
 
   // 突破策略規則
   {
-    id: 'breakout_volume_surge',
-    name: '放量突破',
+    id: 'breakout_macd_surge',
+    name: 'MACD強勢突破',
     description: 'MACD強勢金叉+突破關鍵阻力',
     conditions: [
       {
@@ -344,9 +344,6 @@ export class RuleEngine {
       case 'price':
         actualValue = currentPrice;
         break;
-      case 'volume':
-        // 這裡需要成交量數據，暫時跳過
-        return false;
     }
 
     if (actualValue === undefined) return false;
@@ -484,7 +481,6 @@ export class RuleEngine {
       MA: `MA${period || 20}`,
       KDJ: 'KDJ',
       price: '價格',
-      volume: '成交量',
     }[indicator];
 
     const operatorDesc = {

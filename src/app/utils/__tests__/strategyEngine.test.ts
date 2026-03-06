@@ -61,6 +61,44 @@ describe('StrategyEngine — mean reversion direction check', () => {
   });
 });
 
+describe('StrategyEngine — MA analysis fires when price is provided', () => {
+  const makeDataWithPrice = (close: number, ma20: number): StockAnalysisDTO => ({
+    _id: '1',
+    symbol: 'QQQ',
+    datetime: new Date(),
+    open: close,
+    close,
+    macd: { dif: 0, dea: 0, histogram: 0, ema12: 0, ema26: 0 },
+    ma: { 20: ma20 },
+    ema: { 5: close },
+    rsi: { 14: 50, gain: 0, loss: 0 },
+    bollinger: { datetime: new Date(), middle: ma20, upper: ma20 * 1.1, lower: ma20 * 0.9 },
+    kdj: { datetime: new Date(), k: 50, d: 50, j: 50, rsv: 50 },
+  });
+
+  it('includes MA judgment when currentPrice is provided', () => {
+    const data = makeDataWithPrice(110, 100);
+    const judgments = StrategyEngine.analyzeIndicators(data, 110);
+    const maJudgment = judgments.find((j) => j.indicator === 'MA');
+    expect(maJudgment).toBeDefined();
+    expect(maJudgment?.signal).toBe('bullish');
+  });
+
+  it('excludes MA judgment when currentPrice is not provided', () => {
+    const data = makeDataWithPrice(110, 100);
+    const judgments = StrategyEngine.analyzeIndicators(data);
+    const maJudgment = judgments.find((j) => j.indicator === 'MA');
+    expect(maJudgment).toBeUndefined();
+  });
+
+  it('returns bearish MA when price is 5% below MA20', () => {
+    const data = makeDataWithPrice(95, 100);
+    const judgments = StrategyEngine.analyzeIndicators(data, 95);
+    const maJudgment = judgments.find((j) => j.indicator === 'MA');
+    expect(maJudgment?.signal).toBe('bearish');
+  });
+});
+
 describe('RuleEngine — no dead volume conditions', () => {
   it('STRATEGY_RULES contains no volume conditions', () => {
     const volumeConditions = STRATEGY_RULES.flatMap((r) => r.conditions).filter(

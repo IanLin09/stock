@@ -88,7 +88,8 @@ export class StrategyIntegrator {
     // 1. 執行技術指標分析
     const technicalAnalysis = StrategyEngine.performCompleteAnalysis(
       data,
-      symbol
+      symbol,
+      currentPrice
     );
 
     // 2. 執行規則引擎分析

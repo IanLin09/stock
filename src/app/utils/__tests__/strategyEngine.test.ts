@@ -62,7 +62,10 @@ describe('StrategyEngine — mean reversion direction check', () => {
 });
 
 describe('StrategyEngine — MA analysis fires when price is provided', () => {
-  const makeDataWithPrice = (close: number, ma20: number): StockAnalysisDTO => ({
+  const makeDataWithPrice = (
+    close: number,
+    ma20: number
+  ): StockAnalysisDTO => ({
     _id: '1',
     symbol: 'QQQ',
     datetime: new Date(),
@@ -72,7 +75,12 @@ describe('StrategyEngine — MA analysis fires when price is provided', () => {
     ma: { 20: ma20 },
     ema: { 5: close },
     rsi: { 14: 50, gain: 0, loss: 0 },
-    bollinger: { datetime: new Date(), middle: ma20, upper: ma20 * 1.1, lower: ma20 * 0.9 },
+    bollinger: {
+      datetime: new Date(),
+      middle: ma20,
+      upper: ma20 * 1.1,
+      lower: ma20 * 0.9,
+    },
     kdj: { datetime: new Date(), k: 50, d: 50, j: 50, rsv: 50 },
   });
 
@@ -114,7 +122,10 @@ describe('RuleEngine — no dead volume conditions', () => {
   });
 });
 
-const makeRuleData = (difOverDea: boolean, histValue: number): StockAnalysisDTO => ({
+const makeRuleData = (
+  difOverDea: boolean,
+  histValue: number
+): StockAnalysisDTO => ({
   _id: '1',
   symbol: 'QQQ',
   datetime: new Date(),
@@ -140,7 +151,13 @@ describe('RuleEngine — cross_above only fires on actual crossover bar', () => 
     const previous = makeRuleData(false, -0.2);
 
     const result = RuleEngine.evaluateCondition(
-      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      {
+        indicator: 'MACD',
+        operator: 'cross_above',
+        value: 0,
+        weight: 1,
+        required: true,
+      },
       current,
       103,
       previous
@@ -153,7 +170,13 @@ describe('RuleEngine — cross_above only fires on actual crossover bar', () => 
     const previous = makeRuleData(true, 0.2);
 
     const result = RuleEngine.evaluateCondition(
-      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      {
+        indicator: 'MACD',
+        operator: 'cross_above',
+        value: 0,
+        weight: 1,
+        required: true,
+      },
       current,
       103,
       previous
@@ -165,7 +188,13 @@ describe('RuleEngine — cross_above only fires on actual crossover bar', () => 
     const current = makeRuleData(true, 0.4);
 
     const result = RuleEngine.evaluateCondition(
-      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      {
+        indicator: 'MACD',
+        operator: 'cross_above',
+        value: 0,
+        weight: 1,
+        required: true,
+      },
       current,
       103,
       undefined

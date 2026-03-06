@@ -338,7 +338,10 @@ export class StrategyEngine {
   /**
    * 綜合分析所有技術指標
    */
-  static analyzeIndicators(data: StockAnalysisDTO, currentPrice?: number): IndicatorJudgment[] {
+  static analyzeIndicators(
+    data: StockAnalysisDTO,
+    currentPrice?: number
+  ): IndicatorJudgment[] {
     const judgments: IndicatorJudgment[] = [];
 
     // RSI 分析
@@ -353,7 +356,9 @@ export class StrategyEngine {
 
     // MA 分析
     if (currentPrice && data.ma && data.ma[20]) {
-      judgments.push(MAAnalyzer.analyze(currentPrice, data.ma[20], data.ema?.[5]));
+      judgments.push(
+        MAAnalyzer.analyze(currentPrice, data.ma[20], data.ema?.[5])
+      );
     }
 
     // KDJ 分析

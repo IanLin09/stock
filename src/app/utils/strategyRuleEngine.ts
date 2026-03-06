@@ -305,7 +305,8 @@ export class RuleEngine {
   static evaluateCondition(
     condition: RuleCondition,
     data: StockAnalysisDTO,
-    currentPrice?: number
+    currentPrice?: number,
+    previousData?: StockAnalysisDTO
   ): boolean {
     const { indicator, operator, value } = condition;
 
@@ -318,15 +319,8 @@ export class RuleEngine {
         actualValue = data.rsi?.['14'];
         break;
       case 'MACD':
-        if (
-          operator === '>' ||
-          operator === '<' ||
-          operator === '>=' ||
-          operator === '<='
-        ) {
-          // 比較histogram值
-          actualValue = data.macd?.histogram;
-        }
+        // 比較histogram值 (includes cross operators)
+        actualValue = data.macd?.histogram;
         break;
       case 'MA':
         if (currentPrice && data.ma?.['20']) {
@@ -367,11 +361,51 @@ export class RuleEngine {
         return actualValue >= min && actualValue <= max;
       }
       case 'cross_above':
-      case 'cross_below':
-        // 穿越條件需要歷史數據，暫時簡化處理
-        return operator === 'cross_above'
-          ? actualValue > (value as number)
-          : actualValue < (value as number);
+      case 'cross_below': {
+        if (!previousData) {
+          // graceful degradation: no history, use simple comparison
+          return operator === 'cross_above'
+            ? actualValue > (value as number)
+            : actualValue < (value as number);
+        }
+
+        // get previous indicator value
+        let prevValue: number | undefined;
+        switch (indicator) {
+          case 'MACD':
+            prevValue = previousData.macd?.histogram;
+            break;
+          case 'MA':
+            if (previousData.close && previousData.ma?.['20']) {
+              prevValue =
+                (previousData.close - previousData.ma['20']) /
+                previousData.ma['20'];
+            }
+            break;
+          case 'KDJ':
+            if (previousData.kdj) {
+              prevValue =
+                (previousData.kdj.k + previousData.kdj.d + previousData.kdj.j) / 3;
+            }
+            break;
+          default:
+            return operator === 'cross_above'
+              ? actualValue > (value as number)
+              : actualValue < (value as number);
+        }
+
+        if (prevValue === undefined) {
+          return operator === 'cross_above'
+            ? actualValue > (value as number)
+            : actualValue < (value as number);
+        }
+
+        if (operator === 'cross_above') {
+          return prevValue <= (value as number) && actualValue > (value as number);
+        } else {
+          return prevValue >= (value as number) && actualValue < (value as number);
+        }
+      }
       default:
         return false;
     }
@@ -383,7 +417,8 @@ export class RuleEngine {
   static evaluateRule(
     rule: StrategyRule,
     data: StockAnalysisDTO,
-    currentPrice?: number
+    currentPrice?: number,
+    previousData?: StockAnalysisDTO
   ): RuleMatchResult {
     const matchedConditions: string[] = [];
     const failedConditions: string[] = [];
@@ -393,7 +428,7 @@ export class RuleEngine {
 
     // 評估每個條件
     for (const condition of rule.conditions) {
-      const isMatched = this.evaluateCondition(condition, data, currentPrice);
+      const isMatched = this.evaluateCondition(condition, data, currentPrice, previousData);
       const conditionDesc = this.formatConditionDescription(condition);
 
       if (isMatched) {
@@ -446,10 +481,11 @@ export class RuleEngine {
    */
   static evaluateAllRules(
     data: StockAnalysisDTO,
-    currentPrice?: number
+    currentPrice?: number,
+    previousData?: StockAnalysisDTO
   ): RuleMatchResult[] {
     return STRATEGY_RULES.map((rule) =>
-      this.evaluateRule(rule, data, currentPrice)
+      this.evaluateRule(rule, data, currentPrice, previousData)
     );
   }
 
@@ -458,9 +494,10 @@ export class RuleEngine {
    */
   static getBestStrategy(
     data: StockAnalysisDTO,
-    currentPrice?: number
+    currentPrice?: number,
+    previousData?: StockAnalysisDTO
   ): RuleMatchResult | null {
-    const results = this.evaluateAllRules(data, currentPrice);
+    const results = this.evaluateAllRules(data, currentPrice, previousData);
     const matchedResults = results.filter((r) => r.matched);
 
     if (matchedResults.length === 0) return null;

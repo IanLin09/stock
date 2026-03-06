@@ -113,3 +113,63 @@ describe('RuleEngine — no dead volume conditions', () => {
     expect(ruleIds).not.toContain('breakout_volume_surge');
   });
 });
+
+const makeRuleData = (difOverDea: boolean, histValue: number): StockAnalysisDTO => ({
+  _id: '1',
+  symbol: 'QQQ',
+  datetime: new Date(),
+  open: 100,
+  close: 103,
+  macd: {
+    dif: difOverDea ? 0.3 : -0.3,
+    dea: 0,
+    histogram: histValue,
+    ema12: 0,
+    ema26: 0,
+  },
+  ma: { 20: 100 },
+  ema: { 5: 103 },
+  rsi: { 14: 55, gain: 0, loss: 0 },
+  bollinger: { datetime: new Date(), middle: 100, upper: 110, lower: 90 },
+  kdj: { datetime: new Date(), k: 55, d: 50, j: 60, rsv: 50 },
+});
+
+describe('RuleEngine — cross_above only fires on actual crossover bar', () => {
+  it('cross_above fires when prev histogram was negative, current is positive', () => {
+    const current = makeRuleData(true, 0.4);
+    const previous = makeRuleData(false, -0.2);
+
+    const result = RuleEngine.evaluateCondition(
+      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      current,
+      103,
+      previous
+    );
+    expect(result).toBe(true);
+  });
+
+  it('cross_above does NOT fire when already above (continuation, no fresh cross)', () => {
+    const current = makeRuleData(true, 0.4);
+    const previous = makeRuleData(true, 0.2);
+
+    const result = RuleEngine.evaluateCondition(
+      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      current,
+      103,
+      previous
+    );
+    expect(result).toBe(false);
+  });
+
+  it('cross_above gracefully falls back to > when no previousData', () => {
+    const current = makeRuleData(true, 0.4);
+
+    const result = RuleEngine.evaluateCondition(
+      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      current,
+      103,
+      undefined
+    );
+    expect(result).toBe(true);
+  });
+});

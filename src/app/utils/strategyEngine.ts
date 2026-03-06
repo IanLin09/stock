@@ -20,6 +20,7 @@ export interface IndicatorJudgment {
   confidence: ConfidenceLevel;
   message: string;
   reasons: string[];
+  direction?: 'oversold' | 'overbought';
 }
 
 // 策略信號
@@ -63,6 +64,7 @@ export class RSIAnalyzer {
     let confidence: ConfidenceLevel;
     let message: string;
     let reasons: string[] = [];
+    let direction: 'oversold' | 'overbought' | undefined;
 
     if (rsi >= 80) {
       signal = 'extreme';
@@ -70,6 +72,7 @@ export class RSIAnalyzer {
       confidence = 'strong';
       message = 'strategy_rsi_extreme_overbought';
       reasons = ['strategy_rsi_above_80', 'strategy_short_term_pullback_risk'];
+      direction = 'overbought';
     } else if (rsi >= 70) {
       signal = 'bearish';
       strength = 60 + (rsi - 70);
@@ -79,12 +82,14 @@ export class RSIAnalyzer {
         'strategy_rsi_entered_overbought',
         'strategy_consider_reducing_position',
       ];
+      direction = 'overbought';
     } else if (rsi <= 20) {
       signal = 'extreme';
       strength = Math.min(95, 60 + (20 - rsi) * 2);
       confidence = 'strong';
       message = 'strategy_rsi_extreme_oversold';
       reasons = ['strategy_rsi_below_20', 'strategy_rebound_opportunity'];
+      direction = 'oversold';
     } else if (rsi <= 30) {
       signal = 'bullish';
       strength = 60 + (30 - rsi);
@@ -94,6 +99,7 @@ export class RSIAnalyzer {
         'strategy_rsi_entered_oversold',
         'strategy_consider_gradual_buy',
       ];
+      direction = 'oversold';
     } else {
       signal = 'neutral';
       strength = 50 - Math.abs(rsi - 50) / 2;
@@ -109,6 +115,7 @@ export class RSIAnalyzer {
       confidence,
       message,
       reasons,
+      direction,
     };
   }
 }
@@ -452,19 +459,13 @@ export class StrategyEngine {
 
       if (rsiJudgment && rsiJudgment.signal === 'extreme') {
         // RSI極值反轉
-        if (rsiJudgment.strength > 85) {
-          action = rsiJudgment.reasons.some(
-            (r) => r.includes('oversold') || r.includes('超賣')
-          )
-            ? 'buy'
-            : 'sell';
-          strength = avgStrength;
-          confidence = 'strong';
-          recommendation =
-            action === 'buy'
-              ? 'strategy_rsi_extreme_oversold_reversal'
-              : 'strategy_rsi_extreme_overbought_reversal';
-        }
+        action = rsiJudgment.direction === 'oversold' ? 'buy' : 'sell';
+        strength = avgStrength;
+        confidence = 'strong';
+        recommendation =
+          action === 'buy'
+            ? 'strategy_rsi_extreme_oversold_reversal'
+            : 'strategy_rsi_extreme_overbought_reversal';
       }
     }
 

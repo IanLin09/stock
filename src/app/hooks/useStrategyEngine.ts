@@ -97,7 +97,11 @@ export const useStrategyEngine = (
 
     // 使用最新的數據點進行分析
     const latestData = rawData[rawData.length - 1];
-    return StrategyEngine.performCompleteAnalysis(latestData, symbol);
+    return StrategyEngine.performCompleteAnalysis(
+      latestData,
+      symbol,
+      latestData.close
+    );
   }, [rawData, symbol]);
 
   // 執行增強型綜合分析 (Phase 3.3) - 使用單獨的查詢
@@ -343,7 +347,7 @@ export const useIndicatorTrend = (
     if (!data) return [];
 
     return data.map((item) => {
-      const analysis = StrategyEngine.analyzeIndicators(item);
+      const analysis = StrategyEngine.analyzeIndicators(item, item.close);
       const indicatorData = analysis.find((a) => a.indicator === indicator);
 
       return {

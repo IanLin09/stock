@@ -83,16 +83,22 @@ export class StrategyIntegrator {
       riskPreference?: 'conservative' | 'moderate' | 'aggressive';
       timeframe?: 'short' | 'medium' | 'long';
       minConfidence?: 'weak' | 'moderate' | 'strong';
-    }
+    },
+    previousData?: StockAnalysisDTO
   ): Promise<IntegratedAnalysis> {
     // 1. 執行技術指標分析
     const technicalAnalysis = StrategyEngine.performCompleteAnalysis(
       data,
-      symbol
+      symbol,
+      currentPrice
     );
 
     // 2. 執行規則引擎分析
-    const ruleResults = RuleEngine.evaluateAllRules(data, currentPrice);
+    const ruleResults = RuleEngine.evaluateAllRules(
+      data,
+      currentPrice,
+      previousData
+    );
     const ruleScoring = StrategyScorer.calculateOverallScore(ruleResults);
     const riskAssessment = StrategyScorer.assessRisk(ruleResults);
 
@@ -160,14 +166,19 @@ export class StrategyIntegrator {
   static quickAnalysis(
     data: StockAnalysisDTO,
     _symbol: string,
-    currentPrice?: number
+    currentPrice?: number,
+    previousData?: StockAnalysisDTO
   ): {
     action: 'buy' | 'sell' | 'hold';
     confidence: number; // 0-100
     reason: string;
     risk: 'low' | 'medium' | 'high';
   } {
-    const bestStrategy = RuleEngine.getBestStrategy(data, currentPrice);
+    const bestStrategy = RuleEngine.getBestStrategy(
+      data,
+      currentPrice,
+      previousData
+    );
 
     if (!bestStrategy) {
       return {
@@ -396,9 +407,15 @@ export const analyzeStrategy = async (
 export const quickAnalyze = (
   data: StockAnalysisDTO,
   symbol: string,
-  currentPrice?: number
+  currentPrice?: number,
+  previousData?: StockAnalysisDTO
 ) => {
-  return StrategyIntegrator.quickAnalysis(data, symbol, currentPrice);
+  return StrategyIntegrator.quickAnalysis(
+    data,
+    symbol,
+    currentPrice,
+    previousData
+  );
 };
 
 /**

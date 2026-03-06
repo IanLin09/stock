@@ -94,7 +94,11 @@ export class StrategyIntegrator {
     );
 
     // 2. 執行規則引擎分析
-    const ruleResults = RuleEngine.evaluateAllRules(data, currentPrice, previousData);
+    const ruleResults = RuleEngine.evaluateAllRules(
+      data,
+      currentPrice,
+      previousData
+    );
     const ruleScoring = StrategyScorer.calculateOverallScore(ruleResults);
     const riskAssessment = StrategyScorer.assessRisk(ruleResults);
 
@@ -170,7 +174,11 @@ export class StrategyIntegrator {
     reason: string;
     risk: 'low' | 'medium' | 'high';
   } {
-    const bestStrategy = RuleEngine.getBestStrategy(data, currentPrice, previousData);
+    const bestStrategy = RuleEngine.getBestStrategy(
+      data,
+      currentPrice,
+      previousData
+    );
 
     if (!bestStrategy) {
       return {
@@ -402,7 +410,12 @@ export const quickAnalyze = (
   currentPrice?: number,
   previousData?: StockAnalysisDTO
 ) => {
-  return StrategyIntegrator.quickAnalysis(data, symbol, currentPrice, previousData);
+  return StrategyIntegrator.quickAnalysis(
+    data,
+    symbol,
+    currentPrice,
+    previousData
+  );
 };
 
 /**

@@ -211,7 +211,9 @@ describe('ComprehensiveArea', () => {
 
       // No act() call — chart hasn't fired onPreviousPriceChange yet
       await waitFor(() => {
-        expect(screen.queryByTestId('panel-pct-change')).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId('panel-pct-change')
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -246,7 +248,9 @@ describe('ComprehensiveArea', () => {
       );
 
       await waitFor(() => {
-        expect(screen.queryByTestId('panel-pct-change')).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId('panel-pct-change')
+        ).not.toBeInTheDocument();
       });
     });
   });
@@ -443,7 +447,11 @@ describe('ComprehensiveArea mobile Range tab', () => {
   });
 
   const renderWithProviders = (component: React.ReactElement) =>
-    render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
+    render(
+      <QueryClientProvider client={queryClient}>
+        {component}
+      </QueryClientProvider>
+    );
 
   it('hides the Range tab trigger on mobile', async () => {
     mockClosePrices.mockReturnValue({

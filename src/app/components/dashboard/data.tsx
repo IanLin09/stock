@@ -17,7 +17,10 @@ const DashboardPage = () => {
       </div>
 
       {/* Right panel — full width on mobile, col 2-3 rows 1-2 on desktop */}
-      <div data-testid="right-panel" className="md:row-span-2 md:col-span-2 border border-black dark:border-white flex-1 md:h-full flex flex-col min-h-0">
+      <div
+        data-testid="right-panel"
+        className="md:row-span-2 md:col-span-2 border border-black dark:border-white flex-1 md:h-full flex flex-col min-h-0"
+      >
         {symbol ? (
           <>
             <div className="flex-1 min-h-0" style={{ minHeight: '120px' }}>

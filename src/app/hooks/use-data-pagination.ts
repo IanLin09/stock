@@ -19,7 +19,7 @@ interface PaginationResult<T> {
   totalItems: number;
   startIndex: number;
   endIndex: number;
-  
+
   // Actions
   nextPage: () => void;
   previousPage: () => void;
@@ -37,23 +37,29 @@ export const useDataPagination = <T>(
     initialPageSize = 50,
     maxItemsPerPage = 200,
     enableInfiniteScroll = false,
-    responsivePageSize = true
+    responsivePageSize = true,
   } = options;
 
   const breakpoints = useAnalysisBreakpoints();
-  
+
   // Calculate responsive page size based on screen size
   const responsiveSize = useMemo(() => {
     if (!responsivePageSize) return initialPageSize;
-    
+
     switch (breakpoints.currentScreenSize) {
-      case 'xs': return Math.min(20, initialPageSize); // Mobile: smaller pages
-      case 'sm': return Math.min(30, initialPageSize); // Small tablet
-      case 'md': return Math.min(50, initialPageSize); // Medium
-      case 'lg': return Math.min(75, initialPageSize); // Large
-      case 'xl': 
-      case '2xl': return Math.min(100, initialPageSize); // Extra large
-      default: return initialPageSize;
+      case 'xs':
+        return Math.min(20, initialPageSize); // Mobile: smaller pages
+      case 'sm':
+        return Math.min(30, initialPageSize); // Small tablet
+      case 'md':
+        return Math.min(50, initialPageSize); // Medium
+      case 'lg':
+        return Math.min(75, initialPageSize); // Large
+      case 'xl':
+      case '2xl':
+        return Math.min(100, initialPageSize); // Extra large
+      default:
+        return initialPageSize;
     }
   }, [breakpoints.currentScreenSize, initialPageSize, responsivePageSize]);
 
@@ -73,50 +79,62 @@ export const useDataPagination = <T>(
   const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
-  
+
   // For infinite scroll, show data from page 1 to current loaded page
-  const infiniteScrollEndIndex = enableInfiniteScroll 
+  const infiniteScrollEndIndex = enableInfiniteScroll
     ? Math.min(loadedPages * pageSize, totalItems)
     : endIndex;
-  
+
   const currentData = useMemo(() => {
     if (enableInfiniteScroll) {
       return data.slice(0, infiniteScrollEndIndex);
     }
     return data.slice(startIndex, endIndex);
-  }, [data, startIndex, endIndex, enableInfiniteScroll, infiniteScrollEndIndex]);
+  }, [
+    data,
+    startIndex,
+    endIndex,
+    enableInfiniteScroll,
+    infiniteScrollEndIndex,
+  ]);
 
   // Navigation functions
   const nextPage = useCallback(() => {
     if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
+      setCurrentPage((prev) => prev + 1);
     }
   }, [currentPage, totalPages]);
 
   const previousPage = useCallback(() => {
     if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
+      setCurrentPage((prev) => prev - 1);
     }
   }, [currentPage]);
 
-  const goToPage = useCallback((page: number) => {
-    const targetPage = Math.max(1, Math.min(page, totalPages));
-    setCurrentPage(targetPage);
-  }, [totalPages]);
+  const goToPage = useCallback(
+    (page: number) => {
+      const targetPage = Math.max(1, Math.min(page, totalPages));
+      setCurrentPage(targetPage);
+    },
+    [totalPages]
+  );
 
-  const setPageSize = useCallback((size: number) => {
-    const newSize = Math.max(1, Math.min(size, maxItemsPerPage));
-    setPageSizeState(newSize);
-    
-    // Adjust current page to maintain roughly the same data position
-    const currentStartIndex = (currentPage - 1) * pageSize;
-    const newPage = Math.floor(currentStartIndex / newSize) + 1;
-    setCurrentPage(Math.max(1, newPage));
-  }, [currentPage, pageSize, maxItemsPerPage]);
+  const setPageSize = useCallback(
+    (size: number) => {
+      const newSize = Math.max(1, Math.min(size, maxItemsPerPage));
+      setPageSizeState(newSize);
+
+      // Adjust current page to maintain roughly the same data position
+      const currentStartIndex = (currentPage - 1) * pageSize;
+      const newPage = Math.floor(currentStartIndex / newSize) + 1;
+      setCurrentPage(Math.max(1, newPage));
+    },
+    [currentPage, pageSize, maxItemsPerPage]
+  );
 
   const loadMore = useCallback(() => {
     if (enableInfiniteScroll && loadedPages < totalPages) {
-      setLoadedPages(prev => prev + 1);
+      setLoadedPages((prev) => prev + 1);
     }
   }, [enableInfiniteScroll, loadedPages, totalPages]);
 
@@ -140,13 +158,13 @@ export const useDataPagination = <T>(
     totalItems,
     startIndex,
     endIndex: enableInfiniteScroll ? infiniteScrollEndIndex : endIndex,
-    
+
     nextPage,
     previousPage,
     goToPage,
     setPageSize,
     loadMore,
-    reset
+    reset,
   };
 };
 
@@ -161,13 +179,16 @@ export const useVirtualScrolling = <T>(
 
   const visibleItemCount = Math.ceil(containerHeight / itemHeight);
   const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
-  const endIndex = Math.min(data.length, startIndex + visibleItemCount + overscan * 2);
+  const endIndex = Math.min(
+    data.length,
+    startIndex + visibleItemCount + overscan * 2
+  );
 
   const visibleItems = useMemo(() => {
     return data.slice(startIndex, endIndex).map((item, index) => ({
       item,
       index: startIndex + index,
-      top: (startIndex + index) * itemHeight
+      top: (startIndex + index) * itemHeight,
     }));
   }, [data, startIndex, endIndex, itemHeight]);
 
@@ -182,7 +203,7 @@ export const useVirtualScrolling = <T>(
     totalHeight,
     handleScroll,
     startIndex,
-    endIndex
+    endIndex,
   };
 };
 
@@ -196,43 +217,49 @@ export const useOptimizedDataLoading = <T>(
   const [error, setError] = useState<Error | null>(null);
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
 
-  const loadData = useCallback(async (forceRefresh = false) => {
-    const now = Date.now();
-    const timeSinceLastFetch = now - lastFetchTime;
-    
-    // Don't refetch if data was loaded recently (within 30 seconds)
-    if (!forceRefresh && timeSinceLastFetch < 30000 && data.length > 0) {
-      return data;
-    }
+  const loadData = useCallback(
+    async (forceRefresh = false) => {
+      const now = Date.now();
+      const timeSinceLastFetch = now - lastFetchTime;
 
-    setLoading(true);
-    setError(null);
+      // Don't refetch if data was loaded recently (within 30 seconds)
+      if (!forceRefresh && timeSinceLastFetch < 30000 && data.length > 0) {
+        return data;
+      }
 
-    try {
-      const startTime = performance.now();
-      const newData = await fetchData();
-      const loadTime = performance.now() - startTime;
-      
-      console.log(`📡 Data loaded in ${loadTime.toFixed(2)}ms (${newData.length} items)`);
-      
-      setData(newData);
-      setLastFetchTime(now);
-      return newData;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to load data');
-      setError(error);
-      console.error('Data loading error:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchData, lastFetchTime, data.length, ...dependencies]);
+      setLoading(true);
+      setError(null);
+
+      try {
+        const startTime = performance.now();
+        const newData = await fetchData();
+        const loadTime = performance.now() - startTime;
+
+        console.log(
+          `📡 Data loaded in ${loadTime.toFixed(2)}ms (${newData.length} items)`
+        );
+
+        setData(newData);
+        setLastFetchTime(now);
+        return newData;
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error('Failed to load data');
+        setError(error);
+        console.error('Data loading error:', error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchData, lastFetchTime, data.length, ...dependencies]
+  );
 
   return {
     data,
     loading,
     error,
     loadData,
-    refresh: () => loadData(true)
+    refresh: () => loadData(true),
   };
 };

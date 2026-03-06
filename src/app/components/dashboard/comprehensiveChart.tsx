@@ -220,7 +220,6 @@ const ComprehensiveChartGenerator = ({
   );
 };
 
-
 const ComprehensiveChart = ({
   symbol,
   closePrice,

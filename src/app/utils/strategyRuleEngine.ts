@@ -385,7 +385,8 @@ export class RuleEngine {
           case 'KDJ':
             if (previousData.kdj) {
               prevValue =
-                (previousData.kdj.k + previousData.kdj.d + previousData.kdj.j) / 3;
+                (previousData.kdj.k + previousData.kdj.d + previousData.kdj.j) /
+                3;
             }
             break;
           default:
@@ -401,9 +402,13 @@ export class RuleEngine {
         }
 
         if (operator === 'cross_above') {
-          return prevValue <= (value as number) && actualValue > (value as number);
+          return (
+            prevValue <= (value as number) && actualValue > (value as number)
+          );
         } else {
-          return prevValue >= (value as number) && actualValue < (value as number);
+          return (
+            prevValue >= (value as number) && actualValue < (value as number)
+          );
         }
       }
       default:
@@ -428,7 +433,12 @@ export class RuleEngine {
 
     // 評估每個條件
     for (const condition of rule.conditions) {
-      const isMatched = this.evaluateCondition(condition, data, currentPrice, previousData);
+      const isMatched = this.evaluateCondition(
+        condition,
+        data,
+        currentPrice,
+        previousData
+      );
       const conditionDesc = this.formatConditionDescription(condition);
 
       if (isMatched) {

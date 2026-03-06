@@ -55,7 +55,9 @@ export default function IndicatorSummary({ symbol }: IndicatorSummaryProps) {
         data-testid="indicator-row-rsi"
         className="flex items-center text-sm gap-2"
       >
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">RSI</span>
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          RSI
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           {fmt(indicators.rsi?.[14])}
         </span>
@@ -72,7 +74,9 @@ export default function IndicatorSummary({ symbol }: IndicatorSummaryProps) {
         data-testid="indicator-row-macd"
         className="flex items-center text-sm gap-2"
       >
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">MACD</span>
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          MACD
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           {isMobile
             ? `D:${fmt(indicators.macd?.dif)} A:${fmt(indicators.macd?.dea)} H:${fmt(indicators.macd?.histogram)}`
@@ -91,7 +95,9 @@ export default function IndicatorSummary({ symbol }: IndicatorSummaryProps) {
         data-testid="indicator-row-ma"
         className="flex items-center text-sm gap-2"
       >
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">MA</span>
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          MA
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           MA20 {fmt(indicators.ma?.[20])}
         </span>
@@ -108,7 +114,9 @@ export default function IndicatorSummary({ symbol }: IndicatorSummaryProps) {
         data-testid="indicator-row-kdj"
         className="flex items-center text-sm gap-2"
       >
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">KDJ</span>
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          KDJ
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           {isMobile
             ? `K:${fmt(indicators.kdj?.k)} D:${fmt(indicators.kdj?.d)} J:${fmt(indicators.kdj?.j)}`
@@ -127,7 +135,9 @@ export default function IndicatorSummary({ symbol }: IndicatorSummaryProps) {
         data-testid="indicator-row-bollinger"
         className="flex items-center text-sm gap-2"
       >
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">Bollinger</span>
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          Bollinger
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           {isMobile
             ? `U:${fmt(indicators.bollinger?.upper)} M:${fmt(indicators.bollinger?.middle)} L:${fmt(indicators.bollinger?.lower)}`
@@ -146,7 +156,9 @@ export default function IndicatorSummary({ symbol }: IndicatorSummaryProps) {
         data-testid="indicator-row-ema"
         className="flex items-center text-sm gap-2"
       >
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">EMA</span>
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          EMA
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           EMA5 {fmt(indicators.ema?.[5])}
         </span>

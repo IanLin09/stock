@@ -4,17 +4,19 @@
  */
 
 import React from 'react';
-import type { StrategySignal } from '@/utils/strategyEngine';
+import type { StrategySignal, IndicatorJudgment } from '@/utils/strategyEngine';
 import { mapActionToSignal } from '@/utils/strategyEngine';
 
 interface MeanReversionStrategyProps {
   strategy: StrategySignal | null;
+  indicators: IndicatorJudgment[];
   marketCondition: string;
   overallScore: number;
 }
 
 const MeanReversionStrategy: React.FC<MeanReversionStrategyProps> = ({
   strategy,
+  indicators,
   marketCondition: _marketCondition, // eslint-disable-line @typescript-eslint/no-unused-vars
   overallScore: _overallScore, // eslint-disable-line @typescript-eslint/no-unused-vars
 }) => {
@@ -60,6 +62,11 @@ const MeanReversionStrategy: React.FC<MeanReversionStrategyProps> = ({
     }
   };
 
+  // Real indicator values from the engine
+  const rsiJudgment = indicators.find((i) => i.indicator === 'RSI');
+  const kdjJudgment = indicators.find((i) => i.indicator === 'KDJ');
+  const maJudgment = indicators.find((i) => i.indicator === 'MA');
+
   const reversionIndicators = [
     {
       name: 'RSI極值',
@@ -77,6 +84,7 @@ const MeanReversionStrategy: React.FC<MeanReversionStrategyProps> = ({
           : strategy.strength > 50
             ? 'medium'
             : 'low',
+      realStrength: rsiJudgment ? Math.round(rsiJudgment.strength) : null,
     },
     {
       name: '價格偏離',
@@ -94,6 +102,7 @@ const MeanReversionStrategy: React.FC<MeanReversionStrategyProps> = ({
           : strategy.strength > 50
             ? 'medium'
             : 'low',
+      realStrength: maJudgment ? Math.round(maJudgment.strength) : null,
     },
     {
       name: 'KDJ背離',
@@ -111,6 +120,7 @@ const MeanReversionStrategy: React.FC<MeanReversionStrategyProps> = ({
           : strategy.strength > 40
             ? 'medium'
             : 'low',
+      realStrength: kdjJudgment ? Math.round(kdjJudgment.strength) : null,
     },
   ];
 
@@ -288,19 +298,26 @@ const MeanReversionStrategy: React.FC<MeanReversionStrategyProps> = ({
                       {indicator.detail}
                     </p>
                   </div>
-                  <span
-                    className={`text-sm font-medium px-2 py-1 rounded ${
-                      indicator.status.includes('超賣') ||
-                      indicator.status.includes('底背離')
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : indicator.status.includes('超買') ||
-                            indicator.status.includes('頂背離')
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                    }`}
-                  >
-                    {indicator.status}
-                  </span>
+                  <div className="flex flex-col items-end space-y-1">
+                    {indicator.realStrength !== null && (
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        {indicator.realStrength}%
+                      </span>
+                    )}
+                    <span
+                      className={`text-sm font-medium px-2 py-1 rounded ${
+                        indicator.status.includes('超賣') ||
+                        indicator.status.includes('底背離')
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : indicator.status.includes('超買') ||
+                              indicator.status.includes('頂背離')
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                      }`}
+                    >
+                      {indicator.status}
+                    </span>
+                  </div>
                 </div>
               </div>
             );

@@ -4,17 +4,19 @@
  */
 
 import React from 'react';
-import type { StrategySignal } from '@/utils/strategyEngine';
+import type { StrategySignal, IndicatorJudgment } from '@/utils/strategyEngine';
 import { mapActionToSignal } from '@/utils/strategyEngine';
 
 interface MomentumStrategyProps {
   strategy: StrategySignal | null;
+  indicators: IndicatorJudgment[];
   marketCondition: string;
   overallScore: number;
 }
 
 const MomentumStrategy: React.FC<MomentumStrategyProps> = ({
   strategy,
+  indicators,
   marketCondition: _marketCondition, // eslint-disable-line @typescript-eslint/no-unused-vars
   overallScore: _overallScore, // eslint-disable-line @typescript-eslint/no-unused-vars
 }) => {
@@ -60,6 +62,11 @@ const MomentumStrategy: React.FC<MomentumStrategyProps> = ({
     }
   };
 
+  // Real indicator values from the engine
+  const rsiJudgment = indicators.find((i) => i.indicator === 'RSI');
+  const macdJudgment = indicators.find((i) => i.indicator === 'MACD');
+  const maJudgment = indicators.find((i) => i.indicator === 'MA');
+
   const momentumIndicators = [
     {
       name: 'RSI動量',
@@ -71,6 +78,7 @@ const MomentumStrategy: React.FC<MomentumStrategyProps> = ({
             ? '負向動量'
             : '中性',
       detail: 'RSI > 50 且上升趨勢表示正向動量',
+      strength: rsiJudgment ? Math.round(rsiJudgment.strength) : null,
     },
     {
       name: 'MACD趨勢',
@@ -82,6 +90,7 @@ const MomentumStrategy: React.FC<MomentumStrategyProps> = ({
             ? '死叉信號'
             : '無明確信號',
       detail: 'DIF線與DEA線的相對位置反映趨勢強度',
+      strength: macdJudgment ? Math.round(macdJudgment.strength) : null,
     },
     {
       name: '價格動量',
@@ -93,6 +102,7 @@ const MomentumStrategy: React.FC<MomentumStrategyProps> = ({
             ? '跌破均線'
             : '橫盤整理',
       detail: '價格與移動平均線的關係決定動量方向',
+      strength: maJudgment ? Math.round(maJudgment.strength) : null,
     },
   ];
 
@@ -216,21 +226,28 @@ const MomentumStrategy: React.FC<MomentumStrategyProps> = ({
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {indicator.name}
                   </p>
-                  <span
-                    className={`text-sm font-medium ${
-                      indicator.status.includes('正向') ||
-                      indicator.status.includes('金叉') ||
-                      indicator.status.includes('突破')
-                        ? 'text-green-600 dark:text-green-400'
-                        : indicator.status.includes('負向') ||
-                            indicator.status.includes('死叉') ||
-                            indicator.status.includes('跌破')
-                          ? 'text-red-600 dark:text-red-400'
-                          : 'text-gray-600 dark:text-gray-400'
-                    }`}
-                  >
-                    {indicator.status}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    {indicator.strength !== null && (
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        {indicator.strength}%
+                      </span>
+                    )}
+                    <span
+                      className={`text-sm font-medium ${
+                        indicator.status.includes('正向') ||
+                        indicator.status.includes('金叉') ||
+                        indicator.status.includes('突破')
+                          ? 'text-green-600 dark:text-green-400'
+                          : indicator.status.includes('負向') ||
+                              indicator.status.includes('死叉') ||
+                              indicator.status.includes('跌破')
+                            ? 'text-red-600 dark:text-red-400'
+                            : 'text-gray-600 dark:text-gray-400'
+                      }`}
+                    >
+                      {indicator.status}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {indicator.description}

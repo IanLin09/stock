@@ -4,17 +4,19 @@
  */
 
 import React from 'react';
-import type { StrategySignal } from '@/utils/strategyEngine';
+import type { StrategySignal, IndicatorJudgment } from '@/utils/strategyEngine';
 import { mapActionToSignal } from '@/utils/strategyEngine';
 
 interface BreakoutStrategyProps {
   strategy: StrategySignal | null;
+  indicators: IndicatorJudgment[];
   marketCondition: string;
   overallScore: number;
 }
 
 const BreakoutStrategy: React.FC<BreakoutStrategyProps> = ({
   strategy,
+  indicators,
   marketCondition: _marketCondition, // eslint-disable-line @typescript-eslint/no-unused-vars
   overallScore: _overallScore, // eslint-disable-line @typescript-eslint/no-unused-vars
 }) => {
@@ -60,6 +62,11 @@ const BreakoutStrategy: React.FC<BreakoutStrategyProps> = ({
     }
   };
 
+  // Real indicator values from the engine
+  const macdJudgment = indicators.find((i) => i.indicator === 'MACD');
+  const maJudgment = indicators.find((i) => i.indicator === 'MA');
+  const rsiJudgment = indicators.find((i) => i.indicator === 'RSI');
+
   const breakoutIndicators = [
     {
       name: '價格突破',
@@ -77,6 +84,7 @@ const BreakoutStrategy: React.FC<BreakoutStrategyProps> = ({
           : strategy.strength > 50
             ? 'moderate'
             : 'weak',
+      realStrength: maJudgment ? Math.round(maJudgment.strength) : null,
     },
     {
       name: 'MACD動量',
@@ -94,6 +102,7 @@ const BreakoutStrategy: React.FC<BreakoutStrategyProps> = ({
           : strategy.strength > 50
             ? 'moderate'
             : 'weak',
+      realStrength: macdJudgment ? Math.round(macdJudgment.strength) : null,
     },
     {
       name: '成交量放大',
@@ -111,6 +120,7 @@ const BreakoutStrategy: React.FC<BreakoutStrategyProps> = ({
           : strategy.strength > 45
             ? 'moderate'
             : 'weak',
+      realStrength: rsiJudgment ? Math.round(rsiJudgment.strength) : null,
     },
   ];
 
@@ -341,7 +351,7 @@ const BreakoutStrategy: React.FC<BreakoutStrategyProps> = ({
                         ></div>
                       </div>
                       <span className="text-xs font-medium text-gray-900 dark:text-white">
-                        {strengthInfo.text}
+                        {indicator.realStrength !== null ? `${indicator.realStrength}%` : strengthInfo.text}
                       </span>
                     </div>
                   </div>

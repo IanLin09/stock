@@ -69,6 +69,21 @@ interface StrategyEngineResult {
   getSignalColorByType: (signal: string) => string;
 }
 
+// ==================== 純函數：市場狀況判斷 ====================
+
+export function computeMarketCondition(
+  overallSignal: string,
+  overallStrength: number,
+  bullishCount: number,
+  bearishCount: number
+): string {
+  if (overallSignal === 'bullish' && overallStrength > 70) return 'market_strong_uptrend';
+  if (overallSignal === 'bearish' && overallStrength > 70) return 'market_strong_downtrend';
+  if (overallStrength < 50) return 'market_unclear';
+  if (Math.abs(bullishCount - bearishCount) <= 1) return 'market_sideways';
+  return overallSignal === 'bullish' ? 'market_moderate_uptrend' : 'market_moderate_downtrend';
+}
+
 // ==================== 主要 Hook ====================
 
 export const useStrategyEngine = (
@@ -151,27 +166,15 @@ export const useStrategyEngine = (
 
   // 判斷市場狀況
   const marketCondition = useMemo(() => {
-    if (!analysis) return '數據不足';
-
-    const { overallSignal, overallStrength } = analysis;
-    const bullishCount = indicators.filter(
-      (i) => i.signal === 'bullish'
-    ).length;
-    const bearishCount = indicators.filter(
-      (i) => i.signal === 'bearish'
-    ).length;
-
-    if (overallSignal === 'bullish' && overallStrength > 70) {
-      return '強勢上漲';
-    } else if (overallSignal === 'bearish' && overallStrength > 70) {
-      return '強勢下跌';
-    } else if (Math.abs(bullishCount - bearishCount) <= 1) {
-      return '震盪整理';
-    } else if (overallStrength < 50) {
-      return '方向不明';
-    } else {
-      return overallSignal === 'bullish' ? '溫和上漲' : '溫和下跌';
-    }
+    if (!analysis) return 'market_unclear';
+    const bullishCount = indicators.filter((i) => i.signal === 'bullish').length;
+    const bearishCount = indicators.filter((i) => i.signal === 'bearish').length;
+    return computeMarketCondition(
+      analysis.overallSignal,
+      analysis.overallStrength,
+      bullishCount,
+      bearishCount
+    );
   }, [analysis, indicators]);
 
   // 主要建議

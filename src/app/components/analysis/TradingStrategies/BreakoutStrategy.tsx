@@ -351,7 +351,9 @@ const BreakoutStrategy: React.FC<BreakoutStrategyProps> = ({
                         ></div>
                       </div>
                       <span className="text-xs font-medium text-gray-900 dark:text-white">
-                        {indicator.realStrength !== null ? `${indicator.realStrength}%` : strengthInfo.text}
+                        {indicator.realStrength !== null
+                          ? `${indicator.realStrength}%`
+                          : strengthInfo.text}
                       </span>
                     </div>
                   </div>

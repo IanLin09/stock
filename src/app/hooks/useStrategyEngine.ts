@@ -77,11 +77,15 @@ export function computeMarketCondition(
   bullishCount: number,
   bearishCount: number
 ): string {
-  if (overallSignal === 'bullish' && overallStrength > 70) return 'market_strong_uptrend';
-  if (overallSignal === 'bearish' && overallStrength > 70) return 'market_strong_downtrend';
+  if (overallSignal === 'bullish' && overallStrength > 70)
+    return 'market_strong_uptrend';
+  if (overallSignal === 'bearish' && overallStrength > 70)
+    return 'market_strong_downtrend';
   if (overallStrength < 50) return 'market_unclear';
   if (Math.abs(bullishCount - bearishCount) <= 1) return 'market_sideways';
-  return overallSignal === 'bullish' ? 'market_moderate_uptrend' : 'market_moderate_downtrend';
+  return overallSignal === 'bullish'
+    ? 'market_moderate_uptrend'
+    : 'market_moderate_downtrend';
 }
 
 // ==================== 主要 Hook ====================
@@ -167,8 +171,12 @@ export const useStrategyEngine = (
   // 判斷市場狀況
   const marketCondition = useMemo(() => {
     if (!analysis) return 'market_unclear';
-    const bullishCount = indicators.filter((i) => i.signal === 'bullish').length;
-    const bearishCount = indicators.filter((i) => i.signal === 'bearish').length;
+    const bullishCount = indicators.filter(
+      (i) => i.signal === 'bullish'
+    ).length;
+    const bearishCount = indicators.filter(
+      (i) => i.signal === 'bearish'
+    ).length;
     return computeMarketCondition(
       analysis.overallSignal,
       analysis.overallStrength,

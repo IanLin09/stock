@@ -17,41 +17,70 @@ interface TradingStrategiesProps {
 }
 
 // Map primaryAction → i18n advice keys
-function buildActionAdvice(primaryAction: string, secondaryActions: string[], riskWarnings: string[]) {
+function buildActionAdvice(
+  primaryAction: string,
+  secondaryActions: string[],
+  riskWarnings: string[]
+) {
   switch (primaryAction) {
     case 'buy':
       return {
         primary: 'primary_advice_buy',
-        secondary: ['secondary_advice_batch_build', 'secondary_advice_stop_loss', ...secondaryActions.slice(0, 1)],
+        secondary: [
+          'secondary_advice_batch_build',
+          'secondary_advice_stop_loss',
+          ...secondaryActions.slice(0, 1),
+        ],
         warnings: ['warning_risk_control', ...riskWarnings.slice(0, 1)],
       };
     case 'sell':
     case 'reduce':
       return {
         primary: 'primary_advice_sell',
-        secondary: ['secondary_advice_batch_reduce', 'secondary_advice_watch_support', ...secondaryActions.slice(0, 1)],
+        secondary: [
+          'secondary_advice_batch_reduce',
+          'secondary_advice_watch_support',
+          ...secondaryActions.slice(0, 1),
+        ],
         warnings: ['warning_no_panic', ...riskWarnings.slice(0, 1)],
       };
     default:
       return {
         primary: 'primary_advice_hold',
-        secondary: ['secondary_advice_wait_signal', 'secondary_advice_watch_technical'],
+        secondary: [
+          'secondary_advice_wait_signal',
+          'secondary_advice_watch_technical',
+        ],
         warnings: ['warning_no_frequent'],
       };
   }
 }
 
-const TradingStrategies: React.FC<TradingStrategiesProps> = ({ className = '' }) => {
+const TradingStrategies: React.FC<TradingStrategiesProps> = ({
+  className = '',
+}) => {
   const { t } = useTranslation();
   const { currentSymbol, timeRange } = useAnalysisStore();
-  const [activeTab, setActiveTab] = useState<'momentum' | 'mean_reversion' | 'breakout' | 'risk' | 'advice'>('momentum');
+  const [activeTab, setActiveTab] = useState<
+    'momentum' | 'mean_reversion' | 'breakout' | 'risk' | 'advice'
+  >('momentum');
 
-  const { analysis, indicators, strategies, overallScore, marketCondition, riskLevel, isLoading, isError } =
-    useStrategyEngine({ symbol: currentSymbol, timeRange });
+  const {
+    analysis,
+    indicators,
+    strategies,
+    overallScore,
+    marketCondition,
+    riskLevel,
+    isLoading,
+    isError,
+  } = useStrategyEngine({ symbol: currentSymbol, timeRange });
 
   const actionAdvice = useMemo(() => {
-    if (!analysis) return { primary: 'primary_advice_hold', secondary: [], warnings: [] };
-    const { primaryAction, secondaryActions, riskWarnings } = analysis.finalRecommendation;
+    if (!analysis)
+      return { primary: 'primary_advice_hold', secondary: [], warnings: [] };
+    const { primaryAction, secondaryActions, riskWarnings } =
+      analysis.finalRecommendation;
     return buildActionAdvice(primaryAction, secondaryActions, riskWarnings);
   }, [analysis]);
 
@@ -83,7 +112,9 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({ className = '' })
   const activeStrategy = strategies.find((s) => s.type === activeTab) || null;
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 ${className}`}
+    >
       {/* Header */}
       <div className="p-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
@@ -153,7 +184,9 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({ className = '' })
         {activeTab === 'risk' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded">
-              <span className="text-sm font-medium text-gray-900 dark:text-white">{t('risk_level')}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                {t('risk_level')}
+              </span>
               <span
                 className={`text-xs font-medium px-2 py-1 rounded ${
                   riskLevel === 'high'
@@ -163,7 +196,13 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({ className = '' })
                       : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                 }`}
               >
-                {t(riskLevel === 'high' ? 'high_risk' : riskLevel === 'medium' ? 'medium_risk' : 'low_risk')}
+                {t(
+                  riskLevel === 'high'
+                    ? 'high_risk'
+                    : riskLevel === 'medium'
+                      ? 'medium_risk'
+                      : 'low_risk'
+                )}
               </span>
             </div>
           </div>
@@ -174,13 +213,19 @@ const TradingStrategies: React.FC<TradingStrategiesProps> = ({ className = '' })
               {t('trading_advice')}: {t(actionAdvice.primary)}
             </div>
             {actionAdvice.secondary.map((advice, i) => (
-              <div key={i} className="text-xs text-gray-600 dark:text-gray-300 flex items-center">
+              <div
+                key={i}
+                className="text-xs text-gray-600 dark:text-gray-300 flex items-center"
+              >
                 <span className="w-1 h-1 bg-gray-400 rounded-full mr-2"></span>
                 {t(advice)}
               </div>
             ))}
             {actionAdvice.warnings.map((w, i) => (
-              <div key={i} className="text-xs text-amber-600 dark:text-amber-400 flex items-center">
+              <div
+                key={i}
+                className="text-xs text-amber-600 dark:text-amber-400 flex items-center"
+              >
                 <span className="w-1 h-1 bg-amber-500 rounded-full mr-2"></span>
                 {t(w)}
               </div>

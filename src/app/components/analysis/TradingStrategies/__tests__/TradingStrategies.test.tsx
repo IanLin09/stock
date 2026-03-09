@@ -11,23 +11,73 @@ jest.mock('@/hooks/useStrategyEngine', () => ({
       overallStrength: 82,
       overallSignal: 'bullish',
       strategySignals: [
-        { type: 'momentum', action: 'buy', signal: 'bullish', strength: 82, confidence: 'strong', riskLevel: 'medium', supportingIndicators: [], conflictingIndicators: [], recommendation: '' },
-        { type: 'mean_reversion', action: 'hold', signal: 'neutral', strength: 50, confidence: 'weak', riskLevel: 'low', supportingIndicators: [], conflictingIndicators: [], recommendation: '' },
-        { type: 'breakout', action: 'buy', signal: 'bullish', strength: 78, confidence: 'moderate', riskLevel: 'high', supportingIndicators: [], conflictingIndicators: [], recommendation: '' },
+        {
+          type: 'momentum',
+          action: 'buy',
+          signal: 'bullish',
+          strength: 82,
+          confidence: 'strong',
+          riskLevel: 'medium',
+          supportingIndicators: [],
+          conflictingIndicators: [],
+          recommendation: '',
+        },
+        {
+          type: 'mean_reversion',
+          action: 'hold',
+          signal: 'neutral',
+          strength: 50,
+          confidence: 'weak',
+          riskLevel: 'low',
+          supportingIndicators: [],
+          conflictingIndicators: [],
+          recommendation: '',
+        },
+        {
+          type: 'breakout',
+          action: 'buy',
+          signal: 'bullish',
+          strength: 78,
+          confidence: 'moderate',
+          riskLevel: 'high',
+          supportingIndicators: [],
+          conflictingIndicators: [],
+          recommendation: '',
+        },
       ],
       indicatorJudgments: [],
-      finalRecommendation: { primaryAction: 'buy', secondaryActions: [], riskWarnings: [], timeframe: 'short' },
+      finalRecommendation: {
+        primaryAction: 'buy',
+        secondaryActions: [],
+        riskWarnings: [],
+        timeframe: 'short',
+      },
       timestamp: new Date(),
       symbol: 'QQQ',
     },
     indicators: [],
     strategies: [
-      { type: 'momentum', action: 'buy', signal: 'bullish', strength: 82, confidence: 'strong', riskLevel: 'medium', supportingIndicators: [], conflictingIndicators: [], recommendation: '' },
+      {
+        type: 'momentum',
+        action: 'buy',
+        signal: 'bullish',
+        strength: 82,
+        confidence: 'strong',
+        riskLevel: 'medium',
+        supportingIndicators: [],
+        conflictingIndicators: [],
+        recommendation: '',
+      },
     ],
     overallScore: 82,
     marketCondition: 'market_strong_uptrend',
     riskLevel: 'medium',
-    actionAdvice: { primary: 'primary_advice_buy', secondary: [], warnings: [], timeframe: '' },
+    actionAdvice: {
+      primary: 'primary_advice_buy',
+      secondary: [],
+      warnings: [],
+      timeframe: '',
+    },
     refreshAnalysis: jest.fn(),
     getIndicatorStatus: jest.fn(),
     getStrategyByType: jest.fn(),
@@ -61,6 +111,8 @@ describe('TradingStrategies — uses real engine data', () => {
     // If getSymbolDetail is still called the mock above won't cover it and
     // the component will throw — this test passing proves it's removed.
     render(<TradingStrategies />);
-    expect(screen.queryByText('strategy_analysis_failed')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('strategy_analysis_failed')
+    ).not.toBeInTheDocument();
   });
 });

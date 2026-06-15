@@ -75,35 +75,35 @@ jobs:
         else
           echo "✅ All symbols processed successfully"
         fi
-    - name: Call intraday with Multiple Symbols
-      run: |
-        # Array of symbols
-        symbols=("NVDL" "QQQ" "TQQQ" "TSLA" "IBIT")
-        failed_symbols=()
+    # - name: Call intraday with Multiple Symbols
+    #   run: |
+    #     # Array of symbols
+    #     symbols=("NVDL" "QQQ" "TQQQ" "TSLA" "IBIT")
+    #     failed_symbols=()
         
-        for symbol in "${symbols[@]}"; do
-          echo "Processing symbol: $symbol"
+    #     for symbol in "${symbols[@]}"; do
+    #       echo "Processing symbol: $symbol"
           
-          response=$(curl -s -w "%{http_code}" -o response_$symbol.json \
-            -X POST \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
-            -d "{\"symbol\": \"$symbol\"}" \
-            "${{ secrets.API_ENDPOINT }}/intraday/create")
+    #       response=$(curl -s -w "%{http_code}" -o response_$symbol.json \
+    #         -X POST \
+    #         -H "Content-Type: application/json" \
+    #         -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+    #         -d "{\"symbol\": \"$symbol\"}" \
+    #         "${{ secrets.API_ENDPOINT }}/intraday/create")
           
-          if [ "$response" -eq 200 ]; then
-            echo "✅ $symbol processed successfully"
-          else
-            echo "❌ $symbol failed with status $response"
-            cat response_$symbol.json
-            failed_symbols+=("$symbol")
-          fi
-        done
+    #       if [ "$response" -eq 200 ]; then
+    #         echo "✅ $symbol processed successfully"
+    #       else
+    #         echo "❌ $symbol failed with status $response"
+    #         cat response_$symbol.json
+    #         failed_symbols+=("$symbol")
+    #       fi
+    #     done
         
-        if [ ${#failed_symbols[@]} -gt 0 ]; then
-          echo "Failed symbols: ${failed_symbols[*]}"
-          exit 1
-        fi
+    #     if [ ${#failed_symbols[@]} -gt 0 ]; then
+    #       echo "Failed symbols: ${failed_symbols[*]}"
+    #       exit 1
+    #     fi
 
     - name: Handle API Response
       if: success()

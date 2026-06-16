@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import CountdownTimer from '@/components/dashboard/timer';
+import SentimentNews from '@/components/dashboard/sentimentNews';
 import DashboardList from '@/components/dashboard/list';
 import { useState } from 'react';
 import ComprehensiveArea from '@/components/dashboard/comprehensive';
@@ -37,9 +37,9 @@ const DashboardPage = () => {
         )}
       </div>
 
-      {/* Timer — hidden on mobile, col 1 row 2 on desktop */}
-      <div className="md:row-start-2 hidden md:flex border border-black dark:border-white items-center justify-center p-4">
-        <CountdownTimer />
+      {/* Sentiment News — hidden on mobile, col 1 row 2 on desktop */}
+      <div className="md:row-start-2 hidden md:flex border border-black dark:border-white overflow-hidden">
+        <SentimentNews />
       </div>
     </>
   );

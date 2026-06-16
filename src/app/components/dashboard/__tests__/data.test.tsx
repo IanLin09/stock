@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 jest.mock('../list', () => () => <div data-testid="list" />);
 jest.mock('../comprehensive', () => () => <div data-testid="chart" />);
 jest.mock('../IndicatorSummary', () => () => <div data-testid="indicators" />);
-jest.mock('../timer', () => () => <div data-testid="timer" />);
+jest.mock('../sentimentNews', () => () => <div data-testid="sentiment-news" />);
 
 import DashboardPage from '../data';
 
@@ -19,8 +19,6 @@ describe('DashboardPage layout', () => {
   it('renders the list panel with responsive classes', () => {
     const { getByTestId } = renderWithQuery(<DashboardPage />);
     const list = getByTestId('list').parentElement!;
-    // On mobile this panel should be full-width (no col-span or grid placement)
-    // On desktop it participates in grid — test that md: prefix classes are present
     expect(list.className).toContain('md:row-span-1');
   });
 
@@ -31,9 +29,9 @@ describe('DashboardPage layout', () => {
     expect(right.className).toContain('md:row-span-2');
   });
 
-  it('renders the timer panel with md:row-start-2', () => {
+  it('renders the sentiment-news panel with md:row-start-2', () => {
     const { getByTestId } = renderWithQuery(<DashboardPage />);
-    const timer = getByTestId('timer').parentElement!;
-    expect(timer.className).toContain('md:row-start-2');
+    const sentimentPanel = getByTestId('sentiment-news').parentElement!;
+    expect(sentimentPanel.className).toContain('md:row-start-2');
   });
 });

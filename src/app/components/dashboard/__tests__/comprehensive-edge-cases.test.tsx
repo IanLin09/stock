@@ -35,7 +35,7 @@ jest.mock('../../../utils/error', () => ({
 }));
 
 // Mock closePrice hooks
-jest.mock('../closePrice', () => ({
+jest.mock('../dataService', () => ({
   ClosePrices: jest.fn(),
 }));
 
@@ -59,7 +59,7 @@ jest.mock('../comprehensiveChart', () => {
   };
 });
 
-import { ClosePrices } from '../closePrice';
+import { ClosePrices } from '../dataService';
 import { useIsMobile, useIsTablet } from '../../../hooks/use-responsive';
 
 const mockClosePrices = ClosePrices as jest.MockedFunction<typeof ClosePrices>;

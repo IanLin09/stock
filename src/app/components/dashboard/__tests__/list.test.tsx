@@ -2,14 +2,14 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import DashboardList from '../list';
-import * as closePrice from '../closePrice';
+import * as dataService from '../dataService';
 import { useIsMobile } from '../../../hooks/use-responsive';
 import { useStockPriceStyle } from '../../../utils/zustand';
 
 // Mock dependencies
 jest.mock('../../../hooks/use-responsive');
 jest.mock('../../../utils/zustand');
-jest.mock('../closePrice');
+jest.mock('../dataService');
 
 const mockUseIsMobile = useIsMobile as jest.MockedFunction<typeof useIsMobile>;
 const mockUseStockPriceStyle = useStockPriceStyle as jest.MockedFunction<
@@ -41,13 +41,13 @@ describe('DashboardList', () => {
   });
 
   it('renders loading state initially', () => {
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: null,
       isLoading: true,
       error: null,
@@ -82,13 +82,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
         TQQQ: { close: 50.0, _id: '2', datetime: '2026-02-22' },
@@ -123,13 +123,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
       },
@@ -159,13 +159,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         TQQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
       },
@@ -195,13 +195,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: null,
       isLoading: false,
       error: null,
@@ -229,13 +229,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
       },
@@ -265,13 +265,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
       },
@@ -308,13 +308,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
       },
@@ -344,13 +344,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         QQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
       },
@@ -383,13 +383,13 @@ describe('DashboardList', () => {
       },
     };
 
-    (closePrice.ClosePrices as jest.Mock).mockReturnValue({
+    (dataService.ClosePrices as jest.Mock).mockReturnValue({
       data: mockLatestPrices,
       isLoading: false,
       error: null,
     });
 
-    (closePrice.PreviousPrices as jest.Mock).mockReturnValue({
+    (dataService.PreviousPrices as jest.Mock).mockReturnValue({
       data: {
         TQQQ: { close: 100.0, _id: '1', datetime: '2026-02-22' },
       },

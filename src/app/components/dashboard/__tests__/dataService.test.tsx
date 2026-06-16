@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { PreviousPrice } from '../closePrice';
+import { PreviousPrice } from '../dataService';
 import type { PreviousPriceDTO } from '@/utils/dto';
 
 describe('PreviousPrice Hook', () => {
@@ -49,7 +49,7 @@ describe('PreviousPrice Hook', () => {
 
     expect(result.current.data).toEqual(mockData);
     expect(global.fetch).toHaveBeenCalledWith(
-      `${process.env.NEXT_PUBLIC_API}/daily/previous?symbol=QQQ&range=1D`,
+      `${process.env.NEXT_PUBLIC_API}/daily/previousDayPrice?symbol=QQQ&range=1D`,
       {
         method: 'get',
         headers: {

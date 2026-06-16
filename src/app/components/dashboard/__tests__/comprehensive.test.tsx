@@ -18,7 +18,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 // Mock the closePrice hooks
-jest.mock('../closePrice', () => ({
+jest.mock('../dataService', () => ({
   ClosePrices: jest.fn(),
 }));
 
@@ -67,7 +67,7 @@ jest.mock('../../../utils/zustand', () => ({
   }),
 }));
 
-import { ClosePrices } from '../closePrice';
+import { ClosePrices } from '../dataService';
 
 const mockClosePrices = ClosePrices as jest.MockedFunction<typeof ClosePrices>;
 

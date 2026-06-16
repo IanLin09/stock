@@ -3,6 +3,7 @@ import {
   StockDTO,
   PreviousPriceDTO,
   PreviousPriceList,
+  NewsSummaryDTO,
 } from '@/utils/dto';
 import { useQuery } from '@tanstack/react-query';
 
@@ -82,5 +83,29 @@ export const PreviousPrices = (range: string) => {
     queryKey: ['previousPrices', range],
     queryFn: () => getPreviousPrices(range),
     enabled: !!range,
+  });
+};
+
+const getNewsSummary = async (): Promise<NewsSummaryDTO[]> => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/news/getNewsSummary`, {
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
+  return await res.json();
+};
+
+export const NewsSummary = () => {
+  return useQuery<NewsSummaryDTO[], Error>({
+    queryKey: ['newsSummary'],
+    queryFn: () => getNewsSummary(),
+    staleTime: 5 * 60 * 1000,
   });
 };

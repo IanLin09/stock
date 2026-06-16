@@ -1,5 +1,5 @@
 'use client';
-import { ClosePrices, PreviousPrices } from './closePrice';
+import { ClosePrices, PreviousPrices } from './dataService';
 import { useStockPriceStyle } from '@/utils/zustand';
 import { useEffect, useMemo } from 'react';
 import { handleError } from '@/utils/error';

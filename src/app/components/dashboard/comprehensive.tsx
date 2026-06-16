@@ -1,6 +1,6 @@
 'use client';
 import ComprehensiveChart from './comprehensiveChart';
-import { ClosePrices } from './closePrice';
+import { ClosePrices } from './dataService';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { handleError } from '@/utils/error';

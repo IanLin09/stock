@@ -156,3 +156,12 @@ export type TradingStrategy = {
 };
 
 export type StockClosePriceList = Record<string, StockDTO>;
+
+export type NewsSummaryDTO = {
+  ticker: string;
+  hasData: boolean;
+  score: number;
+  label: string;
+  confidence: 'high' | 'medium' | 'low';
+  article_count: number;
+};

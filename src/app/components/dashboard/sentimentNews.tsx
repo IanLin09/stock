@@ -31,7 +31,7 @@ function TickerRow({ item }: { item: NewsSummaryDTO }) {
     return (
       <div
         data-testid={`sentiment-no-data-${item.ticker}`}
-        className="flex items-center justify-between py-1 px-1 text-xs font-mono"
+        className="flex items-center w-full py-1 px-1 text-xs font-mono"
       >
         <span className="w-14 font-bold text-gray-300">{item.ticker}</span>
         <span className="text-gray-600 italic">no data</span>
@@ -42,13 +42,13 @@ function TickerRow({ item }: { item: NewsSummaryDTO }) {
   return (
     <div
       data-testid={`sentiment-row-${item.ticker}`}
-      className="flex items-center justify-between py-1 px-1 text-xs font-mono"
+      className="flex items-center w-full py-1 px-1 text-xs font-mono gap-2"
     >
       <span className="w-14 font-bold text-gray-200">{item.ticker}</span>
-      <span className={`w-10 text-right ${labelColor(item.label)}`}>
+      <span className={`w-12 text-right ${labelColor(item.label)}`}>
         {item.score.toFixed(2)}
       </span>
-      <span className={`flex-1 text-center text-[10px] ${labelColor(item.label)}`}>
+      <span className={`flex-1 text-[10px] ${labelColor(item.label)}`}>
         {item.label}
       </span>
       <span className={`w-12 text-right text-[10px] ${confidenceColor(item.confidence)}`}>
@@ -97,7 +97,7 @@ const SentimentNews = () => {
   }
 
   return (
-    <div className="flex flex-col h-full px-2 py-2 font-mono">
+    <div className="flex flex-col h-full w-full px-2 py-2 font-mono">
       <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 px-1">
         News Sentiment
       </div>

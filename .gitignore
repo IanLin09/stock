@@ -44,3 +44,4 @@ Dockerfile
 *.md
 !README.md
 !docs/**/*.md
+src/app/components/practice

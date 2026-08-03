@@ -9,7 +9,7 @@ export const getRangeList = async (
   symbol: string,
   range: string
 ): Promise<StockChartDTO> => {
-  let api = '';
+  let numericRange: string;
 
   switch (range) {
     case '1D':
@@ -18,25 +18,21 @@ export const getRangeList = async (
         `Intraday data (${range}) is not available. Use 1M or longer timeframes.`
       );
     case '1M':
-      api = `${process.env.NEXT_PUBLIC_API}/daily/RangeData?range=1&symbol=${symbol}`;
+      numericRange = '1';
       break;
     case '3M':
-      api = `${process.env.NEXT_PUBLIC_API}/daily/RangeData?range=3&symbol=${symbol}`;
-
+      numericRange = '3';
       break;
     case '6M':
-      api = `${process.env.NEXT_PUBLIC_API}/daily/RangeData?range=6&symbol=${symbol}`;
+      numericRange = '6';
       break;
+    default:
+      throw new Error(`Unknown range: ${range}`);
   }
 
-  const res = await fetch(api, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
-
+  const res = await fetch(
+    `/api/stock/range?range=${numericRange}&symbol=${symbol}`
+  );
   return await res.json();
 };
 
@@ -44,56 +40,36 @@ export const getAnalysisList = async (
   symbol: string,
   range: string
 ): Promise<StockAnalysisDTO[]> => {
-  let api = '';
+  let numericRange: string;
 
   switch (range) {
     case '1M':
-      api = `${process.env.NEXT_PUBLIC_API}/indicators/range?range=1&symbol=${symbol}`;
+      numericRange = '1';
       break;
     case '3M':
-      api = `${process.env.NEXT_PUBLIC_API}/indicators/range?range=3&symbol=${symbol}`;
-
+      numericRange = '3';
       break;
     case '6M':
-      api = `${process.env.NEXT_PUBLIC_API}/indicators/range?range=6&symbol=${symbol}`;
+      numericRange = '6';
       break;
+    default:
+      throw new Error(`Unknown range: ${range}`);
   }
 
-  const res = await fetch(api, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
-
+  const res = await fetch(
+    `/api/stock/indicators?range=${numericRange}&symbol=${symbol}`
+  );
   return await res.json();
 };
 
 export const getSymbolDetail = async (
   symbol: string
 ): Promise<AnalysisListDTO> => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/indicators/financial?symbol=${symbol}`,
-    {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-      },
-    }
-  );
+  const res = await fetch(`/api/stock/financial?symbol=${symbol}`);
   return await res.json();
 };
 
 export const getNews = async (): Promise<NewsDTO[]> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/news/getNews`, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
-
+  const res = await fetch('/api/news');
   return await res.json();
 };

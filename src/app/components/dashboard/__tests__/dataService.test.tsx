@@ -49,13 +49,9 @@ describe('PreviousPrice Hook', () => {
 
     expect(result.current.data).toEqual(mockData);
     expect(global.fetch).toHaveBeenCalledWith(
-      `${process.env.NEXT_PUBLIC_API}/daily/previousDayPrice?symbol=QQQ&range=1D`,
+      '/api/stock/previous?symbol=QQQ',
       {
         method: 'get',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-        },
       }
     );
   });

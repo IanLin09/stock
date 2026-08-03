@@ -8,13 +8,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 const getClosePrice = async (): Promise<StockClosePriceList> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/daily`, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
+  const res = await fetch('/api/stock/close', { method: 'get' });
   const stocks: StockDTO[] = await res.json();
   const stocksBySymbol: StockClosePriceList = stocks.reduce<
     Record<string, StockDTO>
@@ -26,16 +20,9 @@ const getClosePrice = async (): Promise<StockClosePriceList> => {
 };
 
 const getPreviousPrice = async (symbol: string): Promise<PreviousPriceDTO> => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/daily/previousDayPrice?symbol=${symbol}&range=1D`,
-    {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-      },
-    }
-  );
+  const res = await fetch(`/api/stock/previous?symbol=${symbol}`, {
+    method: 'get',
+  });
 
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
@@ -60,16 +47,9 @@ export const PreviousPrice = (symbol: string) => {
 };
 
 const getPreviousPrices = async (range: string): Promise<PreviousPriceList> => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/daily/previousDayPrices?range=${range}`,
-    {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-      },
-    }
-  );
+  const res = await fetch(`/api/stock/previous-prices?range=${range}`, {
+    method: 'get',
+  });
 
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
@@ -87,13 +67,7 @@ export const PreviousPrices = (range: string) => {
 };
 
 const getNewsSummary = async (): Promise<NewsSummaryDTO[]> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/news/getNewsSummary`, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
+  const res = await fetch('/api/news/summary', { method: 'get' });
 
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);

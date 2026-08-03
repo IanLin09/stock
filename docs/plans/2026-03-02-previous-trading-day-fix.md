@@ -13,6 +13,7 @@
 ## Task 1 — Pure utility: `getPreviousTradingDayCutoff`
 
 **Files:**
+
 - Create: `stock/libs/tradingDay.js`
 - Test: `stock/libs/__tests__/tradingDay.test.js` (new)
 
@@ -92,13 +93,13 @@ Create `stock/libs/tradingDay.js`:
  */
 function getPreviousTradingDayCutoff(now = new Date()) {
   const d = new Date(now);
-  d.setDate(d.getDate() - 1);          // step back 1 day
+  d.setDate(d.getDate() - 1); // step back 1 day
 
-  const dow = d.getDay();              // 0 = Sun, 6 = Sat
+  const dow = d.getDay(); // 0 = Sun, 6 = Sat
   if (dow === 0) d.setDate(d.getDate() - 2); // Sun → Fri
   if (dow === 6) d.setDate(d.getDate() - 1); // Sat → Fri
 
-  d.setDate(d.getDate() + 1);          // +1 for $lt semantics
+  d.setDate(d.getDate() + 1); // +1 for $lt semantics
 
   return d;
 }
@@ -127,6 +128,7 @@ git commit -m "feat: add getPreviousTradingDayCutoff utility — explicit weeken
 ## Task 2 — Apply utility to `previousDayPrice` and `previousDayPrices`
 
 **Files:**
+
 - Modify: `stock/handlers/daily.js` (two `case '1D':` blocks)
 
 ### Step 1: No new test needed
@@ -198,12 +200,12 @@ git commit -m "fix: use getPreviousTradingDayCutoff in previousDayPrice handlers
 
 After deploying (or running `serverless dev`), confirm:
 
-| Day to test | Expected `previousDayPrices` result |
-|---|---|
-| Call on a Monday | Returns Friday's close |
-| Call on a Tuesday | Returns Monday's close |
-| Call on a Saturday | Returns Friday's close |
-| Call on a Sunday | Returns Friday's close |
+| Day to test                               | Expected `previousDayPrices` result             |
+| ----------------------------------------- | ----------------------------------------------- |
+| Call on a Monday                          | Returns Friday's close                          |
+| Call on a Tuesday                         | Returns Monday's close                          |
+| Call on a Saturday                        | Returns Friday's close                          |
+| Call on a Sunday                          | Returns Friday's close                          |
 | Week with a holiday (e.g. Thu is holiday) | Returns Wednesday's close when called on Friday |
 
 The last row is handled automatically by the DB sort — no code change needed.

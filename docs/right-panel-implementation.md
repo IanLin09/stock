@@ -81,10 +81,10 @@ The header is the top strip of the chart section (2/3 of the panel), sitting abo
 
 ### Frontend API Calls
 
-| Purpose | Hook / function | Endpoint | Method | Params |
-|---|---|---|---|---|
-| Latest close price (all symbols) | `ClosePrices()` | `GET /daily` | GET | none |
-| Previous close for % change | `PreviousPrices('1D')` | `GET /daily/previousDayPrices` | GET | `range=1D` |
+| Purpose                          | Hook / function        | Endpoint                       | Method | Params     |
+| -------------------------------- | ---------------------- | ------------------------------ | ------ | ---------- |
+| Latest close price (all symbols) | `ClosePrices()`        | `GET /daily`                   | GET    | none       |
+| Previous close for % change      | `PreviousPrices('1D')` | `GET /daily/previousDayPrices` | GET    | `range=1D` |
 
 > `PreviousPrices('1D')` is already called in `DashboardList` and its result is cached by React Query under key `['previousPrices', '1D']`. `ComprehensiveArea` can call the same hook and receive the cached response at zero extra network cost.
 
@@ -92,11 +92,11 @@ The header is the top strip of the chart section (2/3 of the panel), sitting abo
 
 **Collection:** `daily_price`
 
-| Field | Description |
-|---|---|
-| `symbol` | Ticker symbol |
-| `datetime` | Trading date (YYYY-MM-DD string) |
-| `close` | Close price (stored as string, converted to double in projection) |
+| Field      | Description                                                       |
+| ---------- | ----------------------------------------------------------------- |
+| `symbol`   | Ticker symbol                                                     |
+| `datetime` | Trading date (YYYY-MM-DD string)                                  |
+| `close`    | Close price (stored as string, converted to double in projection) |
 
 The `getDaily` handler aggregates by symbol, sorts by `datetime` descending, and returns the single most recent document per symbol. The `previousDayPrice` / `previousDayPrices` handlers return the last record before the target date boundary (1D = yesterday, 1W = start of current week, 1M = start of current month).
 
@@ -123,10 +123,10 @@ The `getDaily` handler aggregates by symbol, sorts by `datetime` descending, and
 
 ### Frontend API Calls
 
-| Purpose | Hook / function | Endpoint | Method | Params |
-|---|---|---|---|---|
-| Price series for chart | `getRangeList(symbol, range)` | `GET /daily/RangeData` | GET | `symbol`, `range` (1, 3, or 6) |
-| Previous reference price for annotation | `getPreviousPrice(symbol, range)` | `GET /daily/previousDayPrice` | GET | `symbol`, `range` (1D, 1W, 1M, 3M) |
+| Purpose                                 | Hook / function                   | Endpoint                      | Method | Params                             |
+| --------------------------------------- | --------------------------------- | ----------------------------- | ------ | ---------------------------------- |
+| Price series for chart                  | `getRangeList(symbol, range)`     | `GET /daily/RangeData`        | GET    | `symbol`, `range` (1, 3, or 6)     |
+| Previous reference price for annotation | `getPreviousPrice(symbol, range)` | `GET /daily/previousDayPrice` | GET    | `symbol`, `range` (1D, 1W, 1M, 3M) |
 
 Both are already wired in `ComprehensiveChart` via `useQuery`.
 
@@ -134,12 +134,12 @@ Both are already wired in `ComprehensiveChart` via `useQuery`.
 
 **Collection:** `daily_price`
 
-| Field | Description |
-|---|---|
-| `symbol` | Ticker symbol |
-| `datetime` | Trading date string |
+| Field                             | Description                                 |
+| --------------------------------- | ------------------------------------------- |
+| `symbol`                          | Ticker symbol                               |
+| `datetime`                        | Trading date string                         |
 | `open` / `close` / `high` / `low` | OHLC prices (string → double in projection) |
-| `volume` | Trade volume |
+| `volume`                          | Trade volume                                |
 
 The `RangeData` handler fetches `range + 3` months of data (the extra 3 months provide the warm-up window for indicator calculations). It returns `{ data: StockDTO[], extra: StockDTO[], close: number }` where `data` is the display range and `extra` is the warm-up slice.
 
@@ -151,14 +151,14 @@ The `RangeData` handler fetches `range + 3` months of data (the extra 3 months p
 
 One row per indicator, spanning the full width of the 1/3 section:
 
-| Indicator | Values shown | Signal badge |
-|---|---|---|
-| RSI | RSI-14 value | bullish / bearish / neutral / extreme |
-| MACD | DIF / DEA / Histogram | bullish / bearish / neutral / extreme |
-| MA | MA20 value | bullish / bearish / neutral |
-| KDJ | K / D / J | bullish / bearish / neutral / extreme |
+| Indicator | Values shown           | Signal badge                          |
+| --------- | ---------------------- | ------------------------------------- |
+| RSI       | RSI-14 value           | bullish / bearish / neutral / extreme |
+| MACD      | DIF / DEA / Histogram  | bullish / bearish / neutral / extreme |
+| MA        | MA20 value             | bullish / bearish / neutral           |
+| KDJ       | K / D / J              | bullish / bearish / neutral / extreme |
 | Bollinger | Upper / Middle / Lower | bullish / bearish / neutral / extreme |
-| EMA | EMA5 value | (no badge — directional context only) |
+| EMA       | EMA5 value             | (no badge — directional context only) |
 
 Signal badges reuse `calculateIndicatorStatuses()` from `src/app/utils/indicatorCalculations.ts`, which is already used on the `/analysis` page.
 
@@ -176,9 +176,9 @@ Signal badges reuse `calculateIndicatorStatuses()` from `src/app/utils/indicator
 
 ### Frontend API Calls
 
-| Purpose | Function | Endpoint | Method | Params |
-|---|---|---|---|---|
-| Latest indicator values | `getSymbolDetail(symbol)` | `GET /indicators/financial` | GET | `symbol` |
+| Purpose                 | Function                  | Endpoint                    | Method | Params   |
+| ----------------------- | ------------------------- | --------------------------- | ------ | -------- |
+| Latest indicator values | `getSymbolDetail(symbol)` | `GET /indicators/financial` | GET    | `symbol` |
 
 ### Data Source in MongoDB
 
@@ -186,16 +186,16 @@ Signal badges reuse `calculateIndicatorStatuses()` from `src/app/utils/indicator
 
 The `multiFinancialIndicators` handler (`GET /indicators/financial`) queries the collection for the most recent document for the given symbol (`sort datetime desc, limit 1`) and returns it alongside the next earnings dates from `report_day`.
 
-| Field | Sub-fields | Description |
-|---|---|---|
-| `symbol` | — | Ticker |
-| `datetime` | — | Date of the indicator snapshot |
-| `close` | — | Close price at the time of calculation |
-| `rsi` | `14`, `gain`, `loss` | RSI-14 and Wilder smoothing state |
-| `macd` | `dif`, `dea`, `histogram`, `ema12`, `ema26` | MACD components |
-| `ma` | `20` | 20-period simple moving average |
-| `ema` | `5` | 5-period exponential moving average |
-| `bollinger` | `upper`, `middle`, `lower` | Bollinger Band values |
-| `kdj` | `k`, `d`, `j`, `rsv` | KDJ stochastic oscillator |
+| Field       | Sub-fields                                  | Description                            |
+| ----------- | ------------------------------------------- | -------------------------------------- |
+| `symbol`    | —                                           | Ticker                                 |
+| `datetime`  | —                                           | Date of the indicator snapshot         |
+| `close`     | —                                           | Close price at the time of calculation |
+| `rsi`       | `14`, `gain`, `loss`                        | RSI-14 and Wilder smoothing state      |
+| `macd`      | `dif`, `dea`, `histogram`, `ema12`, `ema26` | MACD components                        |
+| `ma`        | `20`                                        | 20-period simple moving average        |
+| `ema`       | `5`                                         | 5-period exponential moving average    |
+| `bollinger` | `upper`, `middle`, `lower`                  | Bollinger Band values                  |
+| `kdj`       | `k`, `d`, `j`, `rsv`                        | KDJ stochastic oscillator              |
 
 Indicators are calculated server-side by the `indicators` Lambda handler and written to `technical_indicators` via `bulkWrite` (upsert on `symbol + datetime`). The `indicatorsLatest` handler updates today's record incrementally between scheduled full recalculations.

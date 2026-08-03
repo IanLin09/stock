@@ -13,12 +13,14 @@ Create a new bulk endpoint that returns previous prices for all symbols in a sin
 ## API Design
 
 ### Existing (unchanged)
+
 ```
 GET /daily/previousDayPrice?symbol=QQQ&range=1D
 → { datetime, close, volume }
 ```
 
 ### New endpoint
+
 ```
 GET /daily/previousDayPrices?range=1D
 → {
@@ -39,6 +41,7 @@ GET /daily/previousDayPrices?range=1D
 - Group results by symbol and return as a keyed map
 
 Add route in `serverless.yml`:
+
 ```
 GET /daily/previousDayPrices  →  handlers/daily.previousDayPrices  (auth required)
 ```
@@ -46,10 +49,12 @@ GET /daily/previousDayPrices  →  handlers/daily.previousDayPrices  (auth requi
 ## Frontend Changes
 
 ### `closePrice.tsx`
+
 - Add `PreviousPrices(range)` hook calling `GET /daily/previousDayPrices?range={range}`
 - Returns `Record<string, PreviousPriceDTO>`
 
 ### `list.tsx`
+
 - Replace the 3 individual `PreviousPrice(symbol1/2/3)` hook calls with a single `PreviousPrices('1D')` call
 - Remove hardcoded `symbol1`, `symbol2`, `symbol3` slots
 - Look up each symbol's previous price from the returned map by key

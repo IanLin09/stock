@@ -51,7 +51,9 @@ function TickerRow({ item }: { item: NewsSummaryDTO }) {
       <span className={`flex-1 text-[10px] ${labelColor(item.label)}`}>
         {item.label}
       </span>
-      <span className={`w-12 text-right text-[10px] ${confidenceColor(item.confidence)}`}>
+      <span
+        className={`w-12 text-right text-[10px] ${confidenceColor(item.confidence)}`}
+      >
         {item.confidence}
       </span>
       <span className="w-8 text-right text-gray-500">{item.article_count}</span>

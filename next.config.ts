@@ -1,35 +1,35 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const securityHeaders = [
   // Prevent clickjacking attacks
   {
     key: 'X-Frame-Options',
-    value: 'DENY'
+    value: 'DENY',
   },
   // Prevent MIME type sniffing
   {
     key: 'X-Content-Type-Options',
-    value: 'nosniff'
+    value: 'nosniff',
   },
   // Control referrer information
   {
     key: 'Referrer-Policy',
-    value: 'origin-when-cross-origin'
+    value: 'origin-when-cross-origin',
   },
   // Enable XSS protection in browsers
   {
     key: 'X-XSS-Protection',
-    value: '1; mode=block'
+    value: '1; mode=block',
   },
   // Only allow HTTPS connections
   {
     key: 'Strict-Transport-Security',
-    value: 'max-age=63072000; includeSubDomains; preload'
+    value: 'max-age=63072000; includeSubDomains; preload',
   },
   // Control which features and APIs can be used
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=()'
+    value: 'camera=(), microphone=(), geolocation=()',
   },
   // Content Security Policy - customize based on your needs
   {
@@ -41,10 +41,10 @@ const securityHeaders = [
       "img-src 'self' data: https:",
       "font-src 'self'",
       `connect-src 'self' ${process.env.NEXT_PUBLIC_API || 'https://localhost:3000'}`,
-      "frame-ancestors 'none'"
-    ].join('; ')
-  }
-]
+      "frame-ancestors 'none'",
+    ].join('; '),
+  },
+];
 
 const nextConfig: NextConfig = {
   async headers() {
@@ -54,28 +54,28 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
-    ]
+    ];
   },
   // Your other config options
   reactStrictMode: true,
   // This explicitly tells Next.js where to look
   distDir: '.next',
   pageExtensions: [
-        'page.tsx',
-        'page.ts',
-        'page.jsx',
-        'page.js',
-        'page.md',
-        'page.mdx',
-        "page.p.ts",
-        "page.p.tsx",
-        // FIXME: Next.js has a bug which does not resolve not-found.page.tsx correctly
-        // Instead, use `not-found.ts` as a workaround
-        // "ts" is required to resolve `not-found.ts`
-        // https://github.com/vercel/next.js/issues/65447
-        "tsx"
-    ],
-    // This is the key part 👇
+    'page.tsx',
+    'page.ts',
+    'page.jsx',
+    'page.js',
+    'page.md',
+    'page.mdx',
+    'page.p.ts',
+    'page.p.tsx',
+    // FIXME: Next.js has a bug which does not resolve not-found.page.tsx correctly
+    // Instead, use `not-found.ts` as a workaround
+    // "ts" is required to resolve `not-found.ts`
+    // https://github.com/vercel/next.js/issues/65447
+    'tsx',
+  ],
+  // This is the key part 👇
   experimental: {
     typedRoutes: true, // optional
   },

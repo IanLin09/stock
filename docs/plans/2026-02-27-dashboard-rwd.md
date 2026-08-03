@@ -12,9 +12,9 @@
 
 ## What the screenshots show
 
-| Viewport | Problem |
-|---|---|
-| Portrait mobile 390px | Fixed `grid-cols-3` squishes left panel to ~130px and right panel to ~260px; MACD / Bollinger / KDJ values wrap across 3–4 lines; "Range" label takes a full tab slot |
+| Viewport                 | Problem                                                                                                                                                                    |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Portrait mobile 390px    | Fixed `grid-cols-3` squishes left panel to ~130px and right panel to ~260px; MACD / Bollinger / KDJ values wrap across 3–4 lines; "Range" label takes a full tab slot      |
 | Landscape mobile 844×390 | Right panel has insufficient vertical space; indicator rows render on top of the chart because there is no minimum chart height and the right panel's `flex-col` overflows |
 
 ---
@@ -22,6 +22,7 @@
 ## Task 1 — Responsive page grid
 
 **Files:**
+
 - Modify: `src/app/page.page.tsx`
 - Modify: `src/app/components/dashboard/data.tsx`
 - Test: `src/app/components/dashboard/__tests__/data.test.tsx` (new)
@@ -59,7 +60,8 @@ describe('DashboardPage layout', () => {
 
   it('renders the right panel with md:col-span-2 and md:row-span-2', () => {
     const { getByTestId } = renderWithQuery(<DashboardPage />);
-    const right = getByTestId('chart').closest('[class*="col-span"]') ??
+    const right =
+      getByTestId('chart').closest('[class*="col-span"]') ??
       getByTestId('chart').parentElement!;
     expect(right.className).toContain('md:col-span-2');
     expect(right.className).toContain('md:row-span-2');
@@ -154,6 +156,7 @@ git commit -m "feat: responsive dashboard grid - stack vertically on mobile"
 ## Task 2 — Compact indicator rows on mobile
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/IndicatorSummary.tsx`
 - Test: `src/app/components/dashboard/__tests__/IndicatorSummary.test.tsx` (extend existing)
 
@@ -242,43 +245,69 @@ export default function IndicatorSummary({ symbol }: IndicatorSummaryProps) {
   // ... existing query ...
 
   return (
-    <div data-testid="indicator-summary" className="overflow-y-auto px-4 py-2 space-y-1">
-
+    <div
+      data-testid="indicator-summary"
+      className="overflow-y-auto px-4 py-2 space-y-1"
+    >
       {/* MACD */}
-      <div data-testid="indicator-row-macd" className="flex items-center text-sm gap-2">
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">MACD</span>
+      <div
+        data-testid="indicator-row-macd"
+        className="flex items-center text-sm gap-2"
+      >
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          MACD
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           {isMobile
             ? `D:${fmt(indicators.macd?.dif)} A:${fmt(indicators.macd?.dea)} H:${fmt(indicators.macd?.histogram)}`
             : `DIF ${fmt(indicators.macd?.dif)} / DEA ${fmt(indicators.macd?.dea)} / Hist ${fmt(indicators.macd?.histogram)}`}
         </span>
-        <span data-testid="signal-badge-macd" className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full shrink-0 ${badgeColors[statuses.macd]}`}>
+        <span
+          data-testid="signal-badge-macd"
+          className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full shrink-0 ${badgeColors[statuses.macd]}`}
+        >
           {statuses.macd}
         </span>
       </div>
 
       {/* KDJ */}
-      <div data-testid="indicator-row-kdj" className="flex items-center text-sm gap-2">
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">KDJ</span>
+      <div
+        data-testid="indicator-row-kdj"
+        className="flex items-center text-sm gap-2"
+      >
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          KDJ
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           {isMobile
             ? `K:${fmt(indicators.kdj?.k)} D:${fmt(indicators.kdj?.d)} J:${fmt(indicators.kdj?.j)}`
             : `K ${fmt(indicators.kdj?.k)} / D ${fmt(indicators.kdj?.d)} / J ${fmt(indicators.kdj?.j)}`}
         </span>
-        <span data-testid="signal-badge-kdj" className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full shrink-0 ${badgeColors[statuses.kdj]}`}>
+        <span
+          data-testid="signal-badge-kdj"
+          className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full shrink-0 ${badgeColors[statuses.kdj]}`}
+        >
           {statuses.kdj}
         </span>
       </div>
 
       {/* Bollinger */}
-      <div data-testid="indicator-row-bollinger" className="flex items-center text-sm gap-2">
-        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">Bollinger</span>
+      <div
+        data-testid="indicator-row-bollinger"
+        className="flex items-center text-sm gap-2"
+      >
+        <span className="w-16 md:w-20 text-gray-500 shrink-0 text-xs md:text-sm">
+          Bollinger
+        </span>
         <span className="flex-1 text-gray-300 text-xs md:text-sm">
           {isMobile
             ? `U:${fmt(indicators.bollinger?.upper)} M:${fmt(indicators.bollinger?.middle)} L:${fmt(indicators.bollinger?.lower)}`
             : `Upper ${fmt(indicators.bollinger?.upper)} / Mid ${fmt(indicators.bollinger?.middle)} / Lower ${fmt(indicators.bollinger?.lower)}`}
         </span>
-        <span data-testid="signal-badge-bollinger" className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full shrink-0 ${badgeColors[statuses.bollinger]}`}>
+        <span
+          data-testid="signal-badge-bollinger"
+          className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full shrink-0 ${badgeColors[statuses.bollinger]}`}
+        >
           {statuses.bollinger}
         </span>
       </div>
@@ -311,6 +340,7 @@ git commit -m "feat: compact indicator values and smaller text on mobile"
 ## Task 3 — Remove redundant "Range" tab label on mobile
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/comprehensive.tsx`
 - Test: `src/app/components/dashboard/__tests__/comprehensive.test.tsx` (extend)
 
@@ -388,6 +418,7 @@ git commit -m "feat: hide Range tab label on mobile, flex-wrap header"
 ## Task 4 — Landscape guard: minimum chart height on short screens
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/data.tsx`
 
 ### Problem
@@ -417,6 +448,7 @@ The `max-h-[45%]` cap ensures the indicator section never takes more than 45% of
 ### Step 3: Visual check
 
 Open browser DevTools → toggle iPhone 12 Pro landscape (844×390) → select a symbol → verify:
+
 - Chart is visible with meaningful height (≥120px)
 - Indicator rows are visible and scrollable
 - No overflow bleeding into chart area
@@ -434,10 +466,10 @@ git commit -m "fix: cap indicator panel height on landscape mobile, min chart he
 
 After all tasks complete, verify at these viewports in Chrome DevTools:
 
-| Viewport | Check |
-|---|---|
-| iPhone SE (375×667 portrait) | Stock list → click symbol → chart + indicators visible, no overlap |
-| iPhone 12 Pro (390×844 portrait) | MACD/KDJ/Bollinger abbreviated, no text wrapping |
-| iPhone 12 Pro landscape (844×390) | Chart ≥120px tall, indicators scrollable below |
-| iPad (768×1024) | Desktop grid kicks in (md: breakpoint), timer visible |
-| Desktop 1440×900 | Unchanged from current design |
+| Viewport                          | Check                                                              |
+| --------------------------------- | ------------------------------------------------------------------ |
+| iPhone SE (375×667 portrait)      | Stock list → click symbol → chart + indicators visible, no overlap |
+| iPhone 12 Pro (390×844 portrait)  | MACD/KDJ/Bollinger abbreviated, no text wrapping                   |
+| iPhone 12 Pro landscape (844×390) | Chart ≥120px tall, indicators scrollable below                     |
+| iPad (768×1024)                   | Desktop grid kicks in (md: breakpoint), timer visible              |
+| Desktop 1440×900                  | Unchanged from current design                                      |

@@ -7,15 +7,16 @@ import tseslint from 'typescript-eslint';
 export default [
   // Base ESLint recommended rules
   eslint.configs.recommended,
-  
+
   // TypeScript ESLint recommended rules
   ...tseslint.configs.recommended,
   {
     ignores: [
       'components/ui/**/*',
       'src/app/components/ui/**/*',
-      'src/app/hooks/**/*', 
+      'src/app/hooks/**/*',
       '@/components/ui/**/*',
+      'src/app/components/practice/**'
       // Add other paths where your Shadcn components are located
     ],
   },
@@ -39,10 +40,16 @@ export default [
       },
     },
   },
-  
+
   // Jest configuration for test files
   {
-    files: ['tests/**/*', '**/*.test.js', '**/*.test.ts', '**/*.spec.js', '**/*.spec.ts'],
+    files: [
+      'tests/**/*',
+      '**/*.test.js',
+      '**/*.test.ts',
+      '**/*.spec.js',
+      '**/*.spec.ts',
+    ],
     plugins: {
       jest: jestPlugin,
     },

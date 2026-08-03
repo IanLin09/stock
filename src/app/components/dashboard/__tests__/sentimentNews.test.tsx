@@ -20,19 +20,31 @@ describe('SentimentNews', () => {
   });
 
   it('shows loading state while fetching', () => {
-    (NewsSummary as jest.Mock).mockReturnValue({ isLoading: true, isError: false, data: undefined });
+    (NewsSummary as jest.Mock).mockReturnValue({
+      isLoading: true,
+      isError: false,
+      data: undefined,
+    });
     renderWithQuery(<SentimentNews />);
     expect(screen.getByTestId('sentiment-loading')).toBeInTheDocument();
   });
 
   it('shows error state on fetch failure', () => {
-    (NewsSummary as jest.Mock).mockReturnValue({ isLoading: false, isError: true, data: undefined });
+    (NewsSummary as jest.Mock).mockReturnValue({
+      isLoading: false,
+      isError: true,
+      data: undefined,
+    });
     renderWithQuery(<SentimentNews />);
     expect(screen.getByTestId('sentiment-error')).toBeInTheDocument();
   });
 
   it('shows empty state when data is empty array', () => {
-    (NewsSummary as jest.Mock).mockReturnValue({ isLoading: false, isError: false, data: [] });
+    (NewsSummary as jest.Mock).mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: [],
+    });
     renderWithQuery(<SentimentNews />);
     expect(screen.getByTestId('sentiment-empty')).toBeInTheDocument();
   });
@@ -42,8 +54,22 @@ describe('SentimentNews', () => {
       isLoading: false,
       isError: false,
       data: [
-        { ticker: 'NVDA', hasData: true, score: 0.2905, label: 'Somewhat Bullish', confidence: 'medium', article_count: 11 },
-        { ticker: 'TSLA', hasData: true, score: 0.107, label: 'Neutral', confidence: 'medium', article_count: 22 },
+        {
+          ticker: 'NVDA',
+          hasData: true,
+          score: 0.2905,
+          label: 'Somewhat Bullish',
+          confidence: 'medium',
+          article_count: 11,
+        },
+        {
+          ticker: 'TSLA',
+          hasData: true,
+          score: 0.107,
+          label: 'Neutral',
+          confidence: 'medium',
+          article_count: 22,
+        },
       ],
     });
     renderWithQuery(<SentimentNews />);
@@ -56,7 +82,14 @@ describe('SentimentNews', () => {
       isLoading: false,
       isError: false,
       data: [
-        { ticker: 'NVDA', hasData: true, score: 0.2905, label: 'Somewhat Bullish', confidence: 'medium', article_count: 11 },
+        {
+          ticker: 'NVDA',
+          hasData: true,
+          score: 0.2905,
+          label: 'Somewhat Bullish',
+          confidence: 'medium',
+          article_count: 11,
+        },
       ],
     });
     renderWithQuery(<SentimentNews />);
@@ -68,7 +101,14 @@ describe('SentimentNews', () => {
       isLoading: false,
       isError: false,
       data: [
-        { ticker: 'NVDA', hasData: true, score: 0.29, label: 'Somewhat Bullish', confidence: 'medium', article_count: 11 },
+        {
+          ticker: 'NVDA',
+          hasData: true,
+          score: 0.29,
+          label: 'Somewhat Bullish',
+          confidence: 'medium',
+          article_count: 11,
+        },
       ],
     });
     renderWithQuery(<SentimentNews />);
@@ -80,7 +120,14 @@ describe('SentimentNews', () => {
       isLoading: false,
       isError: false,
       data: [
-        { ticker: 'NVDA', hasData: false, score: 0, label: '', confidence: 'low', article_count: 0 },
+        {
+          ticker: 'NVDA',
+          hasData: false,
+          score: 0,
+          label: '',
+          confidence: 'low',
+          article_count: 0,
+        },
       ],
     });
     renderWithQuery(<SentimentNews />);
@@ -92,7 +139,14 @@ describe('SentimentNews', () => {
       isLoading: false,
       isError: false,
       data: [
-        { ticker: 'NVDA', hasData: true, score: 0.29, label: 'Somewhat Bullish', confidence: 'medium', article_count: 11 },
+        {
+          ticker: 'NVDA',
+          hasData: true,
+          score: 0.29,
+          label: 'Somewhat Bullish',
+          confidence: 'medium',
+          article_count: 11,
+        },
       ],
     });
     renderWithQuery(<SentimentNews />);

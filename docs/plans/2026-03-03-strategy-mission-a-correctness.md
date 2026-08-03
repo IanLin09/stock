@@ -13,6 +13,7 @@
 ## Task 1: Fix 4 — Typed `direction` field replaces string matching
 
 **Files:**
+
 - Modify: `src/app/utils/strategyEngine.ts`
 - Create: `src/app/utils/__tests__/strategyEngine.test.ts`
 
@@ -69,7 +70,7 @@ describe('StrategyEngine — mean reversion direction check', () => {
     const data = makeData(15);
     const judgments = StrategyEngine.analyzeIndicators(data);
     const signals = StrategyEngine.generateStrategySignals(judgments);
-    const meanReversion = signals.find(s => s.type === 'mean_reversion');
+    const meanReversion = signals.find((s) => s.type === 'mean_reversion');
     expect(meanReversion?.action).toBe('buy');
   });
 
@@ -77,7 +78,7 @@ describe('StrategyEngine — mean reversion direction check', () => {
     const data = makeData(88);
     const judgments = StrategyEngine.analyzeIndicators(data);
     const signals = StrategyEngine.generateStrategySignals(judgments);
-    const meanReversion = signals.find(s => s.type === 'mean_reversion');
+    const meanReversion = signals.find((s) => s.type === 'mean_reversion');
     expect(meanReversion?.action).toBe('sell');
   });
 });
@@ -195,6 +196,7 @@ git commit -m "fix: add typed direction field to IndicatorJudgment, replace frag
 ## Task 2: Fix 3 — Remove dead volume code
 
 **Files:**
+
 - Modify: `src/app/utils/strategyRuleEngine.ts`
 - Modify: `src/app/utils/__tests__/strategyEngine.test.ts` (add test)
 
@@ -207,15 +209,16 @@ import { RuleEngine, STRATEGY_RULES } from '../strategyRuleEngine';
 
 describe('RuleEngine — no dead volume conditions', () => {
   it('STRATEGY_RULES contains no volume conditions', () => {
-    const volumeConditions = STRATEGY_RULES.flatMap(r => r.conditions)
-      .filter(c => c.indicator === 'volume');
+    const volumeConditions = STRATEGY_RULES.flatMap((r) => r.conditions).filter(
+      (c) => c.indicator === 'volume'
+    );
     expect(volumeConditions).toHaveLength(0);
   });
 
   it('evaluateCondition does not accept volume indicator type', () => {
     // TypeScript will enforce this at compile time — confirm at runtime
     // by verifying no rule references it
-    const ruleIds = STRATEGY_RULES.map(r => r.id);
+    const ruleIds = STRATEGY_RULES.map((r) => r.id);
     expect(ruleIds).toContain('breakout_macd_surge'); // renamed from breakout_volume_surge
     expect(ruleIds).not.toContain('breakout_volume_surge');
   });
@@ -289,6 +292,7 @@ git commit -m "fix: remove dead volume conditions from RuleEngine, rename breako
 ## Task 3: Fix 1 — Thread `currentPrice`, re-enable MA analysis
 
 **Files:**
+
 - Modify: `src/app/utils/strategyEngine.ts`
 - Modify: `src/app/utils/strategyIntegrator.ts`
 - Modify: `src/app/hooks/useStrategyEngine.ts`
@@ -300,7 +304,10 @@ Append to `strategyEngine.test.ts`:
 
 ```typescript
 describe('StrategyEngine — MA analysis fires when price is provided', () => {
-  const makeDataWithPrice = (close: number, ma20: number): StockAnalysisDTO => ({
+  const makeDataWithPrice = (
+    close: number,
+    ma20: number
+  ): StockAnalysisDTO => ({
     _id: '1',
     symbol: 'QQQ',
     datetime: new Date(),
@@ -310,14 +317,19 @@ describe('StrategyEngine — MA analysis fires when price is provided', () => {
     ma: { 20: ma20 },
     ema: { 5: close },
     rsi: { 14: 50, gain: 0, loss: 0 },
-    bollinger: { datetime: new Date(), middle: ma20, upper: ma20 * 1.1, lower: ma20 * 0.9 },
+    bollinger: {
+      datetime: new Date(),
+      middle: ma20,
+      upper: ma20 * 1.1,
+      lower: ma20 * 0.9,
+    },
     kdj: { datetime: new Date(), k: 50, d: 50, j: 50, rsv: 50 },
   });
 
   it('includes MA judgment when currentPrice is provided', () => {
     const data = makeDataWithPrice(110, 100); // price 10% above MA20
     const judgments = StrategyEngine.analyzeIndicators(data, 110);
-    const maJudgment = judgments.find(j => j.indicator === 'MA');
+    const maJudgment = judgments.find((j) => j.indicator === 'MA');
     expect(maJudgment).toBeDefined();
     expect(maJudgment?.signal).toBe('bullish');
   });
@@ -325,14 +337,14 @@ describe('StrategyEngine — MA analysis fires when price is provided', () => {
   it('excludes MA judgment when currentPrice is not provided', () => {
     const data = makeDataWithPrice(110, 100);
     const judgments = StrategyEngine.analyzeIndicators(data);
-    const maJudgment = judgments.find(j => j.indicator === 'MA');
+    const maJudgment = judgments.find((j) => j.indicator === 'MA');
     expect(maJudgment).toBeUndefined();
   });
 
   it('returns bearish MA when price is 5% below MA20', () => {
     const data = makeDataWithPrice(95, 100);
     const judgments = StrategyEngine.analyzeIndicators(data, 95);
-    const maJudgment = judgments.find(j => j.indicator === 'MA');
+    const maJudgment = judgments.find((j) => j.indicator === 'MA');
     expect(maJudgment?.signal).toBe('bearish');
   });
 });
@@ -399,7 +411,11 @@ In `strategyIntegrator.ts` around line 89:
 const technicalAnalysis = StrategyEngine.performCompleteAnalysis(data, symbol);
 
 // AFTER:
-const technicalAnalysis = StrategyEngine.performCompleteAnalysis(data, symbol, currentPrice);
+const technicalAnalysis = StrategyEngine.performCompleteAnalysis(
+  data,
+  symbol,
+  currentPrice
+);
 ```
 
 ### Step 7: Update `useStrategyEngine.ts` to pass `close` price
@@ -413,7 +429,11 @@ return StrategyEngine.performCompleteAnalysis(latestData, symbol);
 
 // AFTER:
 const latestData = rawData[rawData.length - 1];
-return StrategyEngine.performCompleteAnalysis(latestData, symbol, latestData.close);
+return StrategyEngine.performCompleteAnalysis(
+  latestData,
+  symbol,
+  latestData.close
+);
 ```
 
 Also update `useIndicatorTrend` around line 314:
@@ -454,6 +474,7 @@ git commit -m "fix: thread currentPrice through analyzeIndicators, re-enable MA 
 ## Task 4: Fix 2 — Real cross detection with `previousData`
 
 **Files:**
+
 - Modify: `src/app/utils/strategyRuleEngine.ts`
 - Modify: `src/app/utils/strategyIntegrator.ts`
 - Modify: `src/app/utils/__tests__/strategyEngine.test.ts` (add test)
@@ -465,7 +486,10 @@ Append to `strategyEngine.test.ts`:
 ```typescript
 import type { StockAnalysisDTO } from '../dto';
 
-const makeRuleData = (difOverDea: boolean, histValue: number): StockAnalysisDTO => ({
+const makeRuleData = (
+  difOverDea: boolean,
+  histValue: number
+): StockAnalysisDTO => ({
   _id: '1',
   symbol: 'QQQ',
   datetime: new Date(),
@@ -487,12 +511,18 @@ const makeRuleData = (difOverDea: boolean, histValue: number): StockAnalysisDTO 
 
 describe('RuleEngine — cross_above only fires on actual crossover bar', () => {
   it('cross_above fires when prev histogram was negative, current is positive', () => {
-    const current = makeRuleData(true, 0.4);   // DIF just crossed above DEA
+    const current = makeRuleData(true, 0.4); // DIF just crossed above DEA
     const previous = makeRuleData(false, -0.2); // DIF was below DEA
 
     const { RuleEngine } = require('../strategyRuleEngine');
     const result = RuleEngine.evaluateCondition(
-      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      {
+        indicator: 'MACD',
+        operator: 'cross_above',
+        value: 0,
+        weight: 1,
+        required: true,
+      },
       current,
       103,
       previous
@@ -501,12 +531,18 @@ describe('RuleEngine — cross_above only fires on actual crossover bar', () => 
   });
 
   it('cross_above does NOT fire when already above (continuation, no fresh cross)', () => {
-    const current = makeRuleData(true, 0.4);    // DIF above DEA
-    const previous = makeRuleData(true, 0.2);   // DIF was already above DEA
+    const current = makeRuleData(true, 0.4); // DIF above DEA
+    const previous = makeRuleData(true, 0.2); // DIF was already above DEA
 
     const { RuleEngine } = require('../strategyRuleEngine');
     const result = RuleEngine.evaluateCondition(
-      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      {
+        indicator: 'MACD',
+        operator: 'cross_above',
+        value: 0,
+        weight: 1,
+        required: true,
+      },
       current,
       103,
       previous
@@ -519,7 +555,13 @@ describe('RuleEngine — cross_above only fires on actual crossover bar', () => 
 
     const { RuleEngine } = require('../strategyRuleEngine');
     const result = RuleEngine.evaluateCondition(
-      { indicator: 'MACD', operator: 'cross_above', value: 0, weight: 1, required: true },
+      {
+        indicator: 'MACD',
+        operator: 'cross_above',
+        value: 0,
+        weight: 1,
+        required: true,
+      },
       current,
       103,
       undefined // no previous data
@@ -672,9 +714,14 @@ export const quickAnalyze = (
   data: StockAnalysisDTO,
   symbol: string,
   currentPrice?: number,
-  previousData?: StockAnalysisDTO   // ADD
+  previousData?: StockAnalysisDTO // ADD
 ) => {
-  return StrategyIntegrator.quickAnalysis(data, symbol, currentPrice, previousData);
+  return StrategyIntegrator.quickAnalysis(
+    data,
+    symbol,
+    currentPrice,
+    previousData
+  );
 };
 ```
 

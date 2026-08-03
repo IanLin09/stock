@@ -13,6 +13,7 @@
 ## Task 1: Create Utility Functions
 
 **Files:**
+
 - Create: `src/app/utils/formatters.ts`
 - Test: `src/app/utils/__tests__/formatters.test.ts`
 
@@ -55,6 +56,7 @@ describe('formatVolume', () => {
 ### Step 2: Run tests to verify they fail
 
 Run:
+
 ```bash
 npm test -- --testPathPattern=formatters.test.ts
 ```
@@ -83,6 +85,7 @@ export function formatVolume(volume: number): string {
 ### Step 4: Run tests to verify they pass
 
 Run:
+
 ```bash
 npm test -- --testPathPattern=formatters.test.ts
 ```
@@ -133,6 +136,7 @@ describe('formatPercentage', () => {
 ### Step 6: Run tests to verify they fail
 
 Run:
+
 ```bash
 npm test -- --testPathPattern=formatters.test.ts
 ```
@@ -165,6 +169,7 @@ export function formatPercentage(current: number, previous: number): string {
 ### Step 8: Run tests to verify they pass
 
 Run:
+
 ```bash
 npm test -- --testPathPattern=formatters.test.ts
 ```
@@ -188,6 +193,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 2: Create Previous Price API Hook
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/closePrice.tsx`
 - Test: `src/app/components/dashboard/__tests__/closePrice.test.tsx`
 
@@ -277,6 +283,7 @@ describe('PreviousPrice', () => {
 ### Step 2: Run test to verify it fails
 
 Run:
+
 ```bash
 npm test -- --testPathPattern=closePrice.test.tsx
 ```
@@ -317,6 +324,7 @@ export const PreviousPrice = (symbol: string) => {
 ### Step 4: Run test to verify it passes
 
 Run:
+
 ```bash
 npm test -- --testPathPattern=closePrice.test.tsx
 ```
@@ -340,6 +348,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 3: Refactor DashboardList Component
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/list.tsx`
 
 ### Step 1: Remove intraday imports and add new imports
@@ -359,6 +368,7 @@ import { formatVolume, formatPercentage } from '@/utils/formatters';
 ```
 
 Remove these imports:
+
 - `import StockChart from './lineChart';`
 - `import { StockChartDTO } from '@/utils/dto';`
 
@@ -513,6 +523,7 @@ export default DashboardList;
 ### Step 3: Verify TypeScript compilation
 
 Run:
+
 ```bash
 npm run build
 ```
@@ -537,6 +548,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 4: Write Component Tests
 
 **Files:**
+
 - Create: `src/app/components/dashboard/__tests__/list.test.tsx`
 
 ### Step 1: Write test setup and data display tests
@@ -937,6 +949,7 @@ describe('DashboardList', () => {
 ### Step 2: Run tests to verify they pass
 
 Run:
+
 ```bash
 npm test -- --testPathPattern=list.test.tsx
 ```
@@ -960,11 +973,13 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 5: Manual Testing & Verification
 
 **Files:**
+
 - None (manual testing)
 
 ### Step 1: Start development server
 
 Run:
+
 ```bash
 npm run dev
 ```
@@ -1003,6 +1018,7 @@ Expected: Error messages display using handleError utility
 ### Step 5: Run full test suite
 
 Run:
+
 ```bash
 npm test
 ```
@@ -1012,6 +1028,7 @@ Expected: All tests pass
 ### Step 6: Build for production
 
 Run:
+
 ```bash
 npm run build
 ```
@@ -1036,6 +1053,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 6: Update Documentation
 
 **Files:**
+
 - Modify: `docs/plans/2026-02-23-dashboard-list-redesign.md`
 
 ### Step 1: Update success criteria in design doc

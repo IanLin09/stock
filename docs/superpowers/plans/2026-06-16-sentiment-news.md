@@ -12,27 +12,28 @@
 
 ## File Map
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Rename + modify | `src/app/components/dashboard/closePrice.tsx` → `dataService.tsx` | All backend fetch functions + React Query hooks, including new `getNewsSummary` |
-| Add type | `src/app/utils/dto.tsx` | `NewsSummaryDTO` type |
-| Update import | `src/app/components/dashboard/list.tsx:2` | Point to `./dataService` |
-| Update import | `src/app/components/dashboard/comprehensive.tsx:3` | Point to `./dataService` |
-| Update + add mock | `src/app/components/dashboard/data.tsx` | Swap timer → SentimentNews |
-| Create | `src/app/components/dashboard/sentimentNews.tsx` | Sentiment display component |
-| Rename + update | `src/app/components/dashboard/__tests__/closePrice.test.tsx` → `dataService.test.tsx` | Tests for data-fetching hooks including new `NewsSummary` hook |
-| Update mock path | `src/app/components/dashboard/__tests__/comprehensive.test.tsx:21` | `jest.mock('../dataService', ...)` |
-| Update mock path | `src/app/components/dashboard/__tests__/comprehensive-fixed.test.tsx:21` | `jest.mock('../dataService', ...)` |
-| Update mock path | `src/app/components/dashboard/__tests__/comprehensive-edge-cases.test.tsx:38` | `jest.mock('../dataService', ...)` |
-| Update import + refs | `src/app/components/dashboard/__tests__/list.test.tsx` | `import * as dataService` + all `dataService.` call-sites |
-| Update mock | `src/app/components/dashboard/__tests__/data.test.tsx` | Mock `../sentimentNews` instead of `../timer` |
-| Create | `src/app/components/dashboard/__tests__/sentimentNews.test.tsx` | Tests for SentimentNews component |
+| Action               | Path                                                                                  | Responsibility                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Rename + modify      | `src/app/components/dashboard/closePrice.tsx` → `dataService.tsx`                     | All backend fetch functions + React Query hooks, including new `getNewsSummary` |
+| Add type             | `src/app/utils/dto.tsx`                                                               | `NewsSummaryDTO` type                                                           |
+| Update import        | `src/app/components/dashboard/list.tsx:2`                                             | Point to `./dataService`                                                        |
+| Update import        | `src/app/components/dashboard/comprehensive.tsx:3`                                    | Point to `./dataService`                                                        |
+| Update + add mock    | `src/app/components/dashboard/data.tsx`                                               | Swap timer → SentimentNews                                                      |
+| Create               | `src/app/components/dashboard/sentimentNews.tsx`                                      | Sentiment display component                                                     |
+| Rename + update      | `src/app/components/dashboard/__tests__/closePrice.test.tsx` → `dataService.test.tsx` | Tests for data-fetching hooks including new `NewsSummary` hook                  |
+| Update mock path     | `src/app/components/dashboard/__tests__/comprehensive.test.tsx:21`                    | `jest.mock('../dataService', ...)`                                              |
+| Update mock path     | `src/app/components/dashboard/__tests__/comprehensive-fixed.test.tsx:21`              | `jest.mock('../dataService', ...)`                                              |
+| Update mock path     | `src/app/components/dashboard/__tests__/comprehensive-edge-cases.test.tsx:38`         | `jest.mock('../dataService', ...)`                                              |
+| Update import + refs | `src/app/components/dashboard/__tests__/list.test.tsx`                                | `import * as dataService` + all `dataService.` call-sites                       |
+| Update mock          | `src/app/components/dashboard/__tests__/data.test.tsx`                                | Mock `../sentimentNews` instead of `../timer`                                   |
+| Create               | `src/app/components/dashboard/__tests__/sentimentNews.test.tsx`                       | Tests for SentimentNews component                                               |
 
 ---
 
 ## Task 1: Add `NewsSummaryDTO` to dto.tsx
 
 **Files:**
+
 - Modify: `src/app/utils/dto.tsx` (append after line 158)
 
 - [ ] **Step 1: Add the type**
@@ -70,6 +71,7 @@ git commit -m "feat: add NewsSummaryDTO type for news sentiment endpoint"
 ## Task 2: Rename closePrice.tsx → dataService.tsx and add getNewsSummary
 
 **Files:**
+
 - Delete: `src/app/components/dashboard/closePrice.tsx`
 - Create: `src/app/components/dashboard/dataService.tsx`
 
@@ -167,13 +169,16 @@ export const PreviousPrices = (range: string) => {
 };
 
 const getNewsSummary = async (): Promise<NewsSummaryDTO[]> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/news/getNewsSummary`, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API}/news/getNewsSummary`,
+    {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
@@ -217,6 +222,7 @@ git commit -m "feat: rename closePrice to dataService, add NewsSummary hook"
 ## Task 3: Update all non-test imports from closePrice → dataService
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/list.tsx:2`
 - Modify: `src/app/components/dashboard/comprehensive.tsx:3`
 
@@ -264,6 +270,7 @@ git commit -m "fix: update closePrice imports to dataService in list and compreh
 ## Task 4: Update test files — rename closePrice.test.tsx and fix all test mock paths
 
 **Files:**
+
 - Delete: `src/app/components/dashboard/__tests__/closePrice.test.tsx`
 - Create: `src/app/components/dashboard/__tests__/dataService.test.tsx`
 - Modify: `src/app/components/dashboard/__tests__/comprehensive.test.tsx:21`
@@ -397,6 +404,7 @@ describe('PreviousPrice Hook', () => {
 ```
 
 Then delete the old file:
+
 ```bash
 rm /Users/ian/App/side_project/stock_monitoring/frontend/src/app/components/dashboard/__tests__/closePrice.test.tsx
 ```
@@ -414,6 +422,7 @@ jest.mock('../dataService', () => ({
 ```
 
 Also update line 70:
+
 ```typescript
 // Before
 import { ClosePrices } from '../closePrice';
@@ -435,6 +444,7 @@ jest.mock('../dataService', () => ({
 ```
 
 Also update line 69:
+
 ```typescript
 // Before
 import { ClosePrices } from '../closePrice';
@@ -456,6 +466,7 @@ jest.mock('../dataService', () => ({
 ```
 
 Also update line 62:
+
 ```typescript
 // Before
 import { ClosePrices } from '../closePrice';
@@ -469,6 +480,7 @@ import { ClosePrices } from '../dataService';
 In `src/app/components/dashboard/__tests__/list.test.tsx`:
 
 Line 5:
+
 ```typescript
 // Before
 import * as closePrice from '../closePrice';
@@ -478,6 +490,7 @@ import * as dataService from '../dataService';
 ```
 
 Line 12:
+
 ```typescript
 // Before
 jest.mock('../closePrice');
@@ -508,6 +521,7 @@ git commit -m "fix: update all test files from closePrice to dataService mock pa
 ## Task 5: Create SentimentNews component
 
 **Files:**
+
 - Create: `src/app/components/dashboard/sentimentNews.tsx`
 
 - [ ] **Step 1: Write the failing test first**
@@ -772,6 +786,7 @@ git commit -m "feat: add SentimentNews component with loading/error/empty states
 ## Task 6: Integrate SentimentNews into dashboard layout
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/data.tsx`
 - Modify: `src/app/components/dashboard/__tests__/data.test.tsx`
 
@@ -832,6 +847,7 @@ Expected: FAIL — the third test looks for `sentiment-news` testid but `data.ts
 In `src/app/components/dashboard/data.tsx`, make two changes:
 
 Replace the timer import:
+
 ```typescript
 // Before
 import CountdownTimer from '@/components/dashboard/timer';
@@ -841,18 +857,23 @@ import SentimentNews from '@/components/dashboard/sentimentNews';
 ```
 
 Replace the timer JSX block (the third `<div>` starting at the `{/* Timer */}` comment):
+
 ```tsx
 // Before
-{/* Timer — hidden on mobile, col 1 row 2 on desktop */}
+{
+  /* Timer — hidden on mobile, col 1 row 2 on desktop */
+}
 <div className="md:row-start-2 hidden md:flex border border-black dark:border-white items-center justify-center p-4">
   <CountdownTimer />
-</div>
+</div>;
 
 // After
-{/* Sentiment News — hidden on mobile, col 1 row 2 on desktop */}
+{
+  /* Sentiment News — hidden on mobile, col 1 row 2 on desktop */
+}
 <div className="md:row-start-2 hidden md:flex border border-black dark:border-white overflow-hidden">
   <SentimentNews />
-</div>
+</div>;
 ```
 
 - [ ] **Step 4: Run the layout test suite**
@@ -884,27 +905,27 @@ git commit -m "feat: replace timer block with SentimentNews in dashboard layout"
 
 ### Spec Coverage Check
 
-| Requirement | Covered By |
-|-------------|-----------|
-| Create branch `feature/sentiment-news` | Done before plan (already on branch) |
-| Rename `closePrice` → `dataService` | Task 2 |
-| Add `getNewsSummary` function to dataService | Task 2, Step 1 |
-| `GET /news/getNewsSummary` endpoint | Task 2, Step 1 |
-| `NewsSummaryDTO` response type | Task 1 |
-| Update all imports across codebase (non-test) | Task 3 |
-| Update all imports across codebase (test files) | Task 4 |
-| Create `sentimentNews.tsx` component | Task 5 |
-| Display ticker, score (2dp), label, confidence, article_count | Task 5, Step 3 |
-| Green tones for bullish labels | Task 5, Step 3 — `text-green-400` / `text-emerald-400` |
-| Neutral gray | Task 5, Step 3 — `text-gray-400` |
-| Red/amber for bearish | Task 5, Step 3 — `text-amber-400` / `text-red-400` |
-| `hasData: false` → muted "no data" row | Task 5, Step 3 (`TickerRow` no-data branch) |
-| "Last updated" timestamp | Task 5, Step 3 (`sentiment-updated` testid) |
-| Only occupies timer block space | Task 6 — same wrapping `div` classes, no other changes |
-| No other layout/grid changes | Task 6 — only the inner content of the bottom-left cell changes |
-| Dark/monospace aesthetic | Task 5 — `font-mono`, dark grays, green accents |
-| Replace `<CountdownTimer />` in data.tsx | Task 6, Step 3 |
-| Integration test verifies panel placement | Task 6, Step 1 — `md:row-start-2` assertion |
+| Requirement                                                   | Covered By                                                      |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| Create branch `feature/sentiment-news`                        | Done before plan (already on branch)                            |
+| Rename `closePrice` → `dataService`                           | Task 2                                                          |
+| Add `getNewsSummary` function to dataService                  | Task 2, Step 1                                                  |
+| `GET /news/getNewsSummary` endpoint                           | Task 2, Step 1                                                  |
+| `NewsSummaryDTO` response type                                | Task 1                                                          |
+| Update all imports across codebase (non-test)                 | Task 3                                                          |
+| Update all imports across codebase (test files)               | Task 4                                                          |
+| Create `sentimentNews.tsx` component                          | Task 5                                                          |
+| Display ticker, score (2dp), label, confidence, article_count | Task 5, Step 3                                                  |
+| Green tones for bullish labels                                | Task 5, Step 3 — `text-green-400` / `text-emerald-400`          |
+| Neutral gray                                                  | Task 5, Step 3 — `text-gray-400`                                |
+| Red/amber for bearish                                         | Task 5, Step 3 — `text-amber-400` / `text-red-400`              |
+| `hasData: false` → muted "no data" row                        | Task 5, Step 3 (`TickerRow` no-data branch)                     |
+| "Last updated" timestamp                                      | Task 5, Step 3 (`sentiment-updated` testid)                     |
+| Only occupies timer block space                               | Task 6 — same wrapping `div` classes, no other changes          |
+| No other layout/grid changes                                  | Task 6 — only the inner content of the bottom-left cell changes |
+| Dark/monospace aesthetic                                      | Task 5 — `font-mono`, dark grays, green accents                 |
+| Replace `<CountdownTimer />` in data.tsx                      | Task 6, Step 3                                                  |
+| Integration test verifies panel placement                     | Task 6, Step 1 — `md:row-start-2` assertion                     |
 
 ### Placeholder Scan
 

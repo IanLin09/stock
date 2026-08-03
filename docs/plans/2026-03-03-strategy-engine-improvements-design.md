@@ -57,6 +57,7 @@ day 5 of an existing uptrend.
 failing any rule with `required: true` on volume.
 
 **Fix:**
+
 - Remove `volume` from the `RuleCondition.indicator` union type
 - Remove the `volume` case from `evaluateCondition()`
 - Remove `volume` from any `STRATEGY_RULES` conditions
@@ -83,13 +84,13 @@ extreme overbought, regardless of i18n key values.
 
 ### Mission A File Changes
 
-| File | Type |
-|---|---|
-| `strategyEngine.ts` | Modify — thread `currentPrice`, add `direction` field, uncomment MA |
-| `strategyRuleEngine.ts` | Modify — add `previousData` param, remove volume, rename rule |
-| `strategyIntegrator.ts` | Modify — forward `currentPrice` to `analyzeIndicators()` |
-| `hooks/useStrategyEngine.ts` | Modify — forward `currentPrice` |
-| `strategyEngine.test.ts` | New — unit tests for all 4 fixes |
+| File                         | Type                                                                |
+| ---------------------------- | ------------------------------------------------------------------- |
+| `strategyEngine.ts`          | Modify — thread `currentPrice`, add `direction` field, uncomment MA |
+| `strategyRuleEngine.ts`      | Modify — add `previousData` param, remove volume, rename rule       |
+| `strategyIntegrator.ts`      | Modify — forward `currentPrice` to `analyzeIndicators()`            |
+| `hooks/useStrategyEngine.ts` | Modify — forward `currentPrice`                                     |
+| `strategyEngine.test.ts`     | New — unit tests for all 4 fixes                                    |
 
 ---
 
@@ -115,9 +116,27 @@ interface InstrumentProfile {
 }
 
 const INSTRUMENT_PROFILES: Record<string, InstrumentProfile> = {
-  QQQ:  { macdStrongThreshold: 0.5,  rsiOverbought: 70, rsiOversold: 30, rsiExtremeOverbought: 80, rsiExtremeOversold: 20 },
-  TQQQ: { macdStrongThreshold: 2.0,  rsiOverbought: 75, rsiOversold: 25, rsiExtremeOverbought: 82, rsiExtremeOversold: 18 },
-  NVDL: { macdStrongThreshold: 1.2,  rsiOverbought: 72, rsiOversold: 28, rsiExtremeOverbought: 80, rsiExtremeOversold: 20 },
+  QQQ: {
+    macdStrongThreshold: 0.5,
+    rsiOverbought: 70,
+    rsiOversold: 30,
+    rsiExtremeOverbought: 80,
+    rsiExtremeOversold: 20,
+  },
+  TQQQ: {
+    macdStrongThreshold: 2.0,
+    rsiOverbought: 75,
+    rsiOversold: 25,
+    rsiExtremeOverbought: 82,
+    rsiExtremeOversold: 18,
+  },
+  NVDL: {
+    macdStrongThreshold: 1.2,
+    rsiOverbought: 72,
+    rsiOversold: 28,
+    rsiExtremeOverbought: 80,
+    rsiExtremeOversold: 20,
+  },
 };
 ```
 
@@ -159,6 +178,7 @@ strategy decision.
 **Design:** New `BollingerAnalyzer` class added to `strategyEngine.ts`:
 
 Metrics calculated:
+
 - **%B**: `(price - lower) / (upper - lower)` — 0 = at lower band, 1 = at upper band
 - **Band width**: `(upper - lower) / middle` — squeeze when < 0.1
 
@@ -194,6 +214,7 @@ detectRSIDivergence(priceHistory: number[], rsiHistory: number[]): DivergenceRes
 ```
 
 Algorithm:
+
 1. Find the two most recent local peaks (bearish) or troughs (bullish) using a 3-point
    local extremum check: `point[i] > point[i-1] && point[i] > point[i+1]`
 2. **Bearish divergence:** price makes higher high, RSI makes lower high
@@ -202,6 +223,7 @@ Algorithm:
 5. `barsAgo` = distance since the second extremum (recency weighting)
 
 Wired into:
+
 - `StrategyEngine.analyzeIndicators()` — adds a `'Divergence'` `IndicatorJudgment`
   when divergence is detected
 - `EnhancedRiskMonitor.generateTechnicalAlerts()` — adds a divergence alert when
@@ -211,16 +233,16 @@ Wired into:
 
 ### Mission B File Changes
 
-| File | Type |
-|---|---|
-| `constants/instrumentProfiles.ts` | New |
-| `crossoverDetector.ts` | New |
-| `divergenceDetector.ts` | New |
-| `strategyEngine.ts` | Modify — add `BollingerAnalyzer`, update `MACDAnalyzer`/`KDJAnalyzer` |
-| `strategyRuleEngine.ts` | Modify — add bollinger squeeze rule |
-| `enhancedRiskAlert.ts` | Modify — add divergence alert |
-| `crossoverDetector.test.ts` | New |
-| `divergenceDetector.test.ts` | New |
+| File                              | Type                                                                  |
+| --------------------------------- | --------------------------------------------------------------------- |
+| `constants/instrumentProfiles.ts` | New                                                                   |
+| `crossoverDetector.ts`            | New                                                                   |
+| `divergenceDetector.ts`           | New                                                                   |
+| `strategyEngine.ts`               | Modify — add `BollingerAnalyzer`, update `MACDAnalyzer`/`KDJAnalyzer` |
+| `strategyRuleEngine.ts`           | Modify — add bollinger squeeze rule                                   |
+| `enhancedRiskAlert.ts`            | Modify — add divergence alert                                         |
+| `crossoverDetector.test.ts`       | New                                                                   |
+| `divergenceDetector.test.ts`      | New                                                                   |
 
 **No changes to:** `strategyIntegrator.ts`, `intelligentAdviceEngine.ts`,
 `enhancedStrategyScoring.ts`, `strategySystemController.ts`.
@@ -230,12 +252,14 @@ Wired into:
 ## Success Criteria
 
 ### Mission A
+
 - All 4 fixes have passing unit tests
 - MA analysis fires in live engine when price is available
 - No silent `false` returns from dead conditions
 - Mean reversion direction check is type-safe
 
 ### Mission B
+
 - Instrument profiles applied for QQQ/TQQQ/NVDL
 - Crossover detected only on the crossing bar, not on continuation
 - Bollinger %B and squeeze visible in indicator judgments

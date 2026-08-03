@@ -15,6 +15,7 @@
 ## Task 1: Instrument-Aware Thresholds
 
 **Files:**
+
 - Create: `src/app/utils/constants/instrumentProfiles.ts`
 - Modify: `src/app/utils/strategyEngine.ts`
 - Create: `src/app/utils/__tests__/instrumentProfiles.test.ts`
@@ -23,13 +24,18 @@
 
 ```typescript
 // src/app/utils/__tests__/instrumentProfiles.test.ts
-import { getInstrumentProfile, DEFAULT_PROFILE } from '../constants/instrumentProfiles';
+import {
+  getInstrumentProfile,
+  DEFAULT_PROFILE,
+} from '../constants/instrumentProfiles';
 import { RSIAnalyzer, MACDAnalyzer } from '../strategyEngine';
 
 describe('getInstrumentProfile', () => {
   it('returns TQQQ profile with higher MACD threshold', () => {
     const profile = getInstrumentProfile('TQQQ');
-    expect(profile.macdStrongThreshold).toBeGreaterThan(DEFAULT_PROFILE.macdStrongThreshold);
+    expect(profile.macdStrongThreshold).toBeGreaterThan(
+      DEFAULT_PROFILE.macdStrongThreshold
+    );
   });
 
   it('returns DEFAULT_PROFILE for unknown symbols', () => {
@@ -90,11 +96,11 @@ Expected: FAIL — module not found
 // src/app/utils/constants/instrumentProfiles.ts
 
 export interface InstrumentProfile {
-  macdStrongThreshold: number;  // histogram abs value = "strong" signal
-  rsiOverbought: number;        // RSI level = overbought
-  rsiOversold: number;          // RSI level = oversold
+  macdStrongThreshold: number; // histogram abs value = "strong" signal
+  rsiOverbought: number; // RSI level = overbought
+  rsiOversold: number; // RSI level = oversold
   rsiExtremeOverbought: number; // RSI level = extreme overbought
-  rsiExtremeOversold: number;   // RSI level = extreme oversold
+  rsiExtremeOversold: number; // RSI level = extreme oversold
 }
 
 export const DEFAULT_PROFILE: InstrumentProfile = {
@@ -143,8 +149,16 @@ import type { InstrumentProfile } from './constants/instrumentProfiles';
 import { DEFAULT_PROFILE } from './constants/instrumentProfiles';
 
 export class RSIAnalyzer {
-  static analyze(rsi: number, profile: InstrumentProfile = DEFAULT_PROFILE): IndicatorJudgment {
-    const { rsiExtremeOverbought, rsiOverbought, rsiExtremeOversold, rsiOversold } = profile;
+  static analyze(
+    rsi: number,
+    profile: InstrumentProfile = DEFAULT_PROFILE
+  ): IndicatorJudgment {
+    const {
+      rsiExtremeOverbought,
+      rsiOverbought,
+      rsiExtremeOversold,
+      rsiOversold,
+    } = profile;
 
     let signal: IndicatorSignal;
     let strength: number;
@@ -158,35 +172,80 @@ export class RSIAnalyzer {
       confidence = 'strong';
       message = 'strategy_rsi_extreme_overbought';
       reasons = ['strategy_rsi_above_80', 'strategy_short_term_pullback_risk'];
-      return { indicator: 'RSI', signal, strength, confidence, message, reasons, direction: 'overbought' };
+      return {
+        indicator: 'RSI',
+        signal,
+        strength,
+        confidence,
+        message,
+        reasons,
+        direction: 'overbought',
+      };
     } else if (rsi >= rsiOverbought) {
       signal = 'bearish';
       strength = 60 + (rsi - rsiOverbought);
-      confidence = rsi >= (rsiOverbought + 5) ? 'strong' : 'moderate';
+      confidence = rsi >= rsiOverbought + 5 ? 'strong' : 'moderate';
       message = 'strategy_rsi_overbought_zone';
-      reasons = ['strategy_rsi_entered_overbought', 'strategy_consider_reducing_position'];
-      return { indicator: 'RSI', signal, strength, confidence, message, reasons, direction: 'overbought' };
+      reasons = [
+        'strategy_rsi_entered_overbought',
+        'strategy_consider_reducing_position',
+      ];
+      return {
+        indicator: 'RSI',
+        signal,
+        strength,
+        confidence,
+        message,
+        reasons,
+        direction: 'overbought',
+      };
     } else if (rsi <= rsiExtremeOversold) {
       signal = 'extreme';
       strength = Math.min(95, 60 + (rsiExtremeOversold - rsi) * 2);
       confidence = 'strong';
       message = 'strategy_rsi_extreme_oversold';
       reasons = ['strategy_rsi_below_20', 'strategy_rebound_opportunity'];
-      return { indicator: 'RSI', signal, strength, confidence, message, reasons, direction: 'oversold' };
+      return {
+        indicator: 'RSI',
+        signal,
+        strength,
+        confidence,
+        message,
+        reasons,
+        direction: 'oversold',
+      };
     } else if (rsi <= rsiOversold) {
       signal = 'bullish';
       strength = 60 + (rsiOversold - rsi);
-      confidence = rsi <= (rsiOversold - 5) ? 'strong' : 'moderate';
+      confidence = rsi <= rsiOversold - 5 ? 'strong' : 'moderate';
       message = 'strategy_rsi_oversold_zone';
-      reasons = ['strategy_rsi_entered_oversold', 'strategy_consider_gradual_buy'];
-      return { indicator: 'RSI', signal, strength, confidence, message, reasons, direction: 'oversold' };
+      reasons = [
+        'strategy_rsi_entered_oversold',
+        'strategy_consider_gradual_buy',
+      ];
+      return {
+        indicator: 'RSI',
+        signal,
+        strength,
+        confidence,
+        message,
+        reasons,
+        direction: 'oversold',
+      };
     } else {
       signal = 'neutral';
       strength = 50 - Math.abs(rsi - 50) / 2;
       confidence = 'weak';
       message = 'strategy_rsi_neutral_zone';
       reasons = ['strategy_rsi_in_neutral', 'strategy_wait_clear_signal'];
-      return { indicator: 'RSI', signal, strength, confidence, message, reasons };
+      return {
+        indicator: 'RSI',
+        signal,
+        strength,
+        confidence,
+        message,
+        reasons,
+      };
     }
   }
 }
@@ -264,7 +323,12 @@ const analysis = useMemo(() => {
   if (!rawData || rawData.length === 0) return null;
   const latestData = rawData[rawData.length - 1];
   const profile = getInstrumentProfile(symbol);
-  return StrategyEngine.performCompleteAnalysis(latestData, symbol, latestData.close, profile);
+  return StrategyEngine.performCompleteAnalysis(
+    latestData,
+    symbol,
+    latestData.close,
+    profile
+  );
 }, [rawData, symbol]);
 ```
 
@@ -289,6 +353,7 @@ git commit -m "feat: add instrument-aware thresholds for QQQ/TQQQ/NVDL"
 ## Task 2: Real Crossover Detection Utility
 
 **Files:**
+
 - Create: `src/app/utils/crossoverDetector.ts`
 - Modify: `src/app/utils/strategyEngine.ts`
 - Create: `src/app/utils/__tests__/crossoverDetector.test.ts`
@@ -301,14 +366,14 @@ import { detectMACDCross, detectKDJCross } from '../crossoverDetector';
 
 describe('detectMACDCross', () => {
   it('returns golden when DIF crosses above DEA', () => {
-    const prev = { dif: -0.1, dea: 0.2 };   // dif < dea
-    const curr = { dif: 0.3, dea: 0.2 };    // dif > dea
+    const prev = { dif: -0.1, dea: 0.2 }; // dif < dea
+    const curr = { dif: 0.3, dea: 0.2 }; // dif > dea
     expect(detectMACDCross(prev, curr)).toBe('golden');
   });
 
   it('returns death when DIF crosses below DEA', () => {
-    const prev = { dif: 0.3, dea: 0.2 };    // dif > dea
-    const curr = { dif: 0.1, dea: 0.2 };    // dif < dea
+    const prev = { dif: 0.3, dea: 0.2 }; // dif > dea
+    const curr = { dif: 0.1, dea: 0.2 }; // dif < dea
     expect(detectMACDCross(prev, curr)).toBe('death');
   });
 
@@ -327,8 +392,8 @@ describe('detectMACDCross', () => {
 
 describe('detectKDJCross', () => {
   it('returns golden when K crosses above D', () => {
-    const prev = { k: 40, d: 50 };   // k < d
-    const curr = { k: 55, d: 50 };   // k > d
+    const prev = { k: 40, d: 50 }; // k < d
+    const curr = { k: 55, d: 50 }; // k > d
     expect(detectKDJCross(prev, curr)).toBe('golden');
   });
 
@@ -499,9 +564,16 @@ Update `useStrategyEngine.ts`:
 const analysis = useMemo(() => {
   if (!rawData || rawData.length === 0) return null;
   const latestData = rawData[rawData.length - 1];
-  const previousData = rawData.length >= 2 ? rawData[rawData.length - 2] : undefined;
+  const previousData =
+    rawData.length >= 2 ? rawData[rawData.length - 2] : undefined;
   const profile = getInstrumentProfile(symbol);
-  return StrategyEngine.performCompleteAnalysis(latestData, symbol, latestData.close, profile, previousData);
+  return StrategyEngine.performCompleteAnalysis(
+    latestData,
+    symbol,
+    latestData.close,
+    profile,
+    previousData
+  );
 }, [rawData, symbol]);
 ```
 
@@ -526,6 +598,7 @@ git commit -m "feat: add crossover detector, wire into MACD/KDJ analyzers for fr
 ## Task 3: Bollinger Band Strategy
 
 **Files:**
+
 - Modify: `src/app/utils/strategyEngine.ts`
 - Modify: `src/app/utils/strategyRuleEngine.ts`
 - Modify: `src/app/utils/__tests__/strategyEngine.test.ts` (add tests)
@@ -540,41 +613,65 @@ import { BollingerAnalyzer } from '../strategyEngine';
 describe('BollingerAnalyzer', () => {
   it('returns bullish when price hugs lower band (%B < 0.05)', () => {
     // price=90.1, lower=90, upper=110, middle=100 → %B = 0.005
-    const result = BollingerAnalyzer.analyze(90.1, { middle: 100, upper: 110, lower: 90, datetime: new Date() });
+    const result = BollingerAnalyzer.analyze(90.1, {
+      middle: 100,
+      upper: 110,
+      lower: 90,
+      datetime: new Date(),
+    });
     expect(result.signal).toBe('bullish');
   });
 
   it('returns bearish when price hugs upper band (%B > 0.95)', () => {
     // price=109.9, lower=90, upper=110 → %B = 0.995
-    const result = BollingerAnalyzer.analyze(109.9, { middle: 100, upper: 110, lower: 90, datetime: new Date() });
+    const result = BollingerAnalyzer.analyze(109.9, {
+      middle: 100,
+      upper: 110,
+      lower: 90,
+      datetime: new Date(),
+    });
     expect(result.signal).toBe('bearish');
   });
 
   it('returns neutral with squeeze reason when band width < 0.1', () => {
     // tight band: upper=101, lower=99, middle=100 → width=0.02
-    const result = BollingerAnalyzer.analyze(100, { middle: 100, upper: 101, lower: 99, datetime: new Date() });
+    const result = BollingerAnalyzer.analyze(100, {
+      middle: 100,
+      upper: 101,
+      lower: 99,
+      datetime: new Date(),
+    });
     expect(result.signal).toBe('neutral');
     expect(result.reasons).toContain('volatility_squeeze');
   });
 
   it('returns neutral when price is near midline', () => {
     // %B = 0.5 (midline)
-    const result = BollingerAnalyzer.analyze(100, { middle: 100, upper: 110, lower: 90, datetime: new Date() });
+    const result = BollingerAnalyzer.analyze(100, {
+      middle: 100,
+      upper: 110,
+      lower: 90,
+      datetime: new Date(),
+    });
     expect(result.signal).toBe('neutral');
   });
 
   it('StrategyEngine.analyzeIndicators includes Bollinger judgment', () => {
     const data: StockAnalysisDTO = {
-      _id: '1', symbol: 'QQQ', datetime: new Date(),
-      open: 90.1, close: 90.1,
+      _id: '1',
+      symbol: 'QQQ',
+      datetime: new Date(),
+      open: 90.1,
+      close: 90.1,
       macd: { dif: 0, dea: 0, histogram: 0, ema12: 0, ema26: 0 },
-      ma: { 20: 100 }, ema: { 5: 90 },
+      ma: { 20: 100 },
+      ema: { 5: 90 },
       rsi: { 14: 40, gain: 0, loss: 0 },
       bollinger: { datetime: new Date(), middle: 100, upper: 110, lower: 90 },
       kdj: { datetime: new Date(), k: 50, d: 50, j: 50, rsv: 50 },
     };
     const judgments = StrategyEngine.analyzeIndicators(data, 90.1);
-    const bb = judgments.find(j => j.indicator === 'Bollinger');
+    const bb = judgments.find((j) => j.indicator === 'Bollinger');
     expect(bb).toBeDefined();
     expect(bb?.signal).toBe('bullish');
   });
@@ -622,7 +719,14 @@ export class BollingerAnalyzer {
       confidence = 'moderate';
       message = 'strategy_bollinger_squeeze';
       reasons = ['volatility_squeeze', 'strategy_breakout_imminent'];
-      return { indicator: 'Bollinger', signal, strength, confidence, message, reasons };
+      return {
+        indicator: 'Bollinger',
+        signal,
+        strength,
+        confidence,
+        message,
+        reasons,
+      };
     }
 
     if (percentB < 0.05) {
@@ -630,7 +734,10 @@ export class BollingerAnalyzer {
       strength = Math.min(90, 70 + (0.05 - percentB) * 200);
       confidence = percentB < 0.01 ? 'strong' : 'moderate';
       message = 'strategy_bollinger_lower_band';
-      reasons = ['strategy_price_at_lower_band', 'strategy_mean_reversion_entry'];
+      reasons = [
+        'strategy_price_at_lower_band',
+        'strategy_mean_reversion_entry',
+      ];
     } else if (percentB > 0.95) {
       signal = 'bearish';
       strength = Math.min(90, 70 + (percentB - 0.95) * 200);
@@ -645,7 +752,14 @@ export class BollingerAnalyzer {
       reasons = ['strategy_price_within_bands', 'strategy_wait_band_test'];
     }
 
-    return { indicator: 'Bollinger', signal, strength, confidence, message, reasons };
+    return {
+      indicator: 'Bollinger',
+      signal,
+      strength,
+      confidence,
+      message,
+      reasons,
+    };
   }
 }
 ```
@@ -715,6 +829,7 @@ git commit -m "feat: add BollingerAnalyzer with %B and squeeze detection, add sq
 ## Task 4: RSI Divergence Detection
 
 **Files:**
+
 - Create: `src/app/utils/divergenceDetector.ts`
 - Modify: `src/app/utils/strategyEngine.ts`
 - Modify: `src/app/utils/enhancedRiskAlert.ts`
@@ -731,7 +846,7 @@ describe('detectRSIDivergence — bearish', () => {
     // Price: 100 → 90 → 110 (higher high vs first peak at 100)
     // RSI:   70  → 60 → 65  (lower high vs first peak at 70)
     const prices = [100, 95, 90, 95, 110];
-    const rsi    = [70,  65, 60, 62, 65];
+    const rsi = [70, 65, 60, 62, 65];
     const result = detectRSIDivergence(prices, rsi);
     expect(result.type).toBe('bearish');
   });
@@ -739,8 +854,8 @@ describe('detectRSIDivergence — bearish', () => {
   it('detects bullish divergence: price lower low, RSI higher low', () => {
     // Price: 100 → 90 (lower low)
     // RSI:   30  → 35 (higher low)
-    const prices = [100, 95, 90,  95, 88];
-    const rsi    = [30,  28, 32,  31, 35];
+    const prices = [100, 95, 90, 95, 88];
+    const rsi = [30, 28, 32, 31, 35];
     const result = detectRSIDivergence(prices, rsi);
     expect(result.type).toBe('bullish');
   });
@@ -748,7 +863,7 @@ describe('detectRSIDivergence — bearish', () => {
   it('returns null when no divergence', () => {
     // Both price and RSI make higher highs
     const prices = [100, 95, 105];
-    const rsi    = [50,  48, 55];
+    const rsi = [50, 48, 55];
     const result = detectRSIDivergence(prices, rsi);
     expect(result.type).toBeNull();
   });
@@ -761,12 +876,12 @@ describe('detectRSIDivergence — bearish', () => {
   it('strength reflects magnitude of divergence', () => {
     // Large divergence
     const prices = [100, 90, 120];
-    const rsi    = [70,  60, 50];
+    const rsi = [70, 60, 50];
     const bigResult = detectRSIDivergence(prices, rsi);
 
     // Small divergence
     const prices2 = [100, 90, 101];
-    const rsi2    = [70,  60, 69];
+    const rsi2 = [70, 60, 69];
     const smallResult = detectRSIDivergence(prices2, rsi2);
 
     if (bigResult.type && smallResult.type) {
@@ -791,8 +906,8 @@ Expected: FAIL — module not found
 
 export interface DivergenceResult {
   type: 'bullish' | 'bearish' | null;
-  strength: number;   // 0-100
-  barsAgo: number;    // bars since the most recent extremum used
+  strength: number; // 0-100
+  barsAgo: number; // bars since the most recent extremum used
 }
 
 const NULL_RESULT: DivergenceResult = { type: null, strength: 0, barsAgo: 0 };
@@ -853,7 +968,8 @@ export function detectRSIDivergence(
     const rsiLowerHigh = rsiHistory[r2] < rsiHistory[r1];
 
     if (priceHigherHigh && rsiLowerHigh) {
-      const priceDivergence = (priceHistory[p2] - priceHistory[p1]) / priceHistory[p1];
+      const priceDivergence =
+        (priceHistory[p2] - priceHistory[p1]) / priceHistory[p1];
       const rsiDivergence = (rsiHistory[r1] - rsiHistory[r2]) / rsiHistory[r1];
       const magnitude = (priceDivergence + rsiDivergence) / 2;
       const strength = Math.min(100, magnitude * 500);
@@ -879,7 +995,8 @@ export function detectRSIDivergence(
     const rsiHigherLow = rsiHistory[r2] > rsiHistory[r1];
 
     if (priceLowerLow && rsiHigherLow) {
-      const priceDivergence = (priceHistory[t1] - priceHistory[t2]) / priceHistory[t1];
+      const priceDivergence =
+        (priceHistory[t1] - priceHistory[t2]) / priceHistory[t1];
       const rsiDivergence = (rsiHistory[r2] - rsiHistory[r1]) / rsiHistory[r1];
       const magnitude = (priceDivergence + rsiDivergence) / 2;
       const strength = Math.min(100, magnitude * 500);
@@ -910,7 +1027,10 @@ Expected: All PASS
 Add to `strategyEngine.ts`:
 
 ```typescript
-import { detectRSIDivergence, type DivergenceResult } from './divergenceDetector';
+import {
+  detectRSIDivergence,
+  type DivergenceResult,
+} from './divergenceDetector';
 
 export class StrategyEngine {
   // ... existing methods ...
@@ -932,7 +1052,9 @@ export class StrategyEngine {
       signal: isBullish ? 'bullish' : 'bearish',
       strength: result.strength,
       confidence: result.strength > 60 ? 'strong' : 'moderate',
-      message: isBullish ? 'strategy_rsi_bullish_divergence' : 'strategy_rsi_bearish_divergence',
+      message: isBullish
+        ? 'strategy_rsi_bullish_divergence'
+        : 'strategy_rsi_bearish_divergence',
       reasons: [
         isBullish
           ? 'strategy_price_lower_low_rsi_higher_low'
@@ -952,20 +1074,30 @@ const analysis = useMemo(() => {
   if (!rawData || rawData.length === 0) return null;
 
   const latestData = rawData[rawData.length - 1];
-  const previousData = rawData.length >= 2 ? rawData[rawData.length - 2] : undefined;
+  const previousData =
+    rawData.length >= 2 ? rawData[rawData.length - 2] : undefined;
   const profile = getInstrumentProfile(symbol);
 
   const baseAnalysis = StrategyEngine.performCompleteAnalysis(
-    latestData, symbol, latestData.close, profile, previousData
+    latestData,
+    symbol,
+    latestData.close,
+    profile,
+    previousData
   );
 
   // Add divergence judgment from history (needs array of points)
   if (rawData.length >= 5) {
-    const priceHistory = rawData.map(d => d.close);
-    const rsiHistory = rawData.map(d => d.rsi?.[14]).filter((v): v is number => v !== undefined);
+    const priceHistory = rawData.map((d) => d.close);
+    const rsiHistory = rawData
+      .map((d) => d.rsi?.[14])
+      .filter((v): v is number => v !== undefined);
 
     if (rsiHistory.length >= 5) {
-      const divergenceJudgment = StrategyEngine.analyzeDivergence(priceHistory, rsiHistory);
+      const divergenceJudgment = StrategyEngine.analyzeDivergence(
+        priceHistory,
+        rsiHistory
+      );
       if (divergenceJudgment) {
         baseAnalysis.indicatorJudgments.push(divergenceJudgment);
       }
@@ -987,7 +1119,7 @@ import { detectRSIDivergence } from './divergenceDetector';
 // Inside generateTechnicalAlerts, add:
 // RSI Divergence alert — only fires if barsAgo <= 5 (recent)
 // Note: signals array carries divergence judgments from the engine
-const divergenceJudgment = indicators.find(i => i.indicator === 'Divergence');
+const divergenceJudgment = indicators.find((i) => i.indicator === 'Divergence');
 if (divergenceJudgment && divergenceJudgment.strength > 40) {
   const isBullish = divergenceJudgment.signal === 'bullish';
   alerts.push({
@@ -1010,7 +1142,9 @@ if (divergenceJudgment && divergenceJudgment.strength > 40) {
         : '考慮減倉或設置止盈',
     },
     triggers: {
-      conditions: [isBullish ? '價格低點下降，RSI低點上升' : '價格高點上升，RSI高點下降'],
+      conditions: [
+        isBullish ? '價格低點下降，RSI低點上升' : '價格高點上升，RSI高點下降',
+      ],
       threshold: 0.6,
       timeframe: '近期',
     },
@@ -1021,7 +1155,9 @@ if (divergenceJudgment && divergenceJudgment.strength > 40) {
       affectedStrategies: ['動量策略', '趨勢跟踪'],
     },
     mitigation: {
-      immediate: isBullish ? ['小倉位試探', '關注突破確認'] : ['考慮部分獲利了結', '收緊止損'],
+      immediate: isBullish
+        ? ['小倉位試探', '關注突破確認']
+        : ['考慮部分獲利了結', '收緊止損'],
       shortTerm: ['等待趨勢確認', '控制倉位'],
       longTerm: ['重新評估趨勢有效性'],
       alternatives: isBullish ? ['分批建倉'] : ['轉向防守策略'],

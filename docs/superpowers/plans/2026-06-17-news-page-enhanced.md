@@ -6,6 +6,7 @@ Then implement the following plan task by task. One important adjustment before 
 
 **isLoading logic adjustment (applies to Task 8):**
 Split the loading state into two separate concerns instead of combining them:
+
 - Show the full skeleton grid ONLY when `summaryQuery.isLoading` is true (first page load)
 - When `tickerNewsQuery` is loading (after a ticker is selected), keep the `TickerFilter` visible and show a loading indicator only in the content area below it — do not replace the entire page with skeletons
 
@@ -25,6 +26,7 @@ Now implement the plan below exactly as written, task by task:
 
 **Important constraint:** The news page requires a ticker parameter to fetch data.
 There is no "all articles" view. The page should:
+
 1. Start with no data and no ticker selected
 2. Show a "Select a ticker to view news" prompt until a ticker is chosen
 3. Remove the "All" pill from TickerFilter, or mark it as disabled/hidden
@@ -57,6 +59,7 @@ src/app/components/dashboard/dataService.tsx ← NewsSummary() hook already pres
 ```
 
 **What changes:**
+
 - `dto.tsx` — add 4 new types
 - `dataService.tsx` — add `getTickerNews` (ticker required) + `TickerNews` hook with `enabled: !!ticker`
 - `formatters.ts` — add `getRelativeTime`
@@ -71,29 +74,30 @@ src/app/components/dashboard/dataService.tsx ← NewsSummary() hook already pres
 
 ## File Map
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Modify | `src/app/utils/dto.tsx` | Add `NewsArticleDTO`, `TickerNewsAggregateDTO`, `TickerNewsResponseDTO`, `DisplayArticle` |
-| Modify | `src/app/components/dashboard/dataService.tsx` | Add `getTickerNews` fetch + `TickerNews` hook |
-| Modify | `src/app/utils/formatters.ts` | Add `getRelativeTime(publishedAt, now?)` |
-| Modify | `src/app/utils/__tests__/formatters.test.ts` | Tests for `getRelativeTime` |
-| Create | `src/app/components/news/TickerFilter.tsx` | Pill filter bar (pure component) |
-| Create | `src/app/components/news/SentimentBar.tsx` | Aggregate sentiment bar (pure component) |
-| Modify | `src/app/components/news/NewsCard.tsx` | Accept `DisplayArticle`, add optional bottom row |
-| Modify | `src/app/components/news/NewsGrid.tsx` | Accept `DisplayArticle[]` |
-| Modify | `src/app/components/news/data.tsx` | Wire state + both hooks + conditional rendering (prompt vs. grid) |
-| Modify | `public/locales/en/translation.json` | Add `news_select_ticker_prompt` |
-| Modify | `public/locales/zh/translation.json` | Add `news_select_ticker_prompt` |
-| Create | `src/app/components/news/__tests__/TickerFilter.test.tsx` | |
-| Create | `src/app/components/news/__tests__/SentimentBar.test.tsx` | |
-| Create | `src/app/components/news/__tests__/NewsCard.test.tsx` | |
-| Create | `src/app/components/news/__tests__/data.test.tsx` | |
+| Action | Path                                                      | Responsibility                                                                            |
+| ------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Modify | `src/app/utils/dto.tsx`                                   | Add `NewsArticleDTO`, `TickerNewsAggregateDTO`, `TickerNewsResponseDTO`, `DisplayArticle` |
+| Modify | `src/app/components/dashboard/dataService.tsx`            | Add `getTickerNews` fetch + `TickerNews` hook                                             |
+| Modify | `src/app/utils/formatters.ts`                             | Add `getRelativeTime(publishedAt, now?)`                                                  |
+| Modify | `src/app/utils/__tests__/formatters.test.ts`              | Tests for `getRelativeTime`                                                               |
+| Create | `src/app/components/news/TickerFilter.tsx`                | Pill filter bar (pure component)                                                          |
+| Create | `src/app/components/news/SentimentBar.tsx`                | Aggregate sentiment bar (pure component)                                                  |
+| Modify | `src/app/components/news/NewsCard.tsx`                    | Accept `DisplayArticle`, add optional bottom row                                          |
+| Modify | `src/app/components/news/NewsGrid.tsx`                    | Accept `DisplayArticle[]`                                                                 |
+| Modify | `src/app/components/news/data.tsx`                        | Wire state + both hooks + conditional rendering (prompt vs. grid)                         |
+| Modify | `public/locales/en/translation.json`                      | Add `news_select_ticker_prompt`                                                           |
+| Modify | `public/locales/zh/translation.json`                      | Add `news_select_ticker_prompt`                                                           |
+| Create | `src/app/components/news/__tests__/TickerFilter.test.tsx` |                                                                                           |
+| Create | `src/app/components/news/__tests__/SentimentBar.test.tsx` |                                                                                           |
+| Create | `src/app/components/news/__tests__/NewsCard.test.tsx`     |                                                                                           |
+| Create | `src/app/components/news/__tests__/data.test.tsx`         |                                                                                           |
 
 ---
 
 ## Task 1: Add new DTO types to dto.tsx
 
 **Files:**
+
 - Modify: `src/app/utils/dto.tsx` (append after `NewsSummaryDTO`)
 
 - [ ] **Step 1: Append the four new types**
@@ -156,6 +160,7 @@ git commit -m "feat: add NewsArticleDTO, TickerNewsResponseDTO, DisplayArticle t
 ## Task 2: Add `getTickerNews` hook to dataService.tsx
 
 **Files:**
+
 - Modify: `src/app/components/dashboard/dataService.tsx` (append after `NewsSummary`)
 
 - [ ] **Step 1: Append the fetch function and hook**
@@ -165,14 +170,19 @@ Add to the bottom of `src/app/components/dashboard/dataService.tsx`:
 ```typescript
 import { TickerNewsResponseDTO } from '@/utils/dto';
 
-const getTickerNews = async (ticker: string): Promise<TickerNewsResponseDTO> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/news?ticker=${ticker}`, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
-    },
-  });
+const getTickerNews = async (
+  ticker: string
+): Promise<TickerNewsResponseDTO> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API}/news?ticker=${ticker}`,
+    {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AWSTOKEN}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`);
@@ -238,6 +248,7 @@ git commit -m "feat: add getTickerNews fetch and TickerNews hook to dataService"
 ## Task 3: Add `getRelativeTime` to formatters.ts (TDD)
 
 **Files:**
+
 - Modify: `src/app/utils/formatters.ts`
 - Modify: `src/app/utils/__tests__/formatters.test.ts`
 
@@ -299,7 +310,10 @@ Add to the bottom of `src/app/utils/formatters.ts`:
 ```typescript
 import { DateTime } from 'luxon';
 
-export function getRelativeTime(publishedAt: string, now: DateTime = DateTime.now()): string {
+export function getRelativeTime(
+  publishedAt: string,
+  now: DateTime = DateTime.now()
+): string {
   const dt = DateTime.fromISO(publishedAt);
   const diff = now.diff(dt, ['days', 'hours', 'minutes']).toObject();
 
@@ -333,6 +347,7 @@ git commit -m "feat: add getRelativeTime utility to formatters"
 ## Task 4: Create `TickerFilter` component (Phase 1, TDD)
 
 **Files:**
+
 - Create: `src/app/components/news/TickerFilter.tsx`
 - Create: `src/app/components/news/__tests__/TickerFilter.test.tsx`
 
@@ -501,6 +516,7 @@ git commit -m "feat: add TickerFilter pill component for news page (Phase 1)"
 ## Task 5: Create `SentimentBar` component (Phase 2, TDD)
 
 **Files:**
+
 - Create: `src/app/components/news/SentimentBar.tsx`
 - Create: `src/app/components/news/__tests__/SentimentBar.test.tsx`
 
@@ -679,6 +695,7 @@ git commit -m "feat: add SentimentBar aggregate sentiment component (Phase 2)"
 ## Task 6: Update `NewsCard` to accept `DisplayArticle` and render bottom row (Phase 3, TDD)
 
 **Files:**
+
 - Modify: `src/app/components/news/NewsCard.tsx`
 - Create: `src/app/components/news/__tests__/NewsCard.test.tsx`
 
@@ -972,6 +989,7 @@ git commit -m "feat: update NewsCard to DisplayArticle type, add sentiment botto
 ## Task 7: Update `NewsGrid` to use `DisplayArticle[]`
 
 **Files:**
+
 - Modify: `src/app/components/news/NewsGrid.tsx`
 
 This is a type-only change — `NewsDTO[]` → `DisplayArticle[]`, and the prop passed to `NewsCard` changes from `news=` to `article=`.
@@ -1039,12 +1057,14 @@ git commit -m "refactor: update NewsGrid to DisplayArticle[] prop"
 ## Task 8: Rewire `data.tsx` — state, hooks, conditional rendering (TDD)
 
 **Files:**
+
 - Modify: `src/app/components/news/data.tsx`
 - Modify: `public/locales/en/translation.json`
 - Modify: `public/locales/zh/translation.json`
 - Create: `src/app/components/news/__tests__/data.test.tsx`
 
 This is the integration task. `data.tsx` orchestrates:
+
 1. `NewsSummary()` from `dataService` — always runs, provides ticker list
 2. `TickerNews(selectedTicker)` — `selectedTicker` starts `null`; the hook's `enabled: !!ticker` means it never fetches until a ticker is picked (constraint #1, #4)
 3. Maps response articles → `DisplayArticle[]`
@@ -1330,39 +1350,39 @@ git commit -m "feat: require ticker selection in news page; wire TickerFilter, p
 
 ### Spec Coverage Check
 
-| Requirement | Task |
-|-------------|------|
-| Ticker pill filter bar above card grid | Task 4 (`TickerFilter`) |
-| No "all articles" view — page starts with no ticker selected, no data | Task 8 — `useState<string \| null>(null)`, `TickerNews` not yet fetched |
-| "Select a ticker to view news" prompt until a ticker is chosen | Task 8 — `data-testid="select-ticker-prompt"`, translation key `news_select_ticker_prompt` |
-| No "All" pill in `TickerFilter` | Task 4 — pill bar renders one button per ticker only, no all-pill |
-| `getNews` API only called once a ticker is selected | Task 2 — `enabled: !!ticker` on `TickerNews`'s `useQuery` |
-| Selecting a different ticker replaces the current articles | Task 8 — `queryKey: ['tickerNews', ticker]` keyed per ticker, `allArticles` derives solely from the current `tickerNewsQuery.data` (no merge with prior selection) |
-| Active pill visually highlighted (green accent) | Task 4 — `border-green-400 text-green-400 bg-green-400/10` |
-| Ticker list from `getNewsSummary` | Task 8 — `summaryQuery = NewsSummary()` |
-| Tickers with `hasData: false` — disabled/muted | Task 4 — `disabled={!t.hasData}`, `opacity-40` |
-| Article count on right of filter bar (`12 articles · 7d`) | Task 4 — `data-testid="article-count"`, hidden until a ticker is selected |
-| Dark theme, monospace, pill shape | Task 4 — `font-mono`, `rounded-full`, `border` |
-| Aggregate bar shown only once a ticker is selected | Task 8 — gated behind `selectedTicker === null ? prompt : (<SentimentBar .../> ...)` |
-| Ticker symbol + label in aggregate bar | Task 5 — `{ticker} weighted sentiment` |
-| Score large monospace, color-coded | Task 5 — `text-3xl font-bold`, `scoreColor()` |
-| Sentiment label badge | Task 5 — `data-testid="sentiment-bar-badge"` |
-| Confidence level | Task 5 — `confidence: {aggregate.confidence}` |
-| Article count + period right-aligned | Task 5 — `data-testid="sentiment-bar-meta"` |
-| Aggregate data from `getNews` response `aggregate` field | Task 2 — `TickerNews` hook, Task 8 — `tickerNewsQuery.data.aggregate` |
-| Color: positive > 0.15 = #4ade80 | Tasks 5, 6 — `scoreColor()` / `sentimentColor()` |
-| Color: negative < -0.15 = #f87171 | Tasks 5, 6 |
-| Color: neutral = #8b949e | Tasks 5, 6 |
-| Card: banner image kept | Task 6 — `article.image` with fallback |
-| Card: title kept | Task 6 — `article.headline` |
-| Card: bottom row (source · time + score) | Task 6 — `data-testid="card-bottom-row"` |
-| Score format: `+0.796` / `-0.225` (3 dp, always sign) | Task 6 — `formatSentimentScore()` |
-| Relative time from `publishedAt` | Task 3 (`getRelativeTime`) + Task 6 (call in card) |
-| Do not change card dimensions/grid/image | Task 6 — only adds bottom row inside existing `CardContent` |
-| `getNews?ticker=` fetch + hook in `dataService.tsx`, ticker required | Task 2 |
-| `getNewsSummary` on page load | Task 8 — `NewsSummary()` always active |
-| `getNews?ticker=NVDA` on ticker select | Task 2 — `TickerNews(selectedTicker)` |
-| `DisplayArticle` type | Task 1 |
+| Requirement                                                           | Task                                                                                                                                                               |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Ticker pill filter bar above card grid                                | Task 4 (`TickerFilter`)                                                                                                                                            |
+| No "all articles" view — page starts with no ticker selected, no data | Task 8 — `useState<string \| null>(null)`, `TickerNews` not yet fetched                                                                                            |
+| "Select a ticker to view news" prompt until a ticker is chosen        | Task 8 — `data-testid="select-ticker-prompt"`, translation key `news_select_ticker_prompt`                                                                         |
+| No "All" pill in `TickerFilter`                                       | Task 4 — pill bar renders one button per ticker only, no all-pill                                                                                                  |
+| `getNews` API only called once a ticker is selected                   | Task 2 — `enabled: !!ticker` on `TickerNews`'s `useQuery`                                                                                                          |
+| Selecting a different ticker replaces the current articles            | Task 8 — `queryKey: ['tickerNews', ticker]` keyed per ticker, `allArticles` derives solely from the current `tickerNewsQuery.data` (no merge with prior selection) |
+| Active pill visually highlighted (green accent)                       | Task 4 — `border-green-400 text-green-400 bg-green-400/10`                                                                                                         |
+| Ticker list from `getNewsSummary`                                     | Task 8 — `summaryQuery = NewsSummary()`                                                                                                                            |
+| Tickers with `hasData: false` — disabled/muted                        | Task 4 — `disabled={!t.hasData}`, `opacity-40`                                                                                                                     |
+| Article count on right of filter bar (`12 articles · 7d`)             | Task 4 — `data-testid="article-count"`, hidden until a ticker is selected                                                                                          |
+| Dark theme, monospace, pill shape                                     | Task 4 — `font-mono`, `rounded-full`, `border`                                                                                                                     |
+| Aggregate bar shown only once a ticker is selected                    | Task 8 — gated behind `selectedTicker === null ? prompt : (<SentimentBar .../> ...)`                                                                               |
+| Ticker symbol + label in aggregate bar                                | Task 5 — `{ticker} weighted sentiment`                                                                                                                             |
+| Score large monospace, color-coded                                    | Task 5 — `text-3xl font-bold`, `scoreColor()`                                                                                                                      |
+| Sentiment label badge                                                 | Task 5 — `data-testid="sentiment-bar-badge"`                                                                                                                       |
+| Confidence level                                                      | Task 5 — `confidence: {aggregate.confidence}`                                                                                                                      |
+| Article count + period right-aligned                                  | Task 5 — `data-testid="sentiment-bar-meta"`                                                                                                                        |
+| Aggregate data from `getNews` response `aggregate` field              | Task 2 — `TickerNews` hook, Task 8 — `tickerNewsQuery.data.aggregate`                                                                                              |
+| Color: positive > 0.15 = #4ade80                                      | Tasks 5, 6 — `scoreColor()` / `sentimentColor()`                                                                                                                   |
+| Color: negative < -0.15 = #f87171                                     | Tasks 5, 6                                                                                                                                                         |
+| Color: neutral = #8b949e                                              | Tasks 5, 6                                                                                                                                                         |
+| Card: banner image kept                                               | Task 6 — `article.image` with fallback                                                                                                                             |
+| Card: title kept                                                      | Task 6 — `article.headline`                                                                                                                                        |
+| Card: bottom row (source · time + score)                              | Task 6 — `data-testid="card-bottom-row"`                                                                                                                           |
+| Score format: `+0.796` / `-0.225` (3 dp, always sign)                 | Task 6 — `formatSentimentScore()`                                                                                                                                  |
+| Relative time from `publishedAt`                                      | Task 3 (`getRelativeTime`) + Task 6 (call in card)                                                                                                                 |
+| Do not change card dimensions/grid/image                              | Task 6 — only adds bottom row inside existing `CardContent`                                                                                                        |
+| `getNews?ticker=` fetch + hook in `dataService.tsx`, ticker required  | Task 2                                                                                                                                                             |
+| `getNewsSummary` on page load                                         | Task 8 — `NewsSummary()` always active                                                                                                                             |
+| `getNews?ticker=NVDA` on ticker select                                | Task 2 — `TickerNews(selectedTicker)`                                                                                                                              |
+| `DisplayArticle` type                                                 | Task 1                                                                                                                                                             |
 
 ### Placeholder Scan
 

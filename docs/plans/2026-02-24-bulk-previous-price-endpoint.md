@@ -13,6 +13,7 @@
 ### Task 1: Add `previousDayPrices` handler to backend
 
 **Files:**
+
 - Modify: `stock/handlers/daily.js`
 
 **Step 1: Add the new export after `exports.previousDayPrice`**
@@ -48,27 +49,34 @@ exports.previousDayPrices = async (event) => {
         break;
     }
 
-    const rows = await db.collection('daily_price').aggregate([
-      {
-        $match: {
-          datetime: { $lt: timeRange.toISOString().slice(0, 10) },
-          symbol: { $in: stocks },
+    const rows = await db
+      .collection('daily_price')
+      .aggregate([
+        {
+          $match: {
+            datetime: { $lt: timeRange.toISOString().slice(0, 10) },
+            symbol: { $in: stocks },
+          },
         },
-      },
-      { $sort: { datetime: -1 } },
-      {
-        $group: {
-          _id: '$symbol',
-          symbol: { $first: '$symbol' },
-          datetime: { $first: '$datetime' },
-          close: { $first: { $round: [{ $toDouble: '$close' }, 2] } },
-          volume: { $first: '$volume' },
+        { $sort: { datetime: -1 } },
+        {
+          $group: {
+            _id: '$symbol',
+            symbol: { $first: '$symbol' },
+            datetime: { $first: '$datetime' },
+            close: { $first: { $round: [{ $toDouble: '$close' }, 2] } },
+            volume: { $first: '$volume' },
+          },
         },
-      },
-    ]).toArray();
+      ])
+      .toArray();
 
     const result = rows.reduce((acc, row) => {
-      acc[row.symbol] = { datetime: row.datetime, close: row.close, volume: row.volume };
+      acc[row.symbol] = {
+        datetime: row.datetime,
+        close: row.close,
+        volume: row.volume,
+      };
       return acc;
     }, {});
 
@@ -108,6 +116,7 @@ git commit -m "feat: add previousDayPrices bulk endpoint"
 ### Task 2: Register the new route in serverless.yml
 
 **Files:**
+
 - Modify: `stock/serverless.yml`
 
 **Step 1: Add the new function entry**
@@ -115,15 +124,15 @@ git commit -m "feat: add previousDayPrices bulk endpoint"
 In `stock/serverless.yml`, after the `previousDayPrice` block (after line 119), add:
 
 ```yaml
-  previousDayPrices:
-    handler: handlers/daily.previousDayPrices
-    events:
-      - httpApi:
-          path: /daily/previousDayPrices
-          method: get
-          authorizer:
-            name: customAuthorizer
-            type: request
+previousDayPrices:
+  handler: handlers/daily.previousDayPrices
+  events:
+    - httpApi:
+        path: /daily/previousDayPrices
+        method: get
+        authorizer:
+          name: customAuthorizer
+          type: request
 ```
 
 **Step 2: Restart serverless offline and re-verify**
@@ -171,6 +180,7 @@ Expected: valid JSON map with all symbols.
 ### Task 4: Add frontend type and hook
 
 **Files:**
+
 - Modify: `frontend/src/app/utils/dto.tsx`
 - Modify: `frontend/src/app/components/dashboard/closePrice.tsx`
 
@@ -187,7 +197,12 @@ export type PreviousPriceList = Record<string, PreviousPriceDTO>;
 In `src/app/components/dashboard/closePrice.tsx`, add after the existing imports:
 
 ```typescript
-import { StockClosePriceList, StockDTO, PreviousPriceDTO, PreviousPriceList } from '@/utils/dto';
+import {
+  StockClosePriceList,
+  StockDTO,
+  PreviousPriceDTO,
+  PreviousPriceList,
+} from '@/utils/dto';
 ```
 
 Then add after the `PreviousPrice` export (after line 54):
@@ -283,6 +298,7 @@ git commit -m "feat: add PreviousPrices bulk hook and PreviousPriceList type"
 ### Task 5: Refactor `list.tsx` to use the bulk hook
 
 **Files:**
+
 - Modify: `frontend/src/app/components/dashboard/list.tsx`
 
 **Step 1: Replace the 3 hardcoded symbol slots with a single `PreviousPrices` call**
@@ -374,7 +390,10 @@ jest.mock('../closePrice', () => ({
 }));
 
 // Old return value
-(PreviousPrice as jest.Mock).mockReturnValue({ data: { close: 480 }, isLoading: false });
+(PreviousPrice as jest.Mock).mockReturnValue({
+  data: { close: 480 },
+  isLoading: false,
+});
 
 // New return value — keyed by symbol
 (PreviousPrices as jest.Mock).mockReturnValue({
@@ -415,6 +434,7 @@ npm run dev
 **Step 2: Open browser at `http://localhost:3001`**
 
 Check:
+
 - Dashboard loads without errors
 - All symbols (QQQ, TQQQ, NVDL, etc.) show correct price, percentage change, and volume
 - Network tab shows a single call to `/daily/previousDayPrices?range=1D` (not multiple calls to `/daily/previousDayPrice`)

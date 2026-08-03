@@ -21,7 +21,9 @@ test.describe('Symbol selection', () => {
   }
 
   for (const symbol of SYMBOLS) {
-    test(`clicking ${symbol} shows the indicators section`, async ({ page }) => {
+    test(`clicking ${symbol} shows the indicators section`, async ({
+      page,
+    }) => {
       await page.getByTestId(`stock-row-${symbol}`).click();
 
       await expect(page.getByTestId('indicators-section')).toBeVisible();

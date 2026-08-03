@@ -15,6 +15,7 @@
 ## Task 1 — Fix `RiskAssessment.tsx`: add real `comprehensiveRisk` prop
 
 **Files:**
+
 - Modify: `src/app/components/analysis/TradingStrategies/RiskAssessment.tsx`
 - Create: `src/app/components/analysis/TradingStrategies/__tests__/RiskAssessment.test.tsx`
 
@@ -122,7 +123,7 @@ interface RiskAssessmentProps {
   strategies: StrategySignal[];
   riskLevel: 'low' | 'medium' | 'high';
   overallScore: number;
-  comprehensiveRisk?: RiskAssessmentResult;  // ADD — real alerts when available
+  comprehensiveRisk?: RiskAssessmentResult; // ADD — real alerts when available
 }
 ```
 
@@ -132,11 +133,20 @@ In the component function, add after `const warnings = generateRiskWarnings();`:
 // Use real engine alerts when available; fall back to locally computed ones
 const displayAlerts = comprehensiveRisk?.activeAlerts?.length
   ? comprehensiveRisk.activeAlerts.map((alert) => ({
-      level: alert.severity === 'extreme' || alert.severity === 'high' ? 'high'
-           : alert.severity === 'medium' ? 'medium' : 'low',
+      level:
+        alert.severity === 'extreme' || alert.severity === 'high'
+          ? 'high'
+          : alert.severity === 'medium'
+            ? 'medium'
+            : 'low',
       title: alert.message.title,
       message: alert.message.description,
-      icon: alert.type === 'critical' ? '🚨' : alert.type === 'warning' ? '⚠️' : 'ℹ️',
+      icon:
+        alert.type === 'critical'
+          ? '🚨'
+          : alert.type === 'warning'
+            ? '⚠️'
+            : 'ℹ️',
     }))
   : warnings;
 ```
@@ -193,6 +203,7 @@ git commit -m "feat: add comprehensiveRisk prop to RiskAssessment, display real 
 ## Task 2 — Fix `TradingAdvice.tsx`: fix Chinese string matching, add `comprehensiveAdvice` prop
 
 **Files:**
+
 - Modify: `src/app/components/analysis/TradingStrategies/TradingAdvice.tsx`
 - Create: `src/app/components/analysis/TradingStrategies/__tests__/TradingAdvice.test.tsx`
 
@@ -305,7 +316,7 @@ interface TradingAdviceProps {
   marketCondition: string;
   riskLevel: 'low' | 'medium' | 'high';
   strategies: StrategySignal[];
-  comprehensiveAdvice?: IntelligentAdvice;  // ADD
+  comprehensiveAdvice?: IntelligentAdvice; // ADD
 }
 ```
 
@@ -386,6 +397,7 @@ git commit -m "feat: fix Chinese string matching in TradingAdvice, add comprehen
 ## Task 3 — Wire `TradingStrategies/index.tsx` to use real components in `risk` and `advice` tabs
 
 **Files:**
+
 - Modify: `src/app/components/analysis/TradingStrategies/index.tsx`
 - Modify: `src/app/components/analysis/TradingStrategies/__tests__/TradingStrategies.test.tsx`
 

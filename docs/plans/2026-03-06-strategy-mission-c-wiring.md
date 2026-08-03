@@ -13,6 +13,7 @@
 ## Task 1 — Fix `useStrategyEngine` market condition to return i18n keys
 
 **Files:**
+
 - Modify: `src/app/hooks/useStrategyEngine.ts` (lines 152–175)
 - Modify: `src/app/hooks/__tests__/useStrategyEngine.test.ts` (add test, or create if absent)
 
@@ -32,11 +33,15 @@ import { computeMarketCondition } from '../useStrategyEngine';
 
 describe('computeMarketCondition — returns i18n keys', () => {
   it('strong bullish returns market_strong_uptrend', () => {
-    expect(computeMarketCondition('bullish', 75, 3, 0)).toBe('market_strong_uptrend');
+    expect(computeMarketCondition('bullish', 75, 3, 0)).toBe(
+      'market_strong_uptrend'
+    );
   });
 
   it('strong bearish returns market_strong_downtrend', () => {
-    expect(computeMarketCondition('bearish', 75, 0, 3)).toBe('market_strong_downtrend');
+    expect(computeMarketCondition('bearish', 75, 0, 3)).toBe(
+      'market_strong_downtrend'
+    );
   });
 
   it('balanced indicators returns market_sideways', () => {
@@ -48,11 +53,15 @@ describe('computeMarketCondition — returns i18n keys', () => {
   });
 
   it('moderate bullish returns market_moderate_uptrend', () => {
-    expect(computeMarketCondition('bullish', 60, 3, 1)).toBe('market_moderate_uptrend');
+    expect(computeMarketCondition('bullish', 60, 3, 1)).toBe(
+      'market_moderate_uptrend'
+    );
   });
 
   it('moderate bearish returns market_moderate_downtrend', () => {
-    expect(computeMarketCondition('bearish', 60, 1, 3)).toBe('market_moderate_downtrend');
+    expect(computeMarketCondition('bearish', 60, 1, 3)).toBe(
+      'market_moderate_downtrend'
+    );
   });
 });
 ```
@@ -77,11 +86,15 @@ export function computeMarketCondition(
   bullishCount: number,
   bearishCount: number
 ): string {
-  if (overallSignal === 'bullish' && overallStrength > 70) return 'market_strong_uptrend';
-  if (overallSignal === 'bearish' && overallStrength > 70) return 'market_strong_downtrend';
+  if (overallSignal === 'bullish' && overallStrength > 70)
+    return 'market_strong_uptrend';
+  if (overallSignal === 'bearish' && overallStrength > 70)
+    return 'market_strong_downtrend';
   if (Math.abs(bullishCount - bearishCount) <= 1) return 'market_sideways';
   if (overallStrength < 50) return 'market_unclear';
-  return overallSignal === 'bullish' ? 'market_moderate_uptrend' : 'market_moderate_downtrend';
+  return overallSignal === 'bullish'
+    ? 'market_moderate_uptrend'
+    : 'market_moderate_downtrend';
 }
 ```
 
@@ -121,6 +134,7 @@ git commit -m "fix: extract computeMarketCondition, return i18n keys instead of 
 ## Task 2 — Rewrite `TradingStrategies/index.tsx` to use `useStrategyEngine`
 
 **Files:**
+
 - Modify: `src/app/components/analysis/TradingStrategies/index.tsx`
 - Create: `src/app/components/analysis/TradingStrategies/__tests__/TradingStrategies.test.tsx`
 
@@ -428,6 +442,7 @@ git commit -m "feat: wire TradingStrategies to useStrategyEngine, activate tab n
 ## Task 3 — Update `MomentumStrategy` to accept real `IndicatorJudgment[]`
 
 **Files:**
+
 - Modify: `src/app/components/analysis/TradingStrategies/MomentumStrategy.tsx`
 - Create: `src/app/components/analysis/TradingStrategies/__tests__/MomentumStrategy.test.tsx`
 
@@ -499,7 +514,7 @@ import type { StrategySignal, IndicatorJudgment } from '@/utils/strategyEngine';
 
 interface MomentumStrategyProps {
   strategy: StrategySignal;
-  indicators: IndicatorJudgment[];  // ADD THIS
+  indicators: IndicatorJudgment[]; // ADD THIS
   marketCondition: string;
   overallScore: number;
 }
@@ -571,6 +586,7 @@ git commit -m "feat: add indicators prop to MomentumStrategy, show real RSI/MACD
 ## Task 4 — Update `MeanReversionStrategy` to accept real `IndicatorJudgment[]`
 
 **Files:**
+
 - Modify: `src/app/components/analysis/TradingStrategies/MeanReversionStrategy.tsx`
 - Create: `src/app/components/analysis/TradingStrategies/__tests__/MeanReversionStrategy.test.tsx`
 
@@ -640,7 +656,7 @@ import type { StrategySignal, IndicatorJudgment } from '@/utils/strategyEngine';
 
 interface MeanReversionStrategyProps {
   strategy: StrategySignal;
-  indicators: IndicatorJudgment[];  // ADD
+  indicators: IndicatorJudgment[]; // ADD
   marketCondition: string;
   overallScore: number;
 }
@@ -651,7 +667,7 @@ Extract judgments at the start of the component:
 ```typescript
 const rsiJudgment = indicators.find((i) => i.indicator === 'RSI');
 const kdjJudgment = indicators.find((i) => i.indicator === 'KDJ');
-const maJudgment  = indicators.find((i) => i.indicator === 'MA');
+const maJudgment = indicators.find((i) => i.indicator === 'MA');
 ```
 
 Replace the hardcoded reversion indicator strength display with real judgment strengths (same pattern as Task 3 — show `Math.round(judgment.strength)` where previously a fixed number or `strategy.action`-derived value appeared).
@@ -675,6 +691,7 @@ git commit -m "feat: add indicators prop to MeanReversionStrategy, show real RSI
 ## Task 5 — Update `BreakoutStrategy` to accept real `IndicatorJudgment[]`
 
 **Files:**
+
 - Modify: `src/app/components/analysis/TradingStrategies/BreakoutStrategy.tsx`
 - Create: `src/app/components/analysis/TradingStrategies/__tests__/BreakoutStrategy.test.tsx`
 
@@ -744,17 +761,18 @@ import type { StrategySignal, IndicatorJudgment } from '@/utils/strategyEngine';
 
 interface BreakoutStrategyProps {
   strategy: StrategySignal;
-  indicators: IndicatorJudgment[];  // ADD
+  indicators: IndicatorJudgment[]; // ADD
   marketCondition: string;
   overallScore: number;
 }
 ```
 
 Extract:
+
 ```typescript
 const macdJudgment = indicators.find((i) => i.indicator === 'MACD');
-const maJudgment   = indicators.find((i) => i.indicator === 'MA');
-const rsiJudgment  = indicators.find((i) => i.indicator === 'RSI');
+const maJudgment = indicators.find((i) => i.indicator === 'MA');
+const rsiJudgment = indicators.find((i) => i.indicator === 'RSI');
 ```
 
 Replace hardcoded breakout indicator strength values with `Math.round(judgment?.strength ?? 0)`.

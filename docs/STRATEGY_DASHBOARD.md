@@ -5,6 +5,7 @@
 The Strategy Dashboard is a comprehensive trading analysis feature that provides actionable insights by aggregating multiple technical indicators and applying sophisticated trading strategies. It replaces the 1D and 1W chart views with a unified, intelligent analysis interface accessible through the "Strategy" tab in the chart view.
 
 The dashboard integrates the existing Strategy Engine system (introduced in Phase 3) to deliver:
+
 - Real-time signal aggregation across all technical indicators
 - Multi-strategy analysis (Momentum, Mean Reversion, Breakout)
 - Risk assessment and warnings
@@ -17,10 +18,12 @@ The dashboard integrates the existing Strategy Engine system (introduced in Phas
 The Signal Summary section provides an at-a-glance overview of the current market sentiment and recommended action.
 
 **Components:**
+
 - **Overall Signal**: Aggregated market sentiment (BULLISH, BEARISH, NEUTRAL, or EXTREME) with confidence percentage
 - **Recommended Action**: Primary trading action (BUY, SELL, HOLD, REDUCE)
 
 **Visual Design:**
+
 - Color-coded badges for quick recognition
   - Green: Bullish signals
   - Red: Bearish signals
@@ -33,6 +36,7 @@ The Signal Summary section provides an at-a-glance overview of the current marke
 This section displays individual indicator judgments and shows how many indicators agree with the overall signal.
 
 **Components:**
+
 - **Convergence Count**: "X / Y" display showing agreement level
 - **Individual Indicators**: List of all technical indicators with:
   - Indicator name (MACD, RSI, KDJ, Bollinger Bands, MA, EMA)
@@ -41,6 +45,7 @@ This section displays individual indicator judgments and shows how many indicato
   - Confidence level (weak, moderate, strong)
 
 **Purpose:**
+
 - Helps users understand signal reliability
 - Shows which indicators support or conflict with the overall assessment
 - Higher convergence = stronger signal confidence
@@ -50,6 +55,7 @@ This section displays individual indicator judgments and shows how many indicato
 The Risk Assessment section provides critical risk information and strategy-specific signals.
 
 **Components:**
+
 - **Risk Warnings**: Yellow-highlighted alerts for potential risks
   - Examples: "Extreme overbought condition", "High volatility detected"
 - **Strategy Signals**: Individual trading strategy assessments
@@ -59,6 +65,7 @@ The Risk Assessment section provides critical risk information and strategy-spec
   - Each showing: type, action, strength, and risk level (LOW/MEDIUM/HIGH)
 
 **Design:**
+
 - Risk warnings use yellow background for visibility
 - Strategy signals use color-coded risk level badges
 - Clear indication of high-risk conditions
@@ -68,6 +75,7 @@ The Risk Assessment section provides critical risk information and strategy-spec
 This section provides clear, prioritized trading recommendations.
 
 **Components:**
+
 - **Primary Action**: Main trading recommendation with:
   - Action type (Buy, Sell, Hold)
   - Timeframe guidance (e.g., "short-term", "medium-term")
@@ -76,6 +84,7 @@ This section provides clear, prioritized trading recommendations.
   - Examples: "Monitor volume changes", "Set stop-loss at $X", "Consider scaling in"
 
 **Purpose:**
+
 - Translates complex technical analysis into actionable steps
 - Provides risk management guidance
 - Offers multiple action options for different risk tolerances
@@ -92,20 +101,24 @@ This section provides clear, prioritized trading recommendations.
 ### Reading the Dashboard
 
 **Step 1: Check Signal Summary**
+
 - Review the Overall Signal and Recommended Action
 - Higher strength percentage = stronger conviction
 
 **Step 2: Verify Indicator Convergence**
+
 - Look at the convergence count (e.g., "5 / 6" means strong agreement)
 - Review individual indicators for conflicts
 - Pay attention to "strong" confidence indicators
 
 **Step 3: Assess Risk**
+
 - Read all risk warnings carefully
 - Review strategy-specific signals
 - Note any HIGH risk indicators
 
 **Step 4: Take Action**
+
 - Follow the Primary Action recommendation
 - Consider Secondary Actions for risk management
 - Always apply your own judgment and risk tolerance
@@ -146,11 +159,13 @@ Secondary Actions:
 The Strategy Dashboard uses the **1M (1-month) analysis data** from the backend API.
 
 ### API Endpoint
+
 ```
 GET /analysis?symbol={SYMBOL}&range=1M
 ```
 
 ### Data Flow
+
 1. Frontend requests analysis data via `getAnalysisList(symbol, '1M')`
 2. Backend returns `StockAnalysisDTO` containing:
    - Daily price data
@@ -170,6 +185,7 @@ GET /analysis?symbol={SYMBOL}&range=1M
 ## Component Location
 
 ### Main Component
+
 ```
 /frontend/src/app/components/dashboard/StrategyDashboard.tsx
 ```
@@ -177,35 +193,39 @@ GET /analysis?symbol={SYMBOL}&range=1M
 **Purpose**: Main dashboard component that displays all four sections
 
 **Key Features**:
+
 - Receives `symbol` and `analysis` props
 - Uses `useMemo` for performance optimization
 - Calls `StrategyEngine.performCompleteAnalysis()` for processing
 - Renders all four feature sections with consistent styling
 
 ### Integration Point
+
 ```
 /frontend/src/app/components/dashboard/comprehensiveChart.tsx
 ```
 
 **Integration Details**:
+
 - Adds "Strategy" tab to the chart view tabs
 - Manages tab state (Strategy, 1M, 3M, 6M)
 - Conditionally fetches analysis data when Strategy tab is active
 - Passes data to `StrategyDashboard` component
 
 **Code Example**:
+
 ```tsx
-{range === 'Strategy' ? (
-  <StrategyDashboard
-    symbol={symbol}
-    analysis={analysisData?.[0] || null}
-  />
-) : (
-  <ComprehensiveChartGenerator {...chartProps} />
-)}
+{
+  range === 'Strategy' ? (
+    <StrategyDashboard symbol={symbol} analysis={analysisData?.[0] || null} />
+  ) : (
+    <ComprehensiveChartGenerator {...chartProps} />
+  );
+}
 ```
 
 ### Related Strategy Engine Files
+
 ```
 /frontend/src/app/utils/strategyEngine.ts              # Core analysis engine
 /frontend/src/app/utils/strategyRuleEngine.ts          # Indicator judgment rules
@@ -220,12 +240,14 @@ GET /analysis?symbol={SYMBOL}&range=1M
 ### Why Remove 1D and 1W Tabs?
 
 **Problem**: The original chart view included 1D (1-day) and 1W (1-week) tabs, but:
+
 - Backend only supported daily data (no intraday/minute-level data)
 - 1D and 1W tabs would show the same data as 1M for most use cases
 - Limited value for users
 - Cluttered the UI with redundant options
 
 **Solution**: Remove 1D and 1W tabs and replace with a single "Strategy" tab that:
+
 - Provides actual value through intelligent analysis
 - Uses existing 1M data effectively
 - Reduces UI complexity
@@ -234,6 +256,7 @@ GET /analysis?symbol={SYMBOL}&range=1M
 ### Why Create Strategy Dashboard?
 
 **Rationale**:
+
 1. **User Value**: Transforms raw technical data into actionable insights
 2. **Consolidation**: Brings together all strategy features in one place
 3. **Accessibility**: Makes complex analysis accessible to non-expert traders
@@ -243,18 +266,21 @@ GET /analysis?symbol={SYMBOL}&range=1M
 ### Architecture Choices
 
 **Component Structure**:
+
 - Kept dashboard simple and focused (display-only)
 - Delegated all logic to Strategy Engine utilities
 - Used `useMemo` to prevent unnecessary recalculations
 - Separated concerns: data fetching (parent), analysis (engine), display (dashboard)
 
 **Styling Approach**:
+
 - Consistent color coding across all sections
 - Responsive design with Tailwind CSS
 - Clear visual hierarchy (signals → details → actions)
 - Accessibility-first (ARIA labels, semantic HTML)
 
 **Data Management**:
+
 - React Query for data fetching and caching
 - Conditional queries based on active tab
 - Reused existing analysis data (no new API calls needed)
@@ -265,8 +291,8 @@ GET /analysis?symbol={SYMBOL}&range=1M
 
 ```typescript
 type StrategyDashboardProps = {
-  symbol: string;           // Stock symbol (e.g., "QQQ")
-  analysis: StockAnalysisDTO | null;  // Full analysis data from API
+  symbol: string; // Stock symbol (e.g., "QQQ")
+  analysis: StockAnalysisDTO | null; // Full analysis data from API
 };
 ```
 
@@ -288,17 +314,18 @@ const strategyAnalysis = useMemo(() => {
 
 // 3. Extract results
 const {
-  overallSignal,        // 'bullish' | 'bearish' | 'neutral' | 'extreme'
-  overallStrength,      // 0-100
-  indicatorJudgments,   // Array of individual indicator assessments
-  strategySignals,      // Array of strategy-specific signals
-  finalRecommendation,  // Aggregated recommendation with actions
+  overallSignal, // 'bullish' | 'bearish' | 'neutral' | 'extreme'
+  overallStrength, // 0-100
+  indicatorJudgments, // Array of individual indicator assessments
+  strategySignals, // Array of strategy-specific signals
+  finalRecommendation, // Aggregated recommendation with actions
 } = strategyAnalysis;
 ```
 
 ### Key Functions
 
 **Signal Color Mapping**:
+
 ```typescript
 const getSignalColor = (signal: string) => {
   switch (signal) {
@@ -317,6 +344,7 @@ const getSignalColor = (signal: string) => {
 ```
 
 **Risk Level Mapping**:
+
 ```typescript
 const getRiskLevelColor = (risk: string) => {
   switch (risk) {
@@ -337,6 +365,7 @@ const getRiskLevelColor = (risk: string) => {
 The dashboard leverages the complete Strategy Engine system:
 
 1. **Indicator Analysis** (`strategyRuleEngine.ts`):
+
    - RSI Analyzer: Identifies overbought/oversold conditions
    - MACD Analyzer: Detects trend changes and momentum
    - KDJ Analyzer: Assesses stochastic oscillator signals
@@ -345,11 +374,13 @@ The dashboard leverages the complete Strategy Engine system:
    - EMA Analyzer: Examines exponential moving averages
 
 2. **Strategy Evaluation** (`strategyIntegrator.ts`):
+
    - Momentum Strategy: Trend-following signals
    - Mean Reversion Strategy: Contrarian signals for reversals
    - Breakout Strategy: Support/resistance breakout detection
 
 3. **Signal Aggregation** (`strategySignalIntegrator.ts`):
+
    - Combines all indicator judgments
    - Calculates convergence and divergence
    - Determines overall signal strength
@@ -362,12 +393,14 @@ The dashboard leverages the complete Strategy Engine system:
 ### Performance Considerations
 
 **Optimization Techniques**:
+
 - `useMemo` prevents recalculation on every render
 - Conditional data fetching only when Strategy tab is active
 - React Query caching reduces API calls
 - Client-side processing (no backend load)
 
 **Bundle Size**:
+
 - Strategy Engine utilities are tree-shakeable
 - Only loaded when dashboard is rendered
 - No third-party dependencies beyond existing stack
@@ -375,11 +408,13 @@ The dashboard leverages the complete Strategy Engine system:
 ### Testing
 
 **Test Locations**:
+
 ```
 /frontend/src/app/components/dashboard/__tests__/StrategyDashboard.test.tsx
 ```
 
 **Test Coverage**:
+
 - Renders all four sections correctly
 - Handles loading states
 - Displays correct signal colors
@@ -389,6 +424,7 @@ The dashboard leverages the complete Strategy Engine system:
 - Handles missing data gracefully
 
 **Example Test**:
+
 ```typescript
 test('displays overall signal and strength', () => {
   render(<StrategyDashboard {...mockProps} />);
@@ -401,10 +437,12 @@ test('displays overall signal and strength', () => {
 ## Related Files
 
 ### Core Implementation
+
 - `/frontend/src/app/components/dashboard/StrategyDashboard.tsx` - Main dashboard component
 - `/frontend/src/app/components/dashboard/comprehensiveChart.tsx` - Chart view integration
 
 ### Strategy Engine System
+
 - `/frontend/src/app/utils/strategyEngine.ts` - Core analysis engine
 - `/frontend/src/app/utils/strategyRuleEngine.ts` - Indicator-specific analysis rules
 - `/frontend/src/app/utils/strategySignalFormatter.ts` - Signal formatting utilities
@@ -413,17 +451,21 @@ test('displays overall signal and strength', () => {
 - `/frontend/src/app/utils/strategySystemController.ts` - System-level coordination
 
 ### Data Types
+
 - `/frontend/src/app/utils/dto.ts` - `StockAnalysisDTO` type definition
 
 ### Testing
+
 - `/frontend/src/app/components/dashboard/__tests__/StrategyDashboard.test.tsx` - Unit tests
 
 ### API Integration
+
 - `/frontend/src/app/utils/api.ts` - `getAnalysisList()` function
 
 ## Future Enhancements
 
 ### Potential Improvements
+
 1. **Historical Performance Tracking**: Show past signal accuracy
 2. **Backtesting Results**: Display strategy performance over time
 3. **Customizable Thresholds**: Allow users to adjust indicator sensitivity
@@ -434,12 +476,14 @@ test('displays overall signal and strength', () => {
 8. **Machine Learning Integration**: ML-enhanced signal predictions
 
 ### Accessibility Improvements
+
 1. **Keyboard Navigation**: Full keyboard support for all interactive elements
 2. **Screen Reader Optimization**: Enhanced ARIA labels and live regions
 3. **High Contrast Mode**: Alternative color schemes for accessibility
 4. **Internationalization**: Translate all text to multiple languages
 
 ### Performance Optimizations
+
 1. **Web Workers**: Offload heavy calculations to background threads
 2. **Lazy Loading**: Load strategy engine only when Strategy tab is clicked
 3. **Data Streaming**: Real-time updates via WebSocket

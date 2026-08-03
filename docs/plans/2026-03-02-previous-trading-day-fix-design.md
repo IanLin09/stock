@@ -40,12 +40,14 @@ case '1D':
 ```
 
 On Monday Jan 6:
+
 1. subtract 1 → Sunday Jan 5
 2. Sunday → advance -2 → Friday Jan 3
 3. +1 → Saturday Jan 4
 4. Query: `datetime < "2025-01-04"` → most recent before Saturday = Friday Jan 3 ✓
 
 On a normal Tuesday Jan 7:
+
 1. subtract 1 → Monday Jan 6 (weekday, no change)
 2. +1 → Tuesday Jan 7
 3. Query: `datetime < "2025-01-07"` → most recent before Tuesday = Monday Jan 6 ✓
@@ -60,8 +62,8 @@ On a normal Tuesday Jan 7:
 
 ## Files Changed
 
-| File | Change |
-|---|---|
+| File                      | Change                                                                              |
+| ------------------------- | ----------------------------------------------------------------------------------- |
 | `stock/handlers/daily.js` | Add weekend-skip logic to `case '1D'` in `previousDayPrice` and `previousDayPrices` |
 
 No frontend changes required. No API contract changes.

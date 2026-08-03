@@ -19,12 +19,14 @@ global.IntersectionObserver = class IntersectionObserver {
   root = null;
   rootMargin = '';
   thresholds = [];
-  
+
   constructor() {}
   observe() {}
   disconnect() {}
   unobserve() {}
-  takeRecords() { return []; }
+  takeRecords() {
+    return [];
+  }
 } as any;
 
 // Mock console.error to avoid noise in tests
